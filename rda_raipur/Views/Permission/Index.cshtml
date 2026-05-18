@@ -1,0 +1,197 @@
+﻿@model IEnumerable<rda_raipur.Models.PermissionModel.EmployeeListVM>
+
+@{
+    ViewData["Title"] = "Access Control & Permissions | PIS";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<style>
+    .gov-container {
+        font-family: 'Arial', sans-serif;
+    }
+
+    .gov-header-bar {
+        background-color: #003366;
+        color: #ffffff;
+        border-bottom: 5px solid #FF9933;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .gov-card {
+        border: 1px solid #999;
+        border-radius: 0 !important;
+        background-color: #ffffff;
+    }
+
+    .gov-table thead {
+        background-color: #e2e8f0;
+        color: #003366;
+        border-bottom: 2px solid #003366;
+    }
+
+    .gov-table th {
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+    }
+
+    .gov-table td {
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .gov-btn-manage {
+        background-color: #003366;
+        color: #ffffff;
+        font-weight: bold;
+        border-radius: 0;
+        text-transform: uppercase;
+        border: 1px solid #003366;
+        padding: 5px 15px;
+        font-size: 12px;
+    }
+
+        .gov-btn-manage:hover {
+            background-color: #FF9933;
+            border-color: #FF9933;
+            color: #ffffff;
+        }
+
+    .emp-img-thumb {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border: 1px solid #003366;
+        padding: 1px;
+    }
+
+    .filter-box {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+<div class="container-fluid mt-4 gov-container">
+
+    <div class="gov-header-bar d-flex justify-content-between align-items-center shadow-sm">
+        <div>
+            <h4 class="mb-1 fw-bold" style="letter-spacing: 1px;">SYSTEM ACCESS CONTROL</h4>
+            <span style="font-size: 13px; color: #cbd5e1;">अधिकार एवं सुरक्षा प्रबंधन - PIS Security Module</span>
+        </div>
+        <div>
+            <span class="badge bg-light text-dark border border-dark rounded-0 px-3 py-2 fw-bold" style="font-size: 13px;">
+                <i class="bi bi-shield-lock-fill text-danger me-1"></i> HIGH SECURITY ZONE
+            </span>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-0 border-danger border-start border-4 shadow-sm">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>ALERT:</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close float-end" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="filter-box shadow-sm">
+        <form method="get" asp-action="Index">
+            <div class="row align-items-end g-2">
+                <div class="col-md-4">
+                    <label class="fw-bold mb-1 text-dark" style="font-size: 13px;">FILTER BY DEPARTMENT / विभाग चुनें:</label>
+                    <select name="departmentId" class="form-select rounded-0 border-dark" onchange="this.form.submit()">
+                        <option value="">-- VIEW ALL ACTIVE STAFF --</option>
+                        @if (ViewBag.Departments != null)
+                        {
+                            foreach (var item in ViewBag.Departments)
+                            {
+                                bool isSelected = ViewBag.SelectedDepartment != null && item.Value == ViewBag.SelectedDepartment.ToString();
+                                <option value="@item.Value" selected="@(isSelected ? "selected" : null)">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-outline-dark rounded-0 fw-bold w-100" style="font-size: 14px;">
+                        <i class="bi bi-x-circle"></i> CLEAR
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="gov-card shadow-sm mb-5">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table id="permissionTable" class="table table-hover table-bordered gov-table w-100">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">S.NO.</th>
+                            <th class="text-center">PHOTO</th>
+                            <th>EMP CODE</th>
+                            <th>OFFICIAL NAME / नाम</th>
+                            <th>DEPARTMENT / विभाग</th>
+                            <th>MOBILE NO.</th>
+                            <th class="text-center" style="width: 160px;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center fw-bold">@count</td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            <img src="@item.ImagePath" class="emp-img-thumb" onerror="this.src='/images/default-avatar.png'" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary text-white d-inline-flex align-items-center justify-content-center emp-img-thumb" style="font-size: 14px;">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="text-danger fw-bold">@(item.EmpCode ?? "N/A")</td>
+                                    <td class="fw-bold text-uppercase" style="color: #003366;">@item.FullName</td>
+                                    <td>@(item.Department ?? "N/A")</td>
+                                    <td class="fw-bold">@item.MobileNo</td>
+                                    <td class="text-center">
+                                        <a href="@Url.Action("Manage", "Permission", new { userId = item.UserId })" class="btn gov-btn-manage shadow-sm">
+                                            <i class="bi bi-shield-lock me-1"></i> MANAGE ACCESS
+                                        </a>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#permissionTable').DataTable({
+                "pageLength": 15,
+                "ordering": true,
+                "language": { "search": "QUICK SEARCH:" },
+                "columnDefs": [ { "orderable": false, "targets": [1, 6] } ]
+            });
+        });
+    </script>
+}

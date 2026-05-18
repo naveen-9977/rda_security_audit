@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Localization
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    bool isEnglish = (requestCulture?.RequestCulture.Culture.Name ?? "en").StartsWith("en");
+}
+
+<div class="row justify-content-center">
+    <div class="col-6 col-md-3">
+        <div class="leader-card">
+            <img src="~/images/nand_kumar_sahu_new.jpg" class="leader-img" alt="Chairman" onerror="this.src='~/images/dummy-profile.png'">
+            <div class="leader-nameplate">
+                <div class="leader-name">@(isEnglish ? "Shri Nand Kumar Sahu" : "श्री नंद कुमार साहू")</div>
+                <div class="leader-desig">@(isEnglish ? "Hon'ble Chairman, RDA" : "माननीय अध्यक्ष, आरडीए")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="leader-card">
+            <img src="~/images/ias_awanish_sharan.jpg" class="leader-img" alt="CEO" onerror="this.src='~/images/dummy-profile.png'">
+            <div class="leader-nameplate">
+                <div class="leader-name">@(isEnglish ? "Shri Awanish Kumar Sharan, IAS" : "श्री अवनीश कुमार शरण, IAS")</div>
+                <div class="leader-desig">@(isEnglish ? "Chief Executive Officer" : "मुख्य कार्यपालन अधिकारी")</div>
+            </div>
+        </div>
+    </div>
+</div>

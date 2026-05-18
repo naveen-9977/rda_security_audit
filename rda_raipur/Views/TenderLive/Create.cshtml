@@ -1,0 +1,176 @@
+﻿@model rda_raipur.Models.ViewModels.TenderLiveCreateVM
+@{
+    ViewData["Title"] = "Publish Live Tenders";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0 mb-4 border-top border-primary border-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 text-primary fw-bold">
+                <i class="bi bi-search"></i> Step 1: Find Properties to Make Live
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="row align-items-end g-3">
+                    <div class="col-md-3">
+                        <label class="fw-bold">Select Scheme</label>
+                        <select asp-for="SearchSchemeId" asp-items="ViewBag.Schemes" class="form-select" id="schemeId">
+                            <option value="">-- All Schemes --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">Select Sector</label>
+                        <select asp-for="SearchSectorId" class="form-select" id="sectorId">
+                            <option value="">-- Select Sector --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">Inventory Status</label>
+                        <select asp-for="BookingStatus" class="form-select">
+                            <option value="Vacant">Vacant Only</option>
+                            <option value="Booked">Booked Only</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" name="submitType" value="Filter" class="btn btn-primary w-100">
+                            <i class="bi bi-filter"></i> Search Inventory
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Properties != null && Model.Properties.Count > 0)
+    {
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="card shadow border-0 mb-4 border-top border-success border-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-success fw-bold">
+                        <i class="bi bi-calendar-check"></i> Step 2: Set Dates & Upload Files
+                    </h5>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="fw-bold">Start Date (Live) <span class="text-danger">*</span></label>
+                            <input asp-for="TenderStartDate" type="datetime-local" class="form-control" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="fw-bold">End Date (Closing) <span class="text-danger">*</span></label>
+                            <input asp-for="TenderEndDate" type="datetime-local" class="form-control" required />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="fw-bold text-danger">Tender Opening Date <span class="text-danger">*</span></label>
+                            <input asp-for="TenderOpeningDate" type="datetime-local" class="form-control" required />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="fw-bold">Visibility Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">Active / Live</option>
+                                <option value="Inactive">Inactive / Draft</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mt-3">
+                            <label class="small fw-bold">Cover Image</label>
+                            <input type="file" name="TenderImage" class="form-control" accept="image/*" />
+                        </div>
+                        <div class="col-md-4 mt-3">
+                            <label class="small fw-bold">Brochure (PDF)</label>
+                            <input type="file" name="TenderBrochure" class="form-control" accept="application/pdf" />
+                        </div>
+                        <div class="col-md-4 mt-3">
+                            <label class="small fw-bold">Map Layout (PDF)</label>
+                            <input type="file" name="TenderLayout" class="form-control" accept="application/pdf" />
+                        </div>
+
+                        <div class="col-md-12 mt-4 text-end">
+                            <hr />
+                            <button type="submit" name="submitType" value="Save" class="btn btn-success btn-lg px-5 shadow">
+                                <i class="bi bi-cloud-arrow-up"></i> PUBLISH & MAKE LIVE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-center" style="width: 50px;">
+                                    <input type="checkbox" id="selectAll" class="form-check-input" />
+                                </th>
+                                <th>Property Code</th>
+                                <th>Location Details</th>
+                                <th>Model</th>
+                                <th>Area (Sq.Ft)</th>
+                                <th>Base Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Properties.Count; i++)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <input type="checkbox" asp-for="Properties[i].IsSelected" class="chkProp form-check-input" />
+                                    </td>
+                                    <td class="fw-bold text-primary">@Model.Properties[i].Tender_Property_Id</td>
+                                    <td>
+                                        <span class="fw-bold">@Model.Properties[i].Scheme_Name</span><br />
+                                        <small class="text-muted">
+                                            Sector: @Model.Properties[i].Sector | Block: @Model.Properties[i].Block | No: @Model.Properties[i].Property_Number
+                                        </small>
+                                    </td>
+                                    <td><span class="badge bg-info text-dark">@Model.Properties[i].Property_Model</span></td>
+                                    <td>@Model.Properties[i].Property_Size</td>
+                                    <td class="fw-bold text-success">₹ @Model.Properties[i].Offset_Price.ToString("N0")</td>
+
+                                    <input type="hidden" asp-for="Properties[i].PropertyId" />
+                                    <input type="hidden" asp-for="Properties[i].Tender_Property_Id" />
+                                    <input type="hidden" asp-for="Properties[i].Scheme_Name" />
+                                    <input type="hidden" asp-for="Properties[i].Sector" />
+                                    <input type="hidden" asp-for="Properties[i].Block" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Number" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Model" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Size" />
+                                    <input type="hidden" asp-for="Properties[i].Offset_Price" />
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Cascade Dropdown: Scheme -> Sector
+            $("#schemeId").change(function () {
+                var id = $(this).val();
+                $("#sectorId").empty().append('<option value="">-- Select Sector --</option>');
+                if (id) {
+                    $.get("/TenderLive/GetSectors", { schemeId: id }, function (data) {
+                        $.each(data, function (i, v) {
+                            $("#sectorId").append('<option value="' + v.sector_id + '">' + v.sector_name_en + '</option>');
+                        });
+                    });
+                }
+            });
+
+            // Select All Checkbox logic
+            $("#selectAll").click(function () {
+                $(".chkProp").prop('checked', $(this).prop('checked'));
+            });
+        });
+    </script>
+}

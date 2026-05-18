@@ -1,0 +1,299 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    // System ki current language get karein
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEnglish = culture.StartsWith("en");
+
+    // CCAvenue se aane wali Real Details
+    string orderStatus = ViewBag.OrderStatus ?? "Unknown";
+    string applicationNo = ViewBag.ApplicationNo ?? "N/A";
+    string orderId = ViewBag.OrderId ?? "N/A";
+    string trackingId = ViewBag.TrackingId ?? "N/A";
+    string amount = ViewBag.Amount ?? "0";
+    string errorMessage = ViewBag.ErrorMessage ?? "";
+    string currentDate = DateTime.Now.ToString("dd MMM yyyy, hh:mm tt");
+
+    ViewData["Title"] = isEnglish ? "Payment Status" : "भुगतान स्थिति";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* 🎨 Modern Background & Layout */
+    .payment-page-bg {
+        background-color: #f8fafc;
+        background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+        background-size: 20px 20px;
+        padding: 60px 15px;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 📄 Receipt Card Styling */
+    .receipt-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        max-width: 650px;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Top Color Bar */
+    .status-bar-success {
+        border-top: 6px solid #10b981;
+    }
+
+    .status-bar-danger {
+        border-top: 6px solid #ef4444;
+    }
+
+    .status-bar-warning {
+        border-top: 6px solid #f59e0b;
+    }
+
+    /* Icons */
+    .status-icon-wrapper {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+    }
+
+    .icon-success {
+        background-color: #d1fae5;
+        color: #10b981;
+    }
+
+    .icon-danger {
+        background-color: #fee2e2;
+        color: #ef4444;
+    }
+
+    .icon-warning {
+        background-color: #fef3c7;
+        color: #f59e0b;
+    }
+
+    .status-icon {
+        font-size: 50px;
+    }
+
+    /* Receipt Details List */
+    .receipt-details {
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 25px;
+        margin-bottom: 30px;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px dashed #cbd5e1;
+    }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .detail-label {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 15px;
+        text-align: right;
+    }
+
+    .amount-highlight {
+        font-size: 22px;
+        color: #10b981;
+    }
+
+    /* Buttons */
+    .btn-custom-primary {
+        background: linear-gradient(135deg, #003366 0%, #004080 100%);
+        color: white !important;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-custom-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 51, 102, 0.3);
+        }
+
+    .btn-custom-outline {
+        border: 2px solid #e2e8f0;
+        color: #475569;
+        border-radius: 8px;
+        padding: 10px 25px;
+        font-weight: 600;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+
+        .btn-custom-outline:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+    /* Print Styles */
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .receipt-card, .receipt-card * {
+            visibility: visible;
+        }
+
+        .receipt-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            box-shadow: none;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="payment-page-bg">
+
+    @if (orderStatus == "Success")
+    {
+        <div class="receipt-card status-bar-success p-4 p-md-5">
+
+            <div class="text-center">
+                <div class="status-icon-wrapper icon-success">
+                    <i class='bx bx-check status-icon'></i>
+                </div>
+                <h2 class="fw-bold text-dark">@(isEnglish ? "Payment Successful!" : "भुगतान सफल!")</h2>
+                <p class="text-muted">@(isEnglish ? "Your application fee has been securely processed." : "आपका आवेदन शुल्क सुरक्षित रूप से प्राप्त हो गया है।")</p>
+            </div>
+
+            <div class="receipt-details">
+                <div class="detail-item">
+                    <span class="detail-label">Date & Time</span>
+                    <span class="detail-value">@currentDate</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Application No.</span>
+                    <span class="detail-value">@applicationNo</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Payment Order ID</span>
+                    <span class="detail-value">@orderId</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Bank Tracking ID</span>
+                    <span class="detail-value">@trackingId</span>
+                </div>
+                <div class="detail-item mt-2">
+                    <span class="detail-label mt-2">Amount Paid</span>
+                    <span class="detail-value amount-highlight">₹ @amount</span>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 no-print">
+                <button onclick="downloadApplicationForm()" class="btn btn-custom-primary flex-grow-1 text-center">
+                    <i class='bx bxs-file-pdf me-2 fs-5 align-middle'></i>
+                    @(isEnglish ? "DOWNLOAD RECEIPT (PDF)" : "रसीद डाउनलोड करें")
+                </button>
+
+                <a href="@Url.Action("Index", "Home")" class="btn btn-custom-outline px-4">
+                    <i class='bx bx-home-alt me-1 fs-5 align-middle'></i> Home
+                </a>
+            </div>
+
+        </div>
+    }
+    else if (orderStatus == "Aborted")
+    {
+        <div class="receipt-card status-bar-warning p-4 p-md-5 text-center">
+            <div class="status-icon-wrapper icon-warning">
+                <i class='bx bx-error status-icon'></i>
+            </div>
+            <h2 class="fw-bold text-dark">@(isEnglish ? "Payment Cancelled!" : "भुगतान रद्द किया गया!")</h2>
+            <p class="text-muted mb-4">@(isEnglish ? "You have cancelled the transaction." : "आपने लेन-देन बीच में ही रद्द कर दिया है।")</p>
+
+            <div class="bg-light p-3 rounded-3 d-inline-block text-start mb-4 border">
+                <p class="mb-0 fw-bold text-secondary">Order ID: <span class="text-dark">@orderId</span></p>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mt-2">
+                <a href="javascript:history.back()" class="btn btn-warning fw-bold px-4 py-2 rounded-3 text-dark">
+                    <i class='bx bx-refresh me-1 fs-5 align-middle'></i> @(isEnglish ? "Try Again" : "पुनः प्रयास करें")
+                </a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-custom-outline px-4">
+                    Home
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="receipt-card status-bar-danger p-4 p-md-5 text-center">
+            <div class="status-icon-wrapper icon-danger">
+                <i class='bx bx-x status-icon'></i>
+            </div>
+            <h2 class="fw-bold text-dark">@(isEnglish ? "Payment Failed!" : "भुगतान विफल!")</h2>
+            <p class="text-muted mb-4">@(isEnglish ? "Your transaction could not be completed." : "आपका लेन-देन पूरा नहीं हो सका।")</p>
+
+            <div class="bg-light p-3 rounded-3 d-inline-block text-start border mb-4 text-break" style="max-width: 100%;">
+                <p class="mb-2 fw-bold text-secondary border-bottom pb-2">Order ID: <span class="text-dark">@orderId</span></p>
+
+                @if (!string.IsNullOrEmpty(trackingId))
+                {
+                    <p class="mb-2 fw-bold text-secondary">Tracking ID: <span class="text-danger">@trackingId</span></p>
+                }
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="mb-0 text-danger small"><i class='bx bx-info-circle'></i> @errorMessage</p>
+                }
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mt-2">
+                <a href="javascript:history.back()" class="btn btn-danger fw-bold px-4 py-2 rounded-3 text-white">
+                    <i class='bx bx-refresh me-1 fs-5 align-middle'></i> @(isEnglish ? "Try Again" : "पुनः प्रयास करें")
+                </a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-custom-outline px-4">
+                    Home
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function downloadApplicationForm() {
+            let printId = '@(!string.IsNullOrEmpty(applicationNo) && applicationNo != "N/A" ? applicationNo : orderId)';
+            // 🔥 UPDATE: PrintForm ki jagah DownloadReceipt action call hoga jo Rotativa use karke PDF banayega 🔥
+            window.open(`@Url.Action("DownloadReceipt", "ApplicationBooking")?orderId=${printId}`, '_blank');
+        }
+    </script>
+}

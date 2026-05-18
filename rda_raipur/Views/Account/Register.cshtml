@@ -1,0 +1,328 @@
+﻿@model rda_raipur.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account / नया खाता बनाएं";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* 1. Page Background matching the RDA Theme */
+    .reg-page-bg {
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 100 L100 0 M-10 10 L10 -10 M90 110 L110 90' stroke='%23f1f5f9' stroke-width='1'/%3E%3Cpath d='M0 0 L100 100 M-10 90 L10 110 M90 -10 L110 10' stroke='%23f1f5f9' stroke-width='1'/%3E%3C/svg%3E");
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+    }
+
+    /* 2. Modern Registration Card */
+    .reg-card {
+        border-radius: 20px;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1) !important;
+        background: #fff;
+    }
+
+    /* 3. Card Sections */
+    .reg-info-side {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 40px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .reg-form-side {
+        padding: 40px 50px;
+        background: #fff;
+    }
+
+    .brand-logo-circle {
+        width: 90px;
+        height: 90px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .form-heading {
+        color: #1e293b;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* 4. Input & Button Styling */
+    .form-control:focus {
+        border-color: #f97316;
+        box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.1);
+    }
+
+    .btn-reg-gradient {
+        background: linear-gradient(180deg, #ff9f43 0%, #f97316 100%);
+        color: white !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+        transition: 0.3s;
+        text-transform: uppercase;
+    }
+
+        .btn-reg-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+        }
+
+    .lang-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: normal;
+    }
+
+    /* Progress bar smooth transition */
+    .progress-bar {
+        transition: width 0.4s ease, background-color 0.4s ease;
+    }
+
+    @@media (max-width: 767.98px) {
+        .reg-info-side {
+            padding: 30px;
+        }
+
+        .reg-form-side {
+            padding: 30px 20px;
+        }
+    }
+</style>
+
+<div class="reg-page-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-11 col-xl-10">
+
+                <div class="card reg-card">
+                    <div class="row g-0">
+
+                      
+
+                        <div class="col-md-7 reg-form-side">
+                            <div class="text-center mb-4 border-bottom pb-3">
+                                <h3 class="form-heading mb-0">Create Account</h3>
+                                <h5 class="text-muted fw-bold mb-1">नया खाता बनाएं</h5>
+                            </div>
+
+                            <form asp-controller="Account" asp-action="Register" method="post" id="reg-form">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="MobileNo" class="form-control" id="regMobile" placeholder="Mobile" required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                    <label for="regMobile">Mobile Number <span class="lang-hint">/ मोबाइल नंबर</span></label>
+                                </div>
+
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Email" type="email" class="form-control" id="regEmail" placeholder="Email" required />
+                                    <label for="regEmail">Email Address <span class="lang-hint">/ ईमेल पता</span></label>
+                                </div>
+
+                                <div class="row g-3 mb-1">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-1">
+                                            <input asp-for="Password" type="password" class="form-control" id="regPass" placeholder="Password" required />
+                                            <label for="regPass">Password <span class="lang-hint">/ पासवर्ड</span></label>
+                                        </div>
+                                        <div class="progress mt-2" id="passProgressContainer" style="height: 6px; border-radius: 10px; background-color: #e2e8f0;">
+                                            <div id="passProgressBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                        </div>
+                                        <small id="passStrengthText" class="fw-bold d-block mt-1 text-muted" style="font-size: 0.75rem;">Password Strength</small>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="ConfirmPassword" type="password" class="form-control" id="regConfirm" placeholder="Confirm" required />
+                                            <label for="regConfirm">Confirm <span class="lang-hint">/ पुष्टि करें</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-light rounded-3 p-3 mb-4 mt-2 border" style="font-size: 0.8rem;">
+                                    <p class="mb-2 fw-bold text-dark" style="font-size: 0.85rem;">
+                                        <i class='bx bx-check-shield text-primary me-1 align-middle'></i>Password Requirements:
+                                    </p>
+                                    <div class="row g-2 text-muted fw-medium" id="passwordRulesList">
+                                        <div class="col-6" id="rule-len"><i class='bx bx-x-circle text-danger me-1 align-middle fs-6'></i> 8+ Characters</div>
+                                        <div class="col-6" id="rule-up"><i class='bx bx-x-circle text-danger me-1 align-middle fs-6'></i> 1 Uppercase (A-Z)</div>
+                                        <div class="col-6" id="rule-low"><i class='bx bx-x-circle text-danger me-1 align-middle fs-6'></i> 1 Lowercase (a-z)</div>
+                                        <div class="col-6" id="rule-num"><i class='bx bx-x-circle text-danger me-1 align-middle fs-6'></i> 1 Number (0-9)</div>
+                                        <div class="col-12" id="rule-spc"><i class='bx bx-x-circle text-danger me-1 align-middle fs-6'></i> 1 Special Character (@@, #, $, etc.)</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating mb-4" id="otpBox" style="display: none;">
+                                    <input asp-for="Otp" class="form-control border-success text-success fw-bold text-center fs-5" id="regOtp" placeholder="OTP" maxlength="6" style="letter-spacing: 5px;" />
+                                    <label for="regOtp" class="text-success fw-bold">Enter 6-Digit OTP <span class="lang-hint">/ ओटीपी दर्ज करें</span></label>
+                                </div>
+
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-reg-gradient w-100 py-3 mb-3 shadow" id="send-otp-btn">
+                                        Send OTP & Continue <span class="d-block small fw-normal opacity-75">ओटीपी भेजें और जारी रखें</span>
+                                    </button>
+
+                                    <button type="submit" class="btn btn-success w-100 py-3 fw-bold rounded-pill shadow-sm" id="submit-btn" style="display: none;">
+                                        <i class='bx bx-check-circle me-1'></i> Verify & Register <span class="d-block small fw-normal opacity-75">सत्यापित करें और रजिस्टर करें</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="border-top pt-4 text-center mt-3">
+                                <p class="small text-muted mb-0">Already have an account? / क्या पहले से खाता है?</p>
+                                <a asp-action="Login" class="fw-bold text-decoration-none" style="color: #f97316;">Login here / यहाँ लॉगिन करें</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+
+            var isPasswordStrong = false;
+
+            // 🟢 1. REAL-TIME PASSWORD STRENGTH CHECKER
+            $("#regPass").on("input", function() {
+                var pass = $(this).val();
+                var score = 0;
+
+                if (pass.length === 0) {
+                    $("#passProgressBar").css("width", "0%");
+                    $("#passStrengthText").text("Password Strength").removeClass("text-danger text-warning text-success").addClass("text-muted");
+                    resetRuleIcons();
+                    isPasswordStrong = false;
+                    return;
+                }
+
+                // Check validations
+                var hasLen = pass.length >= 8;
+                var hasUp = /[A-Z]/.test(pass);
+                var hasLow = /[a-z]/.test(pass);
+                var hasNum = /\d/.test(pass);
+                var hasSpc = /[@@$!%*?&#]/.test(pass);
+
+                // Update UI Checkmarks
+                updateRuleIcon("rule-len", hasLen); if (hasLen) score++;
+                updateRuleIcon("rule-up", hasUp); if (hasUp) score++;
+                updateRuleIcon("rule-low", hasLow); if (hasLow) score++;
+                updateRuleIcon("rule-num", hasNum); if (hasNum) score++;
+                updateRuleIcon("rule-spc", hasSpc); if (hasSpc) score++;
+
+                var percent = (score / 5) * 100;
+                var $bar = $("#passProgressBar");
+                var $text = $("#passStrengthText");
+
+                $bar.css("width", percent + "%");
+
+                if (score <= 2) {
+                    $bar.removeClass("bg-warning bg-success").addClass("bg-danger");
+                    $text.text("Weak (कमज़ोर)").removeClass("text-warning text-success text-muted").addClass("text-danger");
+                    isPasswordStrong = false;
+                } else if (score >= 3 && score <= 4) {
+                    $bar.removeClass("bg-danger bg-success").addClass("bg-warning");
+                    $text.text("Medium (मध्यम)").removeClass("text-danger text-success text-muted").addClass("text-warning");
+                    isPasswordStrong = false;
+                } else if (score === 5) {
+                    $bar.removeClass("bg-danger bg-warning").addClass("bg-success");
+                    $text.text("Strong & Safe (सुरक्षित)").removeClass("text-danger text-warning text-muted").addClass("text-success");
+                    isPasswordStrong = true;
+                }
+            });
+
+            function updateRuleIcon(elementId, isPassed) {
+                var $element = $("#" + elementId);
+                var $icon = $element.find("i");
+
+                if (isPassed) {
+                    $icon.removeClass("bx-x-circle text-danger").addClass("bx-check-circle text-success");
+                    $element.removeClass("text-muted").addClass("text-dark fw-bold");
+                } else {
+                    $icon.removeClass("bx-check-circle text-success").addClass("bx-x-circle text-danger");
+                    $element.removeClass("text-dark fw-bold").addClass("text-muted");
+                }
+            }
+
+            function resetRuleIcons() {
+                ["rule-len", "rule-up", "rule-low", "rule-num", "rule-spc"].forEach(function(id) {
+                    updateRuleIcon(id, false);
+                });
+            }
+
+            // 🟢 2. SEND OTP BUTTON CLICK LOGIC
+            $('#send-otp-btn').click(function () {
+                var mobile = $("#regMobile").val();
+                var email = $("#regEmail").val();
+                var pass = $("#regPass").val();
+                var confirmPass = $("#regConfirm").val();
+
+                // Validations
+                if (mobile.length !== 10) {
+                    alert("Please enter a valid 10-digit mobile number.\nकृपया सही 10-अंकीय मोबाइल नंबर दर्ज करें।");
+                    return;
+                }
+                if (!email) {
+                    alert("Please enter your email address.\nकृपया अपना ईमेल पता दर्ज करें।");
+                    return;
+                }
+                if (!isPasswordStrong) {
+                    alert("Please create a strong password matching all the rules.\nकृपया सभी नियमों का पालन करते हुए एक मजबूत पासवर्ड बनाएं।");
+                    return;
+                }
+                if (pass !== confirmPass) {
+                    alert("Passwords do not match.\nपासवर्ड और कंफर्म पासवर्ड मेल नहीं खाते।");
+                    return;
+                }
+
+                var $btn = $(this);
+                $btn.html('<i class="bx bx-loader-alt bx-spin"></i> SENDING...').prop('disabled', true);
+
+                $.ajax({
+                    url: '@Url.Action("GenerateRegistrationOtp", "Account")',
+                    type: 'POST',
+                    data: { mobileNo: mobile },
+                    success: function (data) {
+                        if (data && data.status) {
+                            alert("OTP sent to / ओटीपी भेजा गया: " + mobile);
+                            $("#otpBox").slideDown();
+                            $("#send-otp-btn").hide();
+                            $("#submit-btn").show();
+
+                            // Prevent changes
+                            $("#regMobile, #regEmail, #regPass, #regConfirm").prop('readonly', true).addClass('bg-light');
+                        } else {
+                            alert(data ? data.message : "Error sending OTP");
+                            $btn.html('Send OTP & Continue <span class="d-block small fw-normal opacity-75">ओटीपी भेजें और जारी रखें</span>').prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        alert("Server error. Please try again later.");
+                        $btn.html('Send OTP & Continue <span class="d-block small fw-normal opacity-75">ओटीपी भेजें और जारी रखें</span>').prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+}

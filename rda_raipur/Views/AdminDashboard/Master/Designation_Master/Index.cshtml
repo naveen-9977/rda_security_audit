@@ -1,0 +1,145 @@
+﻿@model IEnumerable<rda_raipur.Models.Designation_Master>
+@using rda_raipur.Data
+@using System.Security.Claims
+@inject ApplicationDbContext _context
+
+@{
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Designations";
+
+    // ==========================================
+    // PERMISSION LOGIC FOR UI BUTTONS
+    // ==========================================
+    var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    int userId = 0;
+    int.TryParse(userIdStr, out userId);
+
+    bool isAdmin = User.IsInRole("Admin");
+
+    // Default permissions
+    bool canAdd = isAdmin;
+    bool canEdit = isAdmin;
+    bool canDelete = isAdmin;
+
+    // Agar Admin nahi hai, toh DB se check karein
+    if (!isAdmin && userId > 0)
+    {
+        var permission = (from p in _context.EmployeePermissions
+                          join m in _context.AppModules on p.ModuleId equals m.ModuleId
+                          where p.UserId == userId && m.ControllerName == "Designation_Master"
+                          select p).FirstOrDefault();
+
+        if (permission != null)
+        {
+            canAdd = permission.CanAdd;
+            canEdit = permission.CanEdit;
+            canDelete = permission.CanDelete;
+        }
+    }
+}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Designation Management</h4>
+
+        @if (canAdd)
+        {
+            <a asp-action="Create" class="btn btn-light btn-sm text-primary font-weight-bold">
+                <i class="bx bx-plus"></i> Add New Designation
+            </a>
+        }
+    </div>
+    <div class="card-body">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bx bx-check-circle"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="table-responsive">
+            <table id="desigTable" class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>S. No.</th>
+                        <th>Designation (English)</th>
+                        <th>Designation (Hindi)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        int count = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@count</td>
+                                <td>@item.designation_name_en</td>
+                                <td>@item.designation_name_hi</td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (canEdit)
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.designation_id" class="btn btn-sm btn-warning">
+                                            <i class="bx bx-edit"></i> Edit
+                                        </a>
+                                    }
+
+                                    @if (canDelete)
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@item.designation_id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this designation?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bx bx-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (!canEdit && !canDelete)
+                                    {
+                                        <span class="text-muted small">No Permission</span>
+                                    }
+                                </td>
+                            </tr>
+                            count++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#desigTable').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "language": {
+                    "search": "Quick Search: ",
+                    "lengthMenu": "Show _MENU_ Designations"
+                }
+            });
+        });
+    </script>
+}

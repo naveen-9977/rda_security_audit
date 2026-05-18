@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+
+    ViewBag.IsEnglish = culture.StartsWith("en");
+    ViewBag.UnitNo = ViewBag.UnitNo ?? "N/A";
+    ViewBag.EmdAmount = ViewBag.EmdAmount ?? "50,000";
+    ViewBag.PropertyName = ViewBag.PropertyName ?? (ViewBag.IsEnglish ? "Kaushalya Mata Vihar" : "कौशल्या माता विहार");
+    ViewBag.Sector = ViewBag.Sector ?? "Sector-12";
+    ViewBag.AssetNo = ViewBag.AssetNo ?? ViewBag.UnitNo;
+    ViewBag.Category = ViewBag.Category ?? "Residential (LIG)";
+    ViewBag.ReserveCategory = ViewBag.ReserveCategory ?? "Unreserved (UR)";
+    ViewBag.Area = ViewBag.Area ?? "650.50";
+    ViewBag.TotalPrice = ViewBag.TotalPrice ?? "15,50,000";
+    ViewBag.Location = ViewBag.Location ?? "Phase 1, Main Road";
+
+    string resCatLower = ViewBag.ReserveCategory.ToLower();
+    string catLower = ViewBag.Category.ToLower();
+    ViewBag.IsUnreserved = resCatLower.Contains("unreserved") || resCatLower.Contains("ur") || resCatLower.Contains("general") || catLower.Contains("general") || resCatLower == "none" || resCatLower == "n/a";
+
+    ViewData["Title"] = ViewBag.IsEnglish ? "Application Form" : "आवेदन फॉर्म";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<partial name="Booking/_BookingStyles" />
+
+<div class="govt-page-bg">
+    <div class="container-fluid" style="max-width: 98%;">
+        <div class="govt-form-container">
+
+            <div class="govt-page-header">
+                <h4>@(ViewBag.IsEnglish ? "PROPERTY BOOKING APPLICATION FORM" : "संपत्ति बुकिंग आवेदन फॉर्म")</h4>
+                <div class="mt-1" style="font-size: 13px; color: #f8d7da;">
+                    <strong>@(ViewBag.IsEnglish ? "Project / Scheme:" : "परियोजना / योजना:")</strong> @Html.Raw(ViewBag.PropertyName)
+                </div>
+            </div>
+
+            <partial name="Booking/_PropertyInfo" />
+
+            <form id="bookingForm" onsubmit="return false;" enctype="multipart/form-data">
+                <div id="form-entry-section">
+
+                    <partial name="Booking/_MobileVerification" />
+
+                    <div id="main-application-form" class="disabled-section">
+
+                        <partial name="Booking/_ApplicantDetails" />
+
+                        <partial name="Booking/_DocumentUploads" />
+
+                        <div class="text-center p-3 bg-light border-top d-flex justify-content-center gap-3">
+                            <a href="javascript:history.back()" class="btn btn-govt-secondary d-flex align-items-center px-4" style="height: 38px !important; font-size: 14px !important;">
+                                <i class='bx bx-arrow-back me-2'></i> @(ViewBag.IsEnglish ? "Back" : "वापस जाएँ")
+                            </a>
+                            <button type="button" class="btn btn-govt-primary d-flex align-items-center px-4" style="height: 38px !important; font-size: 14px !important;" onclick="showPreviewSection()">
+                                <i class='bx bx-search-alt-2 me-2'></i> @(ViewBag.IsEnglish ? "Preview Application" : "आवेदन का पूर्वावलोकन करें")
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <partial name="Booking/_ApplicationPreview" />
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="Booking/_BookingScripts" />
+}

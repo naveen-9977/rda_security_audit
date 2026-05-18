@@ -1,0 +1,47 @@
+﻿@model rda_raipur.Models.EmpType_Master
+
+@{
+    ViewData["Title"] = "Delete Employee Type";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <h1 class="h3 mb-4 text-gray-800">Delete Employee Type</h1>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-left-danger border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Are you sure you want to delete this?</h6>
+                </div>
+                <div class="card-body bg-light">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Type ID</dt>
+                        <dd class="col-sm-8 fw-bold">@Model.emp_type_id</dd>
+
+                        <dt class="col-sm-4 text-muted">Name (Hindi)</dt>
+                        <dd class="col-sm-8 text-dark">@Model.emp_type_name_hi</dd>
+
+                        <dt class="col-sm-4 text-muted">Name (English)</dt>
+                        <dd class="col-sm-8 text-dark">@Model.emp_type_name_en</dd>
+
+                        <dt class="col-sm-4 text-muted">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </dd>
+                    </dl>
+
+                    <hr class="my-4">
+
+                    <form asp-action="Delete" method="post" class="d-flex gap-2">
+                        <input type="hidden" asp-for="emp_type_id" />
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i> Yes, Delete it!</button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

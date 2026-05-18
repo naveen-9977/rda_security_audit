@@ -1,0 +1,470 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model rda_raipur.Models.LoginViewModel
+@{
+    // भाषा पता करने के लिए
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "hi";
+    bool isEnglish = currentCulture.StartsWith("en");
+
+    ViewData["Title"] = isEnglish ? "Employee Login" : "कर्मचारी लॉगिन";
+}
+
+<style>
+    /* 1. Page Background */
+    .login-page-bg {
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 100 L100 0 M-10 10 L10 -10 M90 110 L110 90' stroke='%23f1f5f9' stroke-width='1'/%3E%3Cpath d='M0 0 L100 100 M-10 90 L10 110 M90 -10 L110 10' stroke='%23f1f5f9' stroke-width='1'/%3E%3C/svg%3E");
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+        position: relative;
+    }
+
+    /* 2. Login Card */
+    .login-card {
+        border-radius: 20px;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1) !important;
+        background: #fff;
+    }
+
+    /* 3. Card Sections */
+
+    /* ✅ Left Side Image Container ✅ */
+    .login-image-side {
+        padding: 0;
+        background-color: #ffffff; /* ताकी इमेज बैकग्राउंड में अच्छे से मिल जाए */
+        position: relative;
+    }
+
+        .login-image-side img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 🟢 'cover' की जगह 'contain' किया है ताकि इमेज कटे नहीं 🟢 */
+            object-position: center;
+        }
+
+    .login-form-side {
+        padding: 40px 50px;
+        background: #fff;
+    }
+
+    .form-heading {
+        color: #1e293b;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    /* 5. Clean Input Styling */
+    .form-control {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #cbd5e1;
+        background-color: #f8fafc;
+    }
+
+        .form-control:focus {
+            border-color: #f97316;
+            background-color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.1);
+        }
+
+    /* 🟢 BROWSER DEFAULT PASSWORD EYE FIX (EDGE/IE) 🟢 */
+    input::-ms-reveal,
+    input::-ms-clear {
+        display: none;
+    }
+
+    /* 6. Theme Gradient Button */
+    .btn-login-gradient {
+        background: linear-gradient(180deg, #ff9f43 0%, #f97316 100%);
+        color: white !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 35px;
+        box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+        transition: 0.3s;
+        text-transform: uppercase;
+    }
+
+        .btn-login-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+        }
+
+    /* CAPTCHA & Custom Eye Icon Styling */
+    .captcha-box {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+    }
+
+    #togglePassword {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #64748b;
+        outline: none;
+    }
+
+    /* 🟢 CUSTOM TOAST NOTIFICATION 🟢 */
+    .custom-toast {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: #ffffff;
+        border-left: 5px solid #10b981;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        padding: 15px 25px;
+        border-radius: 8px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transform: translateX(150%);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        min-width: 300px;
+    }
+
+        .custom-toast.show {
+            transform: translateX(0);
+        }
+
+        .custom-toast .toast-text {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+    @@media (max-width: 767.98px) {
+        .login-form-side {
+            padding: 30px 20px;
+        }
+
+        .custom-toast {
+            top: 20px;
+            right: 10px;
+            left: 10px;
+            min-width: auto;
+            transform: translateY(-150%);
+        }
+
+            .custom-toast.show {
+                transform: translateY(0);
+            }
+    }
+</style>
+
+<div id="modernToast" class="custom-toast d-none">
+    <i id="toastIcon" class='bx bx-check-circle text-success' style="font-size: 28px;"></i>
+    <div class="toast-text" id="toastMessage"></div>
+</div>
+
+<div class="login-page-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-9">
+
+                <div class="card login-card">
+                    <div class="row g-0">
+
+                        <div class="col-md-5 login-image-side d-none d-md-block">
+                            <img src="~/images/login_page.jpg" alt="RDA Login Graphic" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop'" />
+                        </div>
+
+                        <div class="col-12 col-md-7 login-form-side">
+
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0 mb-4" role="alert" style="background-color: #d1e7dd; color: #0f5132;">
+                                    <div class="d-flex align-items-center">
+                                        <i class='bx bx-check-circle fs-2 me-3'></i>
+                                        <div>
+                                            <strong class="d-block mb-1">@(isEnglish ? "Success!" : "सफलता!")</strong>
+                                            <span class="small">@TempData["SuccessMessage"]</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            <div class="text-center mb-4 border-bottom pb-3">
+                                <h3 class="form-heading mb-0">@(isEnglish ? "Departmental Login" : "विभागीय लॉगिन")</h3>
+                            </div>
+
+                            <form asp-action="EmployeeLogin" asp-controller="Account" method="post" id="login-form">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                                <div class="mb-3">
+                                    <label for="inputUsername" class="form-label text-muted small fw-bold mb-1">
+                                        <i class='bx bxs-phone text-secondary me-1'></i> @(isEnglish ? "Registered Mobile No." : "पंजीकृत मोबाइल नंबर")
+                                    </label>
+                                    <input asp-for="Username" class="form-control" id="inputUsername" placeholder="@(isEnglish ? "Enter 10-digit number" : "10-अंकों का नंबर दर्ज करें")" required maxlength="10" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                    <span asp-validation-for="Username" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="inputPassword" class="form-label text-muted small fw-bold mb-1">
+                                        <i class='bx bxs-lock-alt text-secondary me-1'></i> @(isEnglish ? "Password" : "पासवर्ड")
+                                    </label>
+                                    <div class="position-relative">
+                                        <input asp-for="Password" type="password" class="form-control" id="inputPassword" placeholder="@(isEnglish ? "Enter your password" : "अपना पासवर्ड दर्ज करें")" required style="padding-right: 45px;" />
+                                        <button type="button" id="togglePassword" title="Show/Hide Password">
+                                            <i class='bx bx-hide fs-4'></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-4 captcha-box shadow-sm" id="captchaContainer">
+                                    <label class="form-label text-muted small fw-bold mb-1">
+                                        <i class='bx bx-shield-quarter text-secondary me-1'></i> @(isEnglish ? "Security Check" : "सुरक्षा जांच")
+                                    </label>
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <canvas id="captchaCanvas" width="140" height="40" class="border rounded bg-white" style="cursor:not-allowed;"></canvas>
+                                        <button type="button" class="btn btn-light border shadow-sm px-3" id="refreshCaptcha" title="Refresh Captcha">
+                                            <i class='bx bx-refresh fs-4 text-primary'></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" id="inputCaptcha" class="form-control" placeholder="@(isEnglish ? "Enter the text shown above" : "ऊपर दिखाया गया टेक्स्ट दर्ज करें")" required autocomplete="off" maxlength="6" />
+                                </div>
+
+                                <div class="mb-4" id="otpContainer" style="display: none;">
+                                    <label for="inputOtp" class="form-label text-success fw-bold small mb-1">
+                                        <i class='bx bxs-key me-1'></i> @(isEnglish ? "Enter OTP" : "ओटीपी दर्ज करें")
+                                    </label>
+                                    <input asp-for="Otp" type="text" class="form-control border-success" id="inputOtp" placeholder="@(isEnglish ? "Enter 6-digit OTP" : "6-अंकों का ओटीपी दर्ज करें")" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <small id="timerSpan" class="text-muted small">@(isEnglish ? "Resend in:" : "पुनः भेजें:") <span id="timerCountdown" class="text-danger fw-bold">01:00</span></small>
+                                        <a href="javascript:void(0)" id="resendOtpBtn" class="small text-decoration-none fw-bold" style="color: #f97316; display: none;">@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")</a>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <a href="@Url.Action("ForgotPassword", "Account")" class="text-primary text-decoration-none fw-bold small">
+                                        @(isEnglish ? "Forgot Password?" : "पासवर्ड भूल गए?")
+                                    </a>
+                                    <button type="submit" class="btn btn-login-gradient shadow" id="login-button">
+                                        @(isEnglish ? "Sign In" : "लॉगिन करें") <i class='bx bx-right-arrow-alt ms-1'></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+
+            // JavaScript Messages (Dynamic based on selected language)
+            var msgInvalidMobile = '@(isEnglish ? "Please enter a valid 10-digit Mobile No." : "कृपया सही 10-अंकों का मोबाइल नंबर दर्ज करें।")';
+            var msgInvalidCaptcha = '@(isEnglish ? "Invalid CAPTCHA. Please enter correct text." : "गलत कैप्चा। कृपया सही टेक्स्ट दर्ज करें।")';
+            var msgSending = '@(isEnglish ? "SENDING..." : "भेजा जा रहा है...") <i class="bx bx-loader-alt bx-spin"></i>';
+            var msgOtpSuccess = '@(isEnglish ? "OTP Sent Successfully!" : "ओटीपी सफलतापूर्वक भेजा गया!")';
+            var msgOtpResentSuccess = '@(isEnglish ? "OTP Resent Successfully!" : "ओटीपी सफलतापूर्वक पुनः भेज दिया गया है!")';
+            var msgVerifyLogin = '@(isEnglish ? "VERIFY & LOGIN" : "पुष्टि करें और लॉगिन करें")';
+            var msgError = '@(isEnglish ? "Error occurred." : "त्रुटि हुई।")';
+            var msgServerError = '@(isEnglish ? "Server error. Please try again." : "सर्वर त्रुटि। कृपया पुनः प्रयास करें।")';
+            var msgResendBtnText = '@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")';
+
+            // 🟢 CUSTOM TOAST FUNCTION 🟢
+            function showToast(message, type) {
+                var toast = $("#modernToast");
+                var icon = $("#toastIcon");
+                var text = $("#toastMessage");
+
+                toast.removeClass("d-none");
+
+                if (type === "success") {
+                    toast.css("border-left-color", "#10b981");
+                    icon.attr("class", "bx bx-check-circle text-success");
+                } else if (type === "error") {
+                    toast.css("border-left-color", "#ef4444");
+                    icon.attr("class", "bx bx-x-circle text-danger");
+                }
+
+                text.html(message);
+                setTimeout(function() { toast.addClass("show"); }, 50);
+
+                setTimeout(function() {
+                    toast.removeClass("show");
+                    setTimeout(function() { toast.addClass("d-none"); }, 400);
+                }, 5000);
+            }
+
+            // ✅ PASSWORD TOGGLE LOGIC
+            $('#togglePassword').click(function() {
+                const passwordInput = $('#inputPassword');
+                const icon = $(this).find('i');
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    icon.removeClass('bx-hide').addClass('bx-show');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    icon.removeClass('bx-show').addClass('bx-hide');
+                }
+            });
+
+            // ✅ CAPTCHA LOGIC
+            var generatedCaptcha = "";
+            function generateCaptcha() {
+                var canvas = document.getElementById('captchaCanvas');
+                var ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                var chars = "0123456789";
+                generatedCaptcha = "";
+                for (var i = 0; i < 6; i++) {
+                    generatedCaptcha += chars[Math.floor(Math.random() * chars.length)];
+                }
+                for (let i = 0; i < 5; i++) {
+                    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+                    ctx.beginPath();
+                    ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                    ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                    ctx.stroke();
+                }
+                ctx.font = "bold 22px Arial";
+                ctx.fillStyle = "#1e293b";
+                ctx.textBaseline = "middle";
+                ctx.letterSpacing = "3px";
+                ctx.fillText(generatedCaptcha, 15, canvas.height / 2);
+            }
+
+            generateCaptcha();
+            $("#refreshCaptcha").click(function () {
+                generateCaptcha();
+                $("#inputCaptcha").val('').focus();
+            });
+
+            // ✅ OTP TIMER LOGIC (1 Minute)
+            var timerInterval;
+            function startOtpTimer(duration) {
+                var timer = duration, minutes, seconds;
+                clearInterval(timerInterval);
+                $("#timerSpan").show();
+                $("#resendOtpBtn").hide();
+
+                timerInterval = setInterval(function () {
+                    minutes = parseInt(timer / 60, 10);
+                    seconds = parseInt(timer % 60, 10);
+                    $("#timerCountdown").text((minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds));
+                    if (--timer < 0) {
+                        clearInterval(timerInterval);
+                        $("#timerSpan").hide();
+                        $("#resendOtpBtn").fadeIn();
+                    }
+                }, 1000);
+            }
+
+            // ✅ RESEND OTP BUTTON CLICK LOGIC
+            $('#resendOtpBtn').click(function(e) {
+                e.preventDefault();
+                var username = $("#inputUsername").val();
+                var password = $("#inputPassword").val();
+
+                if (!username || !password) {
+                    showToast(msgError, "error");
+                    return;
+                }
+
+                var $resendBtn = $(this);
+                $resendBtn.text("Wait...").css('pointer-events', 'none');
+
+                $.ajax({
+                    url: '@Url.Action("GenerateOtp", "Account")',
+                    type: 'POST',
+                    data: { username: username, password: password },
+                    success: function (data) {
+                        if (data.status === true) {
+                            showToast(msgOtpResentSuccess, "success");
+                            $resendBtn.text(msgResendBtnText).css('pointer-events', 'auto');
+                            startOtpTimer(60);
+                        } else {
+                            showToast(data.message || msgError, "error");
+                            $resendBtn.text(msgResendBtnText).css('pointer-events', 'auto');
+                        }
+                    },
+                    error: function() {
+                        showToast(msgServerError, "error");
+                        $resendBtn.text(msgResendBtnText).css('pointer-events', 'auto');
+                    }
+                });
+            });
+
+            // ✅ MAIN LOGIN BUTTON CLICK
+            $('#login-button').click(function(e) {
+                var username = $("#inputUsername").val();
+                var password = $("#inputPassword").val();
+                var otpContainer = $("#otpContainer");
+                var userCaptcha = $("#inputCaptcha").val().trim();
+
+                // Generate OTP if not visible
+                if (!otpContainer.is(":visible")) {
+                    e.preventDefault();
+
+                    if(username.length < 10) {
+                        showToast(msgInvalidMobile, "error");
+                        return;
+                    }
+
+                    if (userCaptcha.toLowerCase() !== generatedCaptcha.toLowerCase()) {
+                        showToast(msgInvalidCaptcha, "error");
+                        generateCaptcha();
+                        $("#inputCaptcha").val('').focus();
+                        return;
+                    }
+
+                    var btnText = $(this).html();
+                    $(this).html(msgSending).prop('disabled', true);
+
+                    $.ajax({
+                        url: '@Url.Action("GenerateOtp", "Account")',
+                        type: 'POST',
+                        data: { username: username, password: password },
+                        success: function (data) {
+                            if (data.status === true) {
+                                showToast(msgOtpSuccess, "success");
+                                $("#captchaContainer").slideUp();
+                                otpContainer.slideDown();
+                                startOtpTimer(60);
+                                $("#login-button").html(msgVerifyLogin).css("background", "#198754").prop('disabled', false);
+                                $("#inputUsername, #inputPassword").prop('readonly', true).addClass('bg-light');
+                            } else {
+                                showToast(data.message || msgError, "error");
+                                $("#login-button").html(btnText).prop('disabled', false);
+                                generateCaptcha();
+                                $("#inputCaptcha").val('');
+                            }
+                        },
+                        error: function() {
+                            showToast(msgServerError, "error");
+                            $("#login-button").html(btnText).prop('disabled', false);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

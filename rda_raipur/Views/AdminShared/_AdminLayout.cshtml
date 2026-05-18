@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] | RDA Admin Dashboard</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/admin-console.css" asp-append-version="true" />
+
+    <style>
+        body {
+            background-color: #fffbf5; /* Warm Background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 🟢 Main Content Wrapper 🟢 */
+        .main-content {
+            padding: 25px;
+            /* स्मूथ ट्रांजिशन - साइडबार के साथ सिंक करने के लिए */
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: calc(100vh - 70px);
+        }
+
+        /* 🟢 DESKTOP LAYOUT (Default Open) 🟢 */
+        @@media (min-width: 992px) {
+            .main-content {
+                margin-left: 260px; /* Default Sidebar Width */
+            }
+            /* ⚡ ANTI-FLICKER: अगर साइडबार बंद है, तो तुरंत मार्जिन कम करें ⚡ */
+            .sidebar-is-collapsed .main-content {
+                margin-left: 75px !important;
+                transition: none !important; /* लोड के समय एनीमेशन बंद */
+            }
+        }
+
+        /* 🟢 MOBILE LAYOUT 🟢 */
+        @@media (max-width: 991.98px) {
+            .main-content {
+                padding: 15px;
+                margin-left: 0 !important; /* मोबाइल पर कोई मार्जिन नहीं */
+            }
+        }
+
+        /* Content Container (No Card Look) */
+        .content-container {
+            background-color: transparent;
+            padding: 0;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <partial name="~/Views/AdminShared/_Header.cshtml" />
+
+    <partial name="~/Views/AdminShared/_Sidebar.cshtml" />
+
+    <main class="main-content">
+        <div class="content-container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

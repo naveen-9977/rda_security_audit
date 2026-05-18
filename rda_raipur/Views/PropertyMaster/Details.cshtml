@@ -1,0 +1,171 @@
+﻿@model rda_raipur.Models.Property.TenderPropertyCreation
+
+@{
+    ViewData["Title"] = "Property Details";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<style>
+    .detail-label {
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+        display: block;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+
+    .price-value {
+        color: #059669;
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .badge-status {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+    }
+</style>
+
+<div class="container-fluid mt-4 px-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-dark mb-0">Property Details</h3>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model?.Property_Id" class="btn btn-warning fw-bold shadow-sm me-2">
+                <i class="bi bi-pencil-square"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-dark fw-bold shadow-sm">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 border-top border-info border-4 rounded-3">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-info"><i class="bi bi-info-circle-fill me-2"></i> Inventory Information</h5>
+            <span class="badge @(Model.Booking_Status == "Vacant" ? "bg-success" : "bg-danger") badge-status">
+                Status: @Model.Booking_Status
+            </span>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2"><i class="bi bi-geo-alt"></i> Location & Identity</h6>
+                </div>
+
+                <div class="col-md-3">
+                    <span class="detail-label">Property Code (ID)</span>
+                    <div class="detail-value text-primary fw-bold">@Model.Property_Id</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Scheme Name</span>
+                    <div class="detail-value">@Model.Scheme_name_en</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Sector Name</span>
+                    <div class="detail-value">@Model.sector_name_en</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Block Name</span>
+                    <div class="detail-value">@Model.block_name_en</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">House / Flat No.</span>
+                    <div class="detail-value">@Model.House_No</div>
+                </div>
+
+                <div class="col-12 mt-3 mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2"><i class="bi bi-building"></i> Property Specifications</h6>
+                </div>
+
+                <div class="col-md-3">
+                    <span class="detail-label">Property Type</span>
+                    <div class="detail-value">@Model.Property_Type_Name_en</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Property Model</span>
+                    <div class="detail-value">@(Model.Model_name_en ?? "N/A")</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Flat Config (BHK)</span>
+                    <div class="detail-value">@(Model.Flat_name_en ?? "N/A")</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Allotment Mode</span>
+                    <div class="detail-value">@(Model.allotement_type_name_en ?? "N/A")</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Reservation Category</span>
+                    <div class="detail-value">@(Model.res_category_name_en ?? "General")</div>
+                </div>
+
+                <div class="col-12 mt-3 mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2"><i class="bi bi-rulers"></i> Area Measurements</h6>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="detail-label">Super Buildup Area</span>
+                    <div class="detail-value">@Model.Super_Buildup_Area Sq.Ft</div>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="detail-label text-danger">Buildup Area</span>
+                    <div class="detail-value">@(Model.Buildup_Area?.ToString() ?? "N/A") Sq.Ft</div>
+                </div>
+                <div class="col-md-4">
+                    <span class="detail-label text-danger">Carpet Area</span>
+                    <div class="detail-value">@(Model.Carpet_Area?.ToString() ?? "N/A") Sq.Ft</div>
+                </div>
+
+                <div class="col-12 mt-3 mb-4">
+                    <h6 class="fw-bold text-primary border-bottom pb-2"><i class="bi bi-cash-stack"></i> Pricing Information</h6>
+                </div>
+
+                <div class="col-md-6">
+                    <span class="detail-label">Offset Price</span>
+                    <div class="detail-value price-value">
+                        ₹ @(Model.offset_Price != null ? Convert.ToDecimal(Model.offset_Price).ToString("N0") : "0")
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <span class="detail-label">EMD Amount</span>
+                    <div class="detail-value text-danger fw-bold">
+                        ₹ @(Model.EMD_Amount != null ? Convert.ToDecimal(Model.EMD_Amount).ToString("N0") : "0")
+                    </div>
+                </div>
+
+                <div class="col-12 mt-3 mb-4">
+                    <h6 class="fw-bold text-secondary border-bottom pb-2"><i class="bi bi-clock-history"></i> System Tracking</h6>
+                </div>
+
+                <div class="col-md-3">
+                    <span class="detail-label">Created By</span>
+                    <div class="detail-value text-muted">@Model.created_by</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Creation Date</span>
+                    <div class="detail-value text-muted">@(Model.Create_Date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Last Updated By</span>
+                    <div class="detail-value text-muted">@Model.updated_by</div>
+                </div>
+                <div class="col-md-3">
+                    <span class="detail-label">Last Update Date</span>
+                    <div class="detail-value text-muted">@(Model.updated_Date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

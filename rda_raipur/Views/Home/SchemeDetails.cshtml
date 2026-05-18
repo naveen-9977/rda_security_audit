@@ -1,0 +1,222 @@
+﻿@model rda_raipur.Models.site.SiteScheme
+@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    bool isEnglish = (requestCulture?.RequestCulture.Culture.Name ?? "en").StartsWith("en");
+    ViewData["Title"] = Model?.SchemeName ?? "Scheme Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* 1. Page Background */
+    .scheme-details-bg {
+        background-color: #f4f7f6;
+        padding-bottom: 80px;
+        min-height: 80vh;
+    }
+
+    /* 2. Dark Blue Hero Section */
+    .scheme-hero {
+        background-color: #003366;
+        padding: 40px 0 80px;
+        color: #ffffff;
+        border-bottom: 4px solid #FF9933;
+    }
+
+    .btn-back {
+        color: #e2e8f0;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.2s;
+        margin-bottom: 15px;
+    }
+
+        .btn-back:hover {
+            color: #FF9933;
+        }
+
+    .hero-title {
+        font-weight: 800;
+        font-size: clamp(2rem, 3vw, 2.5rem);
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    /* 3. Single Large Overlapping Card */
+    .single-main-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: 1px solid #e2e8f0;
+        margin-top: -45px;
+        position: relative;
+        z-index: 10;
+        padding: 30px;
+    }
+
+    /* 🔥 MODERN SHIMMER LOADER FOR DETAILS PAGE 🔥 */
+    .img-preview-wrapper {
+        height: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        /* Shimmer Background */
+        background: #e2e8f0;
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmerLoaderDetails 1.5s infinite;
+    }
+
+    @@keyframes shimmerLoaderDetails {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* 🔥 FADE-IN EFFECT FOR MAIN IMAGE 🔥 */
+    .scheme-main-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        cursor: pointer;
+        opacity: 0; /* Load hone se pehle chhipi rahegi */
+        transition: opacity 0.6s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        /* Jab image load ho jayegi */
+        .scheme-main-img.loaded {
+            opacity: 1;
+        }
+
+            .scheme-main-img.loaded:hover {
+                transform: scale(1.03);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+            }
+
+    /* Modal Image Style */
+    #previewImg {
+        max-height: 85vh;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    /* 4. Embedded Map Container */
+    .map-container {
+        width: 100%;
+        height: 380px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+    }
+</style>
+
+@if (Model != null)
+{
+    <div class="scheme-details-bg">
+
+        <div class="scheme-hero">
+            <div class="container">
+                <a asp-action="AllSchemes" class="btn-back">
+                    <i class='bx bx-left-arrow-alt fs-5 me-1'></i> @(isEnglish ? "Back to All Schemes" : "सभी योजनाओं पर वापस जाएं")
+                </a>
+
+                <h1 class="hero-title">@Model.SchemeName</h1>
+
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <p class="lead mb-0 opacity-75 d-flex align-items-center" style="font-size: 1.1rem;">
+                        <i class='bx bx-map-pin me-2'></i> @Model.Location
+                    </p>
+                }
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="single-main-card">
+                <div class="row g-4 align-items-center">
+
+                    <div class="col-lg-6">
+                        <div class="img-preview-wrapper">
+                            <img src="@(!string.IsNullOrEmpty(Model.ImagePath) ? Model.ImagePath : "/images/placeholder.jpg")"
+                                 class="scheme-main-img"
+                                 alt="@Model.SchemeName"
+                                 loading="lazy"
+                                 onload="this.classList.add('loaded')"
+                                 onclick="openImagePopup(this.src)">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        @if (!string.IsNullOrEmpty(Model.MapLocationUrl))
+                        {
+                            <div class="map-container shadow-sm">
+                                <iframe src="@Model.MapLocationUrl"
+                                        width="100%"
+                                        height="100%"
+                                        style="border:0;"
+                                        allowfullscreen=""
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="map-container d-flex flex-column align-items-center justify-content-center text-muted border-dashed">
+                                <i class='bx bx-map-alt text-muted mb-2' style="font-size: 3rem;"></i>
+                                <span class="fw-bold">@(isEnglish ? "Map Location Not Available" : "मैप लोकेशन उपलब्ध नहीं है")</span>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-5 text-center">
+        <h3 class="text-danger">Scheme not found!</h3>
+        <a asp-action="AllSchemes" class="btn btn-primary mt-3">Go Back</a>
+    </div>
+}
+
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="text-end">
+                <button type="button" class="btn-close btn-close-white mb-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img id="previewImg" src="" class="rounded shadow-lg bg-white p-1">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openImagePopup(src) {
+            // Modal image ki src set karna
+            document.getElementById('previewImg').src = src;
+            // Modal ko show karna
+            var myModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            myModal.show();
+        }
+    </script>
+}

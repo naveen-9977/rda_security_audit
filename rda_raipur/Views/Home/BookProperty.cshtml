@@ -1,0 +1,322 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "hi";
+    bool isEnglish = (culture == "en");
+
+    ViewData["Title"] = isEnglish ? "Available Schemes" : "उपलब्ध योजनाएं";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // 컨트롤र (Controller) से आ रहे डायनामिक डेटा को पकड़ें
+    var liveSchemes = ViewBag.LiveSchemes as List<string>;
+}
+
+<style>
+    /* 1. Page Background */
+    .property-page-bg {
+        background-color: #f8fafc;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 100 L100 0 M-10 10 L10 -10 M90 110 L110 90' stroke='%23f1f5f9' stroke-width='1'/%3E%3Cpath d='M0 0 L100 100 M-10 90 L10 110 M90 -10 L110 10' stroke='%23f1f5f9' stroke-width='1'/%3E%3C/svg%3E");
+        padding: 50px 0;
+        min-height: 80vh;
+    }
+
+    /* 2. Filter Sidebar */
+    .filter-sidebar {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        position: sticky;
+        top: 90px;
+    }
+
+    .filter-heading {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #475569;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-select.filter-dropdown, .form-control.filter-dropdown {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.95rem;
+        color: #334155;
+        box-shadow: none;
+        transition: all 0.3s ease;
+    }
+
+        .form-select.filter-dropdown:focus, .form-control.filter-dropdown:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+    /* 3. Professional Property Card */
+    .property-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        overflow: hidden;
+        background: #fff;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(249, 115, 22, 0.15) !important;
+            border-color: #f97316;
+        }
+
+    .property-img-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .property-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+
+    .property-card:hover .property-img {
+        transform: scale(1.1);
+    }
+
+    /* 4. Category Badge */
+    .cat-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #fff;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* 5. Details Styling */
+    .detail-icon {
+        color: #f97316;
+        font-size: 1.1rem;
+        margin-right: 10px;
+    }
+
+    .property-title {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 1.1rem;
+        min-height: 45px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        color: #475569;
+    }
+
+    /* 6. Theme Gradient Button */
+    .btn-theme-gradient {
+        background: linear-gradient(180deg, #ff9f43 0%, #f97316 100%);
+        color: white !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+        transition: 0.3s;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+        .btn-theme-gradient:hover {
+            box-shadow: 0 6px 15px rgba(249, 115, 22, 0.5);
+            transform: scale(1.02);
+        }
+
+    /* Header Accent */
+    .section-title {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: #f97316;
+            border-radius: 2px;
+        }
+</style>
+
+<div class="property-page-bg">
+    <div class="container-fluid px-md-4">
+
+        <div class="mb-5 text-center">
+            <h2 class="section-title text-uppercase">
+                @(isEnglish ? "Live Schemes for Booking" : "बुकिंग के लिए लाइव योजनाएं")
+            </h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                @(isEnglish ? "Explore current active schemes by RDA. Select a scheme to view the detailed list of available properties and units." : "आरडीए द्वारा वर्तमान में चल रही योजनाओं को देखें। उपलब्ध संपत्तियों की विस्तृत सूची देखने के लिए योजना का चयन करें।")
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <div class="filter-heading">
+                        <span><i class='bx bx-filter-alt text-primary'></i> @(isEnglish ? "Find Scheme" : "योजना खोजें")</span>
+                        <button class="btn btn-sm btn-light text-danger fw-bold border" id="clearFilters">
+                            <i class='bx bx-refresh'></i> @(isEnglish ? "Reset" : "रीसेट")
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="filter-label"><i class='bx bx-search text-muted'></i> @(isEnglish ? "Search by Name" : "नाम से खोजें")</label>
+                        <input type="text" class="form-control filter-dropdown" id="search-scheme" placeholder="@(isEnglish ? "Type scheme name..." : "योजना का नाम लिखें...")">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="filter-label"><i class='bx bx-map text-muted'></i> @(isEnglish ? "Select Scheme" : "योजना चुनें")</label>
+                        <select class="form-select filter-dropdown" id="filter-loc">
+                            <option value="">@(isEnglish ? "-- All Schemes --" : "-- सभी योजनाएं --")</option>
+                            @if (liveSchemes != null && liveSchemes.Any())
+                            {
+                                foreach (var scheme in liveSchemes)
+                                {
+                                    <option value="@scheme.ToLower()">@scheme</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="row g-4" id="property-grid">
+
+                    @if (liveSchemes != null && liveSchemes.Any())
+                    {
+                        foreach (var scheme in liveSchemes)
+                        {
+                            <div class="col-md-6 col-xl-4 property-item" data-loc="@scheme.ToLower()">
+                                <div class="card property-card shadow-sm border-0 h-100">
+                                    <div class="property-img-container">
+                                        <span class="cat-badge">@(isEnglish ? "LIVE SCHEME" : "लाइव योजना")</span>
+                                        <img src="~/images/PhotoGallery/gallery1.jpg" class="property-img" alt="@scheme" onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&q=80'">
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <h5 class="property-title mb-3 scheme-name">@scheme</h5>
+
+                                        <div class="mb-4">
+                                            <div class="info-row"><i class='bx bx-building-house detail-icon'></i> <strong>@(isEnglish ? "Scheme:" : "योजना:")</strong> &nbsp; @scheme</div>
+                                            <div class="info-row"><i class='bx bx-check-circle detail-icon'></i> <strong>@(isEnglish ? "Status:" : "स्थिति:")</strong> &nbsp; <span class="text-success fw-bold">Live / Active</span></div>
+                                        </div>
+
+                                        <a href="@Url.Action("PropertyUnits", "Home", new { type = scheme })" class="btn btn-theme-gradient w-100">
+                                            <i class='bx bx-list-ul me-1'></i> @(isEnglish ? "View Properties" : "संपत्तियां देखें")
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5 border rounded bg-white shadow-sm">
+                            <i class='bx bx-info-circle mb-3 text-muted' style="font-size: 3.5rem;"></i>
+                            <h4 class="text-muted fw-bold">@(isEnglish ? "No Live Schemes Available Currently" : "वर्तमान में कोई लाइव योजना उपलब्ध नहीं है")</h4>
+                            <p class="text-secondary">@(isEnglish ? "Please check back later." : "कृपया बाद में जाँच करें।")</p>
+                        </div>
+                    }
+
+                    <div id="no-results" class="col-12 text-center py-5 mt-4 border rounded bg-white shadow-sm" style="display:none;">
+                        <i class='bx bx-search-alt mb-3 text-muted' style="font-size: 3.5rem;"></i>
+                        <h4 class="text-muted fw-bold">@(isEnglish ? "No schemes match your search" : "आपकी खोज से कोई योजना मेल नहीं खाती")</h4>
+                        <button class="btn btn-primary mt-2 btn-sm px-4 rounded-pill shadow-sm" onclick="$('#clearFilters').click();">@(isEnglish ? "Clear Filters" : "फ़िल्टर साफ़ करें")</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+
+            // Dynamic Search & Filter Logic
+            function applyFilters() {
+                var selectedLoc = $('#filter-loc').val().toLowerCase();
+                var searchText = $('#search-scheme').val().toLowerCase();
+                var visibleCount = 0;
+
+                $('.property-item').each(function() {
+                    var pLoc = $(this).data('loc').toLowerCase();
+                    var pName = $(this).find('.scheme-name').text().toLowerCase();
+
+                    var locMatch = (selectedLoc === "" || pLoc === selectedLoc);
+                    var textMatch = (searchText === "" || pName.includes(searchText));
+
+                    if (locMatch && textMatch) {
+                        $(this).fadeIn(300);
+                        visibleCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                if (visibleCount === 0 && $('.property-item').length > 0) {
+                    $('#no-results').fadeIn(300);
+                } else {
+                    $('#no-results').hide();
+                }
+            }
+
+            // Trigger filters on input or dropdown change
+            $('.filter-dropdown').on('change input', function() {
+                applyFilters();
+            });
+
+            // Reset Logic
+            $('#clearFilters').on('click', function() {
+                $('#filter-loc').val('');
+                $('#search-scheme').val('');
+                applyFilters();
+            });
+
+        });
+    </script>
+}

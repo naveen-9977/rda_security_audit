@@ -1,0 +1,32 @@
+﻿@using rda_raipur.Data
+@inject ApplicationDbContext _context
+
+@{
+    // Fetch from database instead of folder
+    var galleryImages = _context.SiteGalleries.Where(g => g.IsActive && !g.IsDeleted).ToList();
+
+    var requestCultureFeature = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "en";
+}
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4">Photo Gallery</h3>
+    <div class="row">
+        @foreach (var img in galleryImages)
+        {
+            var title = currentCulture == "hi" ? img.Title_hi : img.Title_en;
+
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <img src="@img.ImagePath" class="card-img-top" alt="@title" style="height:250px; object-fit:cover;">
+                    @if (!string.IsNullOrEmpty(title))
+                    {
+                        <div class="card-body text-center">
+                            <h6 class="card-title m-0">@title</h6>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

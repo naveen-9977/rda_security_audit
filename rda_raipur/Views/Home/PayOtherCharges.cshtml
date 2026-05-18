@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Pay Other Charges";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "hi";
+    bool isEnglish = (culture == "en");
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h5 class="mb-0 fw-bold">
+                        @(isEnglish
+                                                ? "Pay Your Property Other Charges (Water Charges / Surcharge) Here" 
+                                                        : "अपने संपत्ति के अन्य शुल्क (जल शुल्क / सरचार्ज) का भुगतान यहाँ करें")
+                    </h5>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="alert alert-warning d-flex align-items-center mb-4 border-warning shadow-sm" role="alert">
+                        <i class='bx bx-info-circle fs-2 me-3 text-warning'></i>
+                        <div style="font-size: 0.95rem; font-weight: 500;">
+                            @(isEnglish
+                                                        ? "Please refer to your building allotment order for UID information. If you do not have your UID, please contact your respective zonal office." 
+                                                                : "यू.आई. डी. की जानकारी हेतु कृपया अपने भवन आबंटन आदेश का अवलोकन करें, यदि आपके पास अपनी यू.आई.डी. नहीं है, तो कृपया अपने संबंधित प्रक्षेत्र कार्यालय से संपर्क करें।")
+                        </div>
+                    </div>
+
+                    <form asp-action="VerifyUid" asp-controller="Home" method="POST">
+                        <div class="mb-5 text-center">
+                            <label for="uidNumber" class="form-label fw-bold fs-5 text-dark mb-3">
+                                @(isEnglish ? "Enter Your 7 Digit UID Number:" : "अपना 7 अंकों का यू.आई.डी. (UID) नंबर दर्ज करें:")
+                            </label>
+
+                            <input type="text"
+                                   class="form-control form-control-lg mx-auto text-center border-primary shadow-sm"
+                                   id="uidNumber"
+                                   name="uidNumber"
+                                   maxlength="7"
+                                   pattern="\d{7}"
+                                   title="@(isEnglish ? "Please enter exactly 7 digits" : "कृपया केवल 7 अंक दर्ज करें")"
+                                   placeholder="XXXXXXX"
+                                   style="max-width: 250px; font-size: 1.8rem; letter-spacing: 5px; font-weight: bold;"
+                                   required>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg px-5 py-2 rounded-pill shadow fw-bold text-uppercase">
+                                @(isEnglish ? "Proceed" : "आगे बढ़ें") <i class='bx bx-right-arrow-alt ms-1 fs-5 align-middle'></i>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

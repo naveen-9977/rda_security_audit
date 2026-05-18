@@ -1,0 +1,26 @@
+﻿@model rda_raipur.Models.Designation_Master
+@{
+    ViewData["Title"] = "Edit Designation";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+<div class="container-fluid mt-4">
+    <h1 class="h3 mb-4 border-bottom pb-3">Edit Designation</h1>
+    <div class="card shadow-sm border-0 col-lg-8">
+        <div class="card-body bg-light">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="designation_id" />
+                <input type="hidden" asp-for="IsActive" /><input type="hidden" asp-for="IsDeleted" />
+                <input type="hidden" asp-for="Create_Date" /><input type="hidden" asp-for="created_by" />
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Designation Name (English)</label>
+                    <input asp-for="designation_name_en" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Designation Name (Hindi)</label>
+                    <input asp-for="designation_name_hi" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Update Designation</button>
+            </form>
+        </div>
+    </div>
+</div>

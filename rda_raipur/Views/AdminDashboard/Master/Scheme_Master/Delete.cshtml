@@ -1,0 +1,110 @@
+﻿@model rda_raipur.Models.Scheme_Master
+
+@{
+    ViewData["Title"] = "Delete Scheme";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-semibold text-danger">Delete Scheme</h3>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+
+        <div class="card-body">
+
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Warning!</strong> Are you sure you want to delete this scheme?
+                This action cannot be undone.
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Scheme Name (English)</label>
+                    <div>@Model.scheme_name_en</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Scheme Name (Hindi)</label>
+                    <div>@Model.scheme_name_hi</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Short Name (EN)</label>
+                    <div>@Model.scheme_sort_name_en</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Short Name (HI)</label>
+                    <div>@Model.scheme_sort_name_hi</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">RERA Number</label>
+                    <div>@(string.IsNullOrEmpty(Model.scheme_rera_no) ? "N/A" : Model.scheme_rera_no)</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Created Date</label>
+                    <div>@(Model.create_date?.ToString("dd MMM yyyy") ?? "N/A")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Updated Date</label>
+                    <div>@(Model.updated_date?.ToString("dd MMM yyyy") ?? "N/A")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Updated By</label>
+                    <div>@Model.updated_by</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-semibold text-muted">Status</label>
+                    <div>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <form asp-action="Delete">
+
+                <input type="hidden" asp-for="scheme_id" />
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-action="Index" class="btn btn-light border">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete Scheme
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

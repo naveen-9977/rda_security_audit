@@ -1,0 +1,231 @@
+﻿<style>
+    /* =========================================
+           CLEAN & MINIMAL UI (Text-Wrap & Tabs Enabled)
+           ========================================= */
+
+    /* 1. Page Background */
+    .textured-bg {
+        background-color: #f8fafc;
+        padding-top: 45px; /* Carousel se gap banaye rakhne ke liye */
+        padding-bottom: 40px;
+    }
+
+    .modal {
+        z-index: 1060 !important;
+    }
+
+    .modal-backdrop {
+        z-index: 1050 !important;
+    }
+
+    /* =========================================
+           2. CLEAN PANELS (Notice Board & Tenders)
+           ========================================= */
+    .clean-panel {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .clean-panel-header {
+        border-bottom: 1px solid #e2e8f0;
+        background-color: #ffffff;
+    }
+
+    .clean-panel-icon {
+        color: #64748b;
+        font-size: 1.3rem;
+        margin-right: 12px;
+        background: #f1f5f9;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .clean-panel-body {
+        padding: 0;
+        flex-grow: 1;
+        position: relative;
+        height: 385px; /* Leader section ke barabar height */
+        overflow: hidden;
+    }
+
+    /* List Design - Text Upar, Date Niche */
+    .clean-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .clean-list li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column; /* Flex Column: Pura text wrap hokar date ke upar rahega */
+            align-items: flex-start;
+            transition: background-color 0.2s;
+        }
+
+            .clean-list li:last-child {
+                border-bottom: none;
+            }
+
+            .clean-list li:hover {
+                background-color: #f8fafc;
+            }
+
+    .notice-title-wrapper {
+        display: flex;
+        align-items: flex-start; /* Icon top line par rahega */
+        width: 100%;
+        margin-bottom: 6px; /* Title aur date ke beech gap */
+    }
+
+    .notice-link {
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #1e293b;
+        line-height: 1.5; /* Multi-line text ke beech perfect spacing */
+        white-space: normal; /* "..." wala effect hata diya gaya, ab pura text wrap hoga */
+    }
+
+        .notice-link:hover {
+            color: #2563eb !important;
+            text-decoration: underline;
+        }
+
+    .notice-date-badge {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding-left: 26px; /* Icon ki width chhodkar text ki line se date shuru hogi */
+        display: flex;
+        align-items: center;
+    }
+
+    .badge-pdf {
+        background-color: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 8px;
+        font-weight: bold;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /* Scroll Animation */
+    .scroll-content-vertical {
+        position: absolute;
+        width: 100%;
+        animation: scroll-up 45s linear infinite;
+    }
+
+    .clean-panel-body:hover .scroll-content-vertical {
+        animation-play-state: paused;
+    }
+
+    @@keyframes scroll-up {
+        0% {
+            top: 100%;
+        }
+
+        100% {
+            top: -100%;
+        }
+    }
+
+    /* =========================================
+           3. MATCHING LEADER CARDS
+           ========================================= */
+    .clean-leader-card {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        height: 100%;
+    }
+
+        .clean-leader-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+    .leader-img-wrapper {
+        flex-shrink: 0;
+        width: 65px;
+        height: 85px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+
+    .leader-img-fluid {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+    }
+
+    .leader-info-box {
+        margin-left: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .leader-name-text {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+        line-height: 1.2;
+    }
+
+    .leader-role-text {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #64748b;
+        line-height: 1.4;
+    }
+
+    /* =========================================
+           4. CUSTOM TABS STYLING
+           ========================================= */
+    .custom-tabs .nav-link {
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.95rem;
+        background-color: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        transition: 0.3s;
+    }
+
+        .custom-tabs .nav-link:hover {
+            background-color: #f1f5f9 !important;
+            color: #003366;
+        }
+
+        .custom-tabs .nav-link.active {
+            background-color: #ffffff !important;
+            color: #003366 !important;
+            border-bottom: 3px solid #f97316 !important;
+        }
+
+    .tab-pane {
+        padding-top: 10px;
+    }
+</style>

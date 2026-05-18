@@ -1,0 +1,87 @@
+﻿@model rda_raipur.Models.Scheme_Master
+
+@{
+    ViewData["Title"] = "Scheme Details";
+    // Forces the view to render inside your Admin Sidebar/Header layout
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0 text-gray-800">Scheme Information</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model?.scheme_id" class="btn btn-primary shadow-sm me-2">
+                <i class="bi bi-pencil-square me-1"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="card-title border-bottom pb-2 mb-4 text-primary">
+                <i class="bi bi-info-circle me-2"></i> Details for @Model.scheme_name_en
+            </h5>
+
+            <dl class="row mb-0">
+                <dt class="col-sm-3 text-muted mb-3">Scheme Name (EN)</dt>
+                <dd class="col-sm-9 fw-bold mb-3">@Html.DisplayFor(model => model.scheme_name_en)</dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Scheme Name (HI)</dt>
+                <dd class="col-sm-9 mb-3">@Html.DisplayFor(model => model.scheme_name_hi)</dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Short Name (EN)</dt>
+                <dd class="col-sm-9 mb-3">@Html.DisplayFor(model => model.scheme_sort_name_en)</dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Short Name (HI)</dt>
+                <dd class="col-sm-9 mb-3">@Html.DisplayFor(model => model.scheme_sort_name_hi)</dd>
+
+                <dt class="col-sm-3 text-muted mb-3">RERA Number</dt>
+                <dd class="col-sm-9 mb-3">
+                    @(string.IsNullOrEmpty(Model.scheme_rera_no) ? "N/A" : Model.scheme_rera_no)
+                </dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Created Date</dt>
+                <dd class="col-sm-9 mb-3">
+                    @(Model.create_date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")
+                </dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Updated Date</dt>
+                <dd class="col-sm-9 mb-3">
+                    @(Model.updated_date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")
+                </dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Updated By</dt>
+                <dd class="col-sm-9 mb-3">
+                    @(string.IsNullOrEmpty(Model.updated_by) ? "N/A" : Model.updated_by)
+                </dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Status</dt>
+                <dd class="col-sm-9 mb-3">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3 text-muted mb-3">Is Deleted</dt>
+                <dd class="col-sm-9 mb-3">
+                    @if (Model.IsDeleted)
+                    {
+                        <span class="badge bg-danger">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">No</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

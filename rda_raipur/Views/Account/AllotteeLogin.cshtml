@@ -1,0 +1,427 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model rda_raipur.Models.LoginViewModel
+
+@{
+    // भाषा पता करने के लिए
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "hi";
+    bool isEnglish = currentCulture.StartsWith("en");
+
+    ViewData["Title"] = isEnglish ? "Allottee Portal Login" : "आवंटी पोर्टल लॉगिन";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Public Layout
+}
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .allottee-login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 40px 15px;
+    }
+
+    .allottee-login-box {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(13, 148, 136, 0.1);
+        border-top: 5px solid #0d9488; /* Teal/Green for Allottee */
+        width: 100%;
+        max-width: 450px;
+        overflow: hidden;
+    }
+
+    .allottee-login-header {
+        background: #f0fdfa; /* Light Teal Background */
+        color: #0d9488;
+        padding: 25px 20px;
+        text-align: center;
+        border-bottom: 2px solid #ccfbf1;
+    }
+
+    .allottee-login-icon {
+        font-size: 3.5rem;
+        color: #0d9488;
+        margin-bottom: 5px;
+    }
+
+    .allottee-login-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+        color: #115e59; /* Dark Teal */
+    }
+
+    .allottee-login-subtitle {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+
+    .allottee-login-body {
+        padding: 30px 40px;
+    }
+
+    .gov-label {
+        font-weight: 700;
+        color: #475569;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .gov-input {
+        border-radius: 4px;
+        border: 1px solid #cbd5e1;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        background-color: #f8fafc;
+    }
+
+        .gov-input:focus {
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+            background-color: #ffffff;
+        }
+
+    .btn-gov-primary {
+        background: #0d9488;
+        color: #ffffff;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        transition: 0.3s;
+    }
+
+        .btn-gov-primary:hover {
+            background: #0f766e;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+        }
+
+    .btn-gov-outline {
+        background: transparent;
+        color: #0d9488;
+        border: 2px solid #0d9488;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 10px;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+        .btn-gov-outline:hover {
+            background: #f0fdfa;
+        }
+
+    .alert-danger-custom {
+        background-color: #fef2f2;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+        padding: 10px 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    #togglePassword {
+        cursor: pointer;
+    }
+
+    .captcha-box {
+        background: #f8fafc;
+        border-radius: 4px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+    }
+</style>
+
+<div class="allottee-login-container">
+    <div class="allottee-login-box">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success rounded-0 border-0 border-bottom border-success border-4 mb-0 text-center fw-bold">
+                <i class='bx bx-check-circle fs-4 align-middle me-1'></i> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div class="allottee-login-header">
+            <i class='bx bxs-user-detail allottee-login-icon'></i>
+            <h2 class="allottee-login-title">@(isEnglish ? "Allottee Portal Login" : "आवंटी पोर्टल लॉगिन")</h2>
+            <div class="allottee-login-subtitle">@(isEnglish ? "Citizen Access Portal" : "नागरिक एक्सेस पोर्टल")</div>
+        </div>
+
+        <div class="allottee-login-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert-danger-custom">
+                    <i class='bx bxs-error-circle me-1'></i>
+                    @Html.ValidationSummary(false, "", new { @class = "mb-0 list-unstyled" })
+                </div>
+            }
+
+            <form asp-action="AllotteeLogin" asp-controller="Account" method="post" id="loginForm">
+                @Html.AntiForgeryToken()
+
+                <div id="step1">
+                    <div class="mb-4">
+                        <label asp-for="Username" class="gov-label">@(isEnglish ? "Registered Mobile No." : "पंजीकृत मोबाइल नंबर") <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class='bx bx-mobile-alt'></i></span>
+                            <input asp-for="Username" id="mobileNo" class="form-control gov-input border-start-0 ps-0" placeholder="@(isEnglish ? "Enter 10-digit number" : "10-अंकों का नंबर दर्ज करें")" required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                        </div>
+                        <span asp-validation-for="Username" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="gov-label">@(isEnglish ? "Password" : "पासवर्ड") <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class='bx bx-lock-alt'></i></span>
+                            <input asp-for="Password" id="password" type="password" class="form-control gov-input border-start-0 ps-0" placeholder="@(isEnglish ? "Enter your password" : "अपना पासवर्ड दर्ज करें")" required />
+                            <span class="input-group-text bg-light border-start-0" id="togglePassword">
+                                <i class='bx bx-hide'></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-4">
+                        <a href="@Url.Action("ForgotPassword", "Account")" class="text-decoration-none fw-bold small" style="color: #0d9488;">
+                            @(isEnglish ? "Forgot Password?" : "पासवर्ड भूल गए?")
+                        </a>
+                    </div>
+
+                    <!-- Captcha Section -->
+                    <div class="mb-4 captcha-box shadow-sm" id="captchaContainer">
+                        <label class="gov-label">
+                            <i class='bx bx-shield-quarter text-secondary me-1'></i> @(isEnglish ? "Security Check" : "सुरक्षा जांच") <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <canvas id="captchaCanvas" width="140" height="40" class="border rounded bg-white" style="cursor:not-allowed;"></canvas>
+                            <button type="button" class="btn btn-light border shadow-sm px-3" id="refreshCaptcha" title="Refresh Captcha">
+                                <i class='bx bx-refresh fs-4 text-primary'></i>
+                            </button>
+                        </div>
+                        <input type="text" id="inputCaptcha" class="form-control gov-input" placeholder="@(isEnglish ? "Enter the text shown above" : "ऊपर दिखाया गया टेक्स्ट दर्ज करें")" required autocomplete="off" maxlength="6" />
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="button" id="btnSendOtp" class="btn btn-gov-primary shadow-sm">
+                            <i class='bx bx-send me-2'></i> @(isEnglish ? "Request OTP to Login" : "लॉगिन हेतु ओटीपी मंगाएं")
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <span class="text-muted small fw-bold">@(isEnglish ? "Don't have an account?" : "खाता नहीं है?")</span>
+                        <a href="@Url.Action("Register", "Account")" class="text-decoration-none fw-bold ms-1" style="color: #0d9488;">
+                            @(isEnglish ? "Register Here" : "यहाँ रजिस्टर करें")
+                        </a>
+                    </div>
+                </div>
+
+                <!-- OTP SECTION -->
+                <div id="step2" style="display: none;">
+                    <div class="alert alert-success fw-bold small rounded-1 border-success text-center mb-4">
+                        <i class='bx bx-check-circle fs-5 align-middle me-1'></i> @(isEnglish ? "OTP sent successfully to your mobile." : "आपके मोबाइल पर ओटीपी सफलतापूर्वक भेज दिया गया है।")
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <label asp-for="Otp" class="gov-label d-block mb-3 text-success">@(isEnglish ? "Enter 6-Digit OTP" : "6-अंकों का ओटीपी दर्ज करें") <span class="text-danger">*</span></label>
+                        <input asp-for="Otp" id="otpInput" class="form-control gov-input text-center fw-bold fs-4 mx-auto border-success" style="max-width: 200px; letter-spacing: 5px;" placeholder="------" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+
+                        <div class="d-flex justify-content-center mt-3">
+                            <small id="timerSpan" class="text-muted small fw-bold">@(isEnglish ? "Resend in:" : "पुनः भेजें:") <span id="timerCountdown" class="text-danger">01:00</span></small>
+                            <a href="javascript:void(0)" id="resendOtpBtn" class="small text-decoration-none fw-bold" style="color: #0d9488; display: none;">@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")</a>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-gov-primary shadow-sm" style="background-color: #10b981;">
+                            <i class='bx bx-log-in-circle me-2'></i> @(isEnglish ? "Verify & Secure Login" : "पुष्टि करें और लॉगिन करें")
+                        </button>
+                        <button type="button" id="btnBack" class="btn btn-gov-outline">
+                            <i class='bx bx-arrow-back me-2'></i> @(isEnglish ? "Back" : "वापस जाएं")
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+
+            // ✅ PASSWORD TOGGLE
+            $("#togglePassword").click(function () {
+                var input = $("#password");
+                var icon = $(this).find("i");
+                if (input.attr("type") === "password") {
+                    input.attr("type", "text");
+                    icon.removeClass("bx-hide").addClass("bx-show");
+                } else {
+                    input.attr("type", "password");
+                    icon.removeClass("bx-show").addClass("bx-hide");
+                }
+            });
+
+            // ✅ CAPTCHA LOGIC
+            var generatedCaptcha = "";
+            function generateCaptcha() {
+                var canvas = document.getElementById('captchaCanvas');
+                var ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                var chars = "0123456789";
+                generatedCaptcha = "";
+                for (var i = 0; i < 6; i++) {
+                    generatedCaptcha += chars[Math.floor(Math.random() * chars.length)];
+                }
+                for (let i = 0; i < 5; i++) {
+                    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+                    ctx.beginPath();
+                    ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                    ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                    ctx.stroke();
+                }
+                ctx.font = "bold 22px Arial";
+                ctx.fillStyle = "#115e59";
+                ctx.textBaseline = "middle";
+                ctx.letterSpacing = "3px";
+                ctx.fillText(generatedCaptcha, 15, canvas.height / 2);
+            }
+
+            generateCaptcha();
+            $("#refreshCaptcha").click(function () {
+                generateCaptcha();
+                $("#inputCaptcha").val('').focus();
+            });
+
+            // ✅ OTP TIMER LOGIC
+            var timerInterval;
+            function startOtpTimer(duration) {
+                var timer = duration, minutes, seconds;
+                clearInterval(timerInterval);
+                $("#timerSpan").show();
+                $("#resendOtpBtn").hide();
+
+                timerInterval = setInterval(function () {
+                    minutes = parseInt(timer / 60, 10);
+                    seconds = parseInt(timer % 60, 10);
+                    $("#timerCountdown").text((minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds));
+                    if (--timer < 0) {
+                        clearInterval(timerInterval);
+                        $("#timerSpan").hide();
+                        $("#resendOtpBtn").fadeIn();
+                    }
+                }, 1000);
+            }
+
+            // ✅ SEND OTP AJAX
+            $("#btnSendOtp").click(function () {
+                var mobile = $("#mobileNo").val();
+                var pwd = $("#password").val();
+                var userCaptcha = $("#inputCaptcha").val().trim();
+
+                if (mobile.length !== 10) {
+                    alert('@(isEnglish ? "Please enter a valid 10-digit mobile number." : "कृपया सही 10-अंकों का मोबाइल नंबर दर्ज करें।")');
+                    return;
+                }
+                if (!pwd) {
+                    alert('@(isEnglish ? "Please enter your password." : "कृपया अपना पासवर्ड दर्ज करें।")');
+                    return;
+                }
+                if (userCaptcha.toLowerCase() !== generatedCaptcha.toLowerCase()) {
+                    alert('@(isEnglish ? "Invalid CAPTCHA." : "गलत कैप्चा।")');
+                    generateCaptcha();
+                    $("#inputCaptcha").val('').focus();
+                    return;
+                }
+
+                var btn = $(this);
+                var originalText = btn.html();
+                btn.html("<span class='spinner-border spinner-border-sm me-2'></span> @(isEnglish ? "Sending..." : "भेजा जा रहा है...")").prop("disabled", true);
+
+                $.ajax({
+                    url: '/Account/GenerateOtp',
+                    type: 'POST',
+                    data: { username: mobile, password: pwd },
+                    success: function (res) {
+                        if (res.status === true) {
+                            $("#step1").slideUp();
+                            $("#step2").slideDown();
+                            $("#otpInput").attr("required", "required");
+                            startOtpTimer(60);
+                        } else {
+                            alert(res.message);
+                            btn.html(originalText).prop("disabled", false);
+                            generateCaptcha();
+                            $("#inputCaptcha").val('');
+                        }
+                    },
+                    error: function () {
+                        alert('@(isEnglish ? "Server error. Please try again." : "सर्वर त्रुटि। कृपया पुनः प्रयास करें।")');
+                        btn.html(originalText).prop("disabled", false);
+                    }
+                });
+            });
+
+            // ✅ RESEND OTP LOGIC
+            $('#resendOtpBtn').click(function(e) {
+                e.preventDefault();
+                var mobile = $("#mobileNo").val();
+                var pwd = $("#password").val();
+                var $resendBtn = $(this);
+                $resendBtn.text('@(isEnglish ? "Wait..." : "प्रतीक्षा करें...")').css('pointer-events', 'none');
+
+                $.ajax({
+                    url: '/Account/GenerateOtp',
+                    type: 'POST',
+                    data: { username: mobile, password: pwd },
+                    success: function (data) {
+                        if (data.status === true) {
+                            alert('@(isEnglish ? "OTP Resent Successfully!" : "ओटीपी सफलतापूर्वक पुनः भेज दिया गया है!")');
+                            $resendBtn.text('@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")').css('pointer-events', 'auto');
+                            startOtpTimer(60);
+                        } else {
+                            alert(data.message);
+                            $resendBtn.text('@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")').css('pointer-events', 'auto');
+                        }
+                    },
+                    error: function() {
+                        alert('@(isEnglish ? "Server error." : "सर्वर त्रुटि।")');
+                        $resendBtn.text('@(isEnglish ? "Resend OTP" : "ओटीपी पुनः भेजें")').css('pointer-events', 'auto');
+                    }
+                });
+            });
+
+            // ✅ BACK BUTTON
+            $("#btnBack").click(function () {
+                $("#step2").slideUp();
+                $("#step1").slideDown();
+                $("#otpInput").removeAttr("required").val("");
+                $("#btnSendOtp").html("<i class='bx bx-send me-2'></i> @(isEnglish ? "Request OTP to Login" : "लॉगिन हेतु ओटीपी मंगाएं")").prop("disabled", false);
+                generateCaptcha();
+                $("#inputCaptcha").val('');
+                clearInterval(timerInterval);
+            });
+        });
+    </script>
+}

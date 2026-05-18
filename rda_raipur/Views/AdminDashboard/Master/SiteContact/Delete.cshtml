@@ -1,0 +1,34 @@
+﻿@model rda_raipur.Models.site.SiteContact
+@{
+    ViewData["Title"] = "Delete Contact";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow border-danger">
+        <div class="card-header bg-danger text-white">
+            <h4>Are you sure you want to delete this contact?</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Office Name (English)</dt>
+                <dd class="col-sm-9">@Model.OfficeName</dd>
+
+                <dt class="col-sm-3">Office Name (Hindi)</dt>
+                <dd class="col-sm-9">@Model.OfficeNameHi</dd>
+
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.Phone1</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+            </dl>
+            
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger"><i class="bx bx-trash"></i> Delete Permanently</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

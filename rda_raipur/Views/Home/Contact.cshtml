@@ -1,0 +1,294 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model rda_raipur.Models.site.ContactQuery
+@{
+    // Detect Language
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEnglish = culture.StartsWith("en");
+
+    ViewData["Title"] = isEnglish ? "Contact Us" : "संपर्क करें";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var contactDetails = ViewBag.ContactInfo as rda_raipur.Models.site.SiteContact;
+}
+
+<style>
+    /* 1. Official Background */
+    .official-bg {
+        background-color: #f8f9fa;
+        padding: 40px 0 60px 0;
+    }
+
+    /* 2. Page Title - Official Style */
+    .page-title-official {
+        color: #1e293b;
+        font-weight: 700;
+        font-size: 1.6rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f97316;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 30px;
+    }
+
+    /* 3. Government Panel Design */
+    .govt-panel {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .govt-panel-header {
+        background-color: #1e293b; /* Official Navy Blue */
+        border-top: 3px solid #f97316; /* Orange Accent */
+        color: #ffffff;
+        padding: 12px 20px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+    }
+
+        .govt-panel-header i {
+            color: #f97316;
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+    .govt-panel-body {
+        padding: 25px;
+    }
+
+    /* 4. Form Inputs - Compact & Clean */
+    .official-label {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .official-input {
+        border: 1px solid #ced4da;
+        border-radius: 3px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        background-color: #fdfdfd;
+    }
+
+        .official-input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.15);
+            background-color: #ffffff;
+        }
+
+    /* 5. Official Standard Button */
+    .btn-official {
+        background-color: #f97316;
+        color: #ffffff;
+        font-weight: 600;
+        padding: 8px 30px;
+        border-radius: 3px;
+        border: 1px solid #ea580c;
+        transition: 0.2s;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+    }
+
+        .btn-official:hover {
+            background-color: #ea580c;
+            color: #ffffff;
+        }
+
+    /* 6. Contact Details List */
+    .official-contact-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .official-contact-list li {
+            display: flex;
+            align-items: flex-start;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px dotted #dee2e6;
+        }
+
+            .official-contact-list li:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+    .contact-icon-box {
+        color: #1e293b;
+        font-size: 1.4rem;
+        margin-right: 15px;
+        margin-top: 2px;
+    }
+
+    .contact-text-heading {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .contact-text-value {
+        font-size: 0.95rem;
+        color: #212529;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="official-bg">
+    <div class="container-fluid px-3 px-md-5">
+
+        <div class="text-center wow fadeIn" data-wow-delay="0.1s">
+            <h1 class="page-title-official">@(isEnglish ? "Contact Us" : "संपर्क करें")</h1>
+        </div>
+
+        <div class="row g-4 align-items-stretch mb-4">
+
+            <div class="col-lg-7 wow fadeInLeft" data-wow-delay="0.2s">
+                <div class="govt-panel">
+                    <div class="govt-panel-header">
+                        <i class='bx bxs-envelope'></i> @(isEnglish ? "Online Query Form" : "ऑनलाइन पूछताछ फॉर्म")
+                    </div>
+
+                    <div class="govt-panel-body">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success border-success text-success p-2 mb-4 rounded-1" role="alert">
+                                <i class="bx bx-check-circle me-1 align-middle"></i>
+                                <strong>@(isEnglish ? "Success!" : "सफलता!")</strong> @(isEnglish ? "Your message has been sent successfully." : "आपका संदेश सफलतापूर्वक भेज दिया गया है।")
+                            </div>
+                        }
+
+                        <form asp-action="Contact" method="post">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Name" class="official-label">@(isEnglish ? "Full Name" : "पूरा नाम") <span class="text-danger">*</span></label>
+                                        <input asp-for="Name" class="form-control official-input" />
+                                        <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Phone" class="official-label">@(isEnglish ? "Mobile Number" : "मोबाइल नंबर") <span class="text-danger">*</span></label>
+                                        <input asp-for="Phone" class="form-control official-input" maxlength="10" />
+                                        <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label asp-for="Email" class="official-label">@(isEnglish ? "Email Address" : "ईमेल पता") <span class="text-danger">*</span></label>
+                                        <input asp-for="Email" class="form-control official-input" type="email" />
+                                        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label asp-for="Message" class="official-label">@(isEnglish ? "Message / Query" : "संदेश / पूछताछ") <span class="text-danger">*</span></label>
+                                        <textarea asp-for="Message" class="form-control official-input" style="height: 100px; resize: none;"></textarea>
+                                        <span asp-validation-for="Message" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3 text-start">
+                                    <button class="btn btn-official" type="submit">
+                                        <i class="bx bxs-paper-plane me-1"></i> @(isEnglish ? "SUBMIT" : "जमा करें")
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 wow fadeInRight" data-wow-delay="0.3s">
+                <div class="govt-panel">
+                    <div class="govt-panel-header">
+                        <i class='bx bxs-contact'></i> @(isEnglish ? "Office Information" : "कार्यालय की जानकारी")
+                    </div>
+
+                    <div class="govt-panel-body">
+                        @if (contactDetails != null)
+                        {
+                            <ul class="official-contact-list">
+                                <li>
+                                    <div class="contact-icon-box"><i class="bx bxs-map"></i></div>
+                                    <div>
+                                        <div class="contact-text-heading">@(isEnglish ? "Office Address" : "कार्यालय का पता")</div>
+                                        <div class="contact-text-value">
+                                            <strong>@(isEnglish? contactDetails.OfficeName: (!string.IsNullOrEmpty(contactDetails.OfficeNameHi) ? contactDetails.OfficeNameHi : contactDetails.OfficeName))</strong><br />
+                                            @(isEnglish? contactDetails.Address: (!string.IsNullOrEmpty(contactDetails.AddressHi) ? contactDetails.AddressHi : contactDetails.Address))
+                                        </div>
+                                    </div>
+                                </li>
+
+                                @if (!string.IsNullOrEmpty(contactDetails.Phone1))
+                                {
+                                    <li>
+                                        <div class="contact-icon-box"><i class="bx bxs-phone-call"></i></div>
+                                        <div>
+                                            <div class="contact-text-heading">@(isEnglish ? "Telephone" : "दूरभाष")</div>
+                                            <div class="contact-text-value">
+                                                @contactDetails.Phone1 @(!string.IsNullOrEmpty(contactDetails.Phone2) ? $" / {contactDetails.Phone2}" : "")
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (!string.IsNullOrEmpty(contactDetails.Email))
+                                {
+                                    <li>
+                                        <div class="contact-icon-box"><i class="bx bxs-envelope"></i></div>
+                                        <div>
+                                            <div class="contact-text-heading">@(isEnglish ? "Email" : "ईमेल")</div>
+                                            <div class="contact-text-value">
+                                                <a href="mailto:@contactDetails.Email" class="text-decoration-none text-dark">@contactDetails.Email</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4 text-muted">
+                                <i class="bx bx-info-circle fs-1 mb-2"></i>
+                                <p>@(isEnglish ? "Contact details are currently unavailable." : "संपर्क विवरण वर्तमान में उपलब्ध नहीं हैं।")</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div> @if (contactDetails != null && !string.IsNullOrEmpty(contactDetails.MapEmbedUrl))
+        {
+            <div class="row wow fadeInUp" data-wow-delay="0.4s">
+                <div class="col-12">
+                    <div class="govt-panel p-1">
+                        <iframe class="w-100" style="height: 350px; border:0; border-radius: 2px;"
+                                src="@contactDetails.MapEmbedUrl"
+                                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

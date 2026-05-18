@@ -1,0 +1,80 @@
+﻿@model rda_raipur.Models.ViewModels.LotteryVM
+
+<h4>Lottery System</h4>
+
+<div>
+    <b>Category:</b> @Model.Category <br />
+    <b>Property Type:</b> @Model.PropertyType <br />
+    <b>Offset Price:</b> @Model.OffsetPrice <br />
+    <b>Total Flats:</b> @Model.TotalFlats
+</div>
+
+<hr />
+
+<form method="post">
+    <input type="hidden" asp-for="Category" />
+    <input type="hidden" asp-for="PropertyType" />
+    <input type="hidden" asp-for="OffsetPrice" />
+    <input type="hidden" asp-for="TotalFlats" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Applicant Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Applicants.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>
+                        @Model.Applicants[i].Name
+                        <input type="hidden" name="Applicants[@i].Id" value="@Model.Applicants[i].Id" />
+                        <input type="hidden" name="Applicants[@i].Name" value="@Model.Applicants[i].Name" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Available Flats -->
+    @for (int i = 0; i < Model.AvailableFlats.Count; i++)
+    {
+        <input type="hidden" name="AvailableFlats[@i]" value="@Model.AvailableFlats[i]" />
+    }
+
+    <button type="submit" formaction="/Lottery/MockLottery" class="btn btn-warning">
+        Mock Lottery
+    </button>
+
+    <button type="submit" formaction="/Lottery/FinalLottery" class="btn btn-success">
+        Final Lottery
+    </button>
+</form>
+
+<hr />
+
+@if (Model.Results != null)
+{
+    <h5>Lottery Result (Mock)</h5>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Applicant</th>
+                <th>Flat No</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Results)
+            {
+                <tr>
+                    <td>@item.ApplicantName</td>
+                    <td>@item.FlatNo</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

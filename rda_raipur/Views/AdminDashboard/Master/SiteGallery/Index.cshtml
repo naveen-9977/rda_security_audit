@@ -1,0 +1,253 @@
+﻿@model IEnumerable<rda_raipur.Models.site.SiteGallery>
+@using rda_raipur.Data
+@using System.Security.Claims
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Gallery Management";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+
+    // --- Permission Logic ---
+    var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    int userId = 0;
+    int.TryParse(userIdStr, out userId);
+    bool isAdmin = User.IsInRole("Admin");
+
+    var permission = (from p in _context.EmployeePermissions
+                      join m in _context.AppModules on p.ModuleId equals m.ModuleId
+                      where p.UserId == userId && m.ControllerName == "SiteGallery"
+                      select p).FirstOrDefault();
+
+    bool canAdd = isAdmin || (permission?.CanAdd ?? false);
+    bool canEdit = isAdmin || (permission?.CanEdit ?? false);
+    bool canDelete = isAdmin || (permission?.CanDelete ?? false);
+
+    // Folders list ViewBag se nikalna
+    var folders = ViewBag.FoldersList as IEnumerable<rda_raipur.Models.site.GalleryFolder>;
+
+    // Wapas aane par kaunsa tab open rakhna hai
+    var activeTab = TempData["ActiveTab"]?.ToString() ?? "images";
+}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+<div class="container-fluid mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-images me-2"></i>Photo Gallery Master</h5>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-1"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <ul class="nav nav-tabs mb-4" id="galleryTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "images" ? "active" : "") fw-bold" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
+                        <i class="bi bi-image"></i> Gallery Images
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "folders" ? "active" : "") fw-bold" id="folders-tab" data-bs-toggle="tab" data-bs-target="#folders" type="button" role="tab">
+                        <i class="bi bi-folder"></i> Manage Albums (Folders)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="galleryTabContent">
+
+                <div class="tab-pane fade @(activeTab == "images" ? "show active" : "")" id="images" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                        @if (canAdd)
+                        {
+                            <a href="@Url.Action("Create", "SiteGallery")" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>Add New Image
+                            </a>
+                        }
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="imagesTable" class="table table-hover table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 100px;">Preview</th>
+                                    <th>Album / Folder</th>
+                                    <th>Title (English)</th>
+                                    <th>Title (Hindi)</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null)
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <img src="@item.ImagePath" class="img-thumbnail" style="height: 50px; width: 80px; object-fit: cover;" onerror="this.src='/images/placeholder.png'" />
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info text-dark">
+                                                    @(item.GalleryFolder?.FolderName ?? "Uncategorized")
+                                                </span>
+                                            </td>
+                                            <td>@item.Title_en</td>
+                                            <td>@item.Title_hi</td>
+                                            <td class="text-center">
+                                                <span class="badge @(item.IsActive ? "bg-success" : "bg-secondary")">
+                                                    @(item.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    @if (canEdit)
+                                                    {
+                                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </a>
+                                                    }
+                                                    @if (canDelete)
+                                                    {
+                                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Delete this image?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade @(activeTab == "folders" ? "show active" : "")" id="folders" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                        @if (canAdd)
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+                                <i class="bi bi-folder-plus me-1"></i>Create New Album
+                            </button>
+                        }
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="foldersTable" class="table table-hover table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 100px;">Cover</th>
+                                    <th>Album Name</th>
+                                    <th>Created Date</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (folders != null)
+                                {
+                                    foreach (var f in folders)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(f.CoverImagePath))
+                                                {
+                                                    <img src="@f.CoverImagePath" class="img-thumbnail" style="height: 50px; width: 80px; object-fit: cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-folder-fill text-warning" style="font-size: 1.5rem;"></i>
+                                                }
+                                            </td>
+                                            <td class="fw-bold text-primary">@f.FolderName</td>
+                                            <td>@f.CreatedDate.ToString("dd MMM yyyy")</td>
+                                            <td class="text-center">
+                                                <span class="badge @(f.IsActive ? "bg-success" : "bg-danger")">
+                                                    @(f.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    @if (canEdit)
+                                                    {
+                                                        <a asp-action="EditFolder" asp-route-id="@f.Id" class="btn btn-outline-warning btn-sm">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </a>
+                                                    }
+                                                    @if (canDelete)
+                                                    {
+                                                        <form asp-action="DeleteFolder" asp-route-id="@f.Id" method="post" onsubmit="return confirm('Delete this Album and all its contents?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Create New Album</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreateFolder" asp-controller="SiteGallery" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Album / Folder Name <span class="text-danger">*</span></label>
+                        <input name="FolderName" class="form-control" placeholder="E.g., Event 2024" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cover Image</label>
+                        <input name="CoverImageUpload" type="file" class="form-control" accept="image/*" />
+                        <small class="text-muted">Optional: Folder ki cover photo lagane ke liye.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Album</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#imagesTable, #foldersTable').DataTable({
+                "pageLength": 10,
+                "language": {
+                    "search": "Quick Search:",
+                    "lengthMenu": "Show _MENU_ entries"
+                }
+            });
+        });
+    </script>
+}

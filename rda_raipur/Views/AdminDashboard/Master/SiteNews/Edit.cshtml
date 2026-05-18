@@ -1,0 +1,79 @@
+﻿@model rda_raipur.Models.site.SiteNews
+
+@{
+    ViewData["Title"] = "Edit News";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Edit Site News</h6>
+                    <a asp-action="Index" class="btn btn-sm btn-secondary">Back to List</a>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="NewsText_en" class="form-label font-weight-bold">News Text (English) <span class="text-danger">*</span></label>
+                            <textarea asp-for="NewsText_en" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="NewsText_en" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewsText_hi" class="form-label font-weight-bold">News Text (Hindi) <span class="text-danger">*</span></label>
+                            <textarea asp-for="NewsText_hi" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="NewsText_hi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LinkUrl" class="form-label font-weight-bold">Target Link</label>
+                                <input asp-for="LinkUrl" class="form-control" />
+                                <span asp-validation-for="LinkUrl" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PdfFile" class="form-label font-weight-bold">Upload New PDF (Optional)</label>
+                                <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf" />
+
+                                @if (!string.IsNullOrEmpty(Model.PdfFilePath))
+                                {
+                                    <div class="mt-2">
+                                        <a href="@Model.PdfFilePath" target="_blank" class="badge bg-info text-white text-decoration-none">
+                                            <i class="fas fa-file-pdf"></i> View Current PDF
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" asp-for="IsActive">
+                            <label class="form-check-label" asp-for="IsActive">Display on Website</label>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save me-1"></i> Update News
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

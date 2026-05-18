@@ -1,0 +1,293 @@
+﻿@using Microsoft.AspNetCore.Localization
+
+<footer class="rda-footer mt-auto">
+    <div class="container-fluid px-md-5">
+        <div class="row g-4">
+
+            <div class="col-lg-3 col-md-6 pe-lg-3">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="~/images/rda-logo.png" alt="RDA Raipur Logo" class="footer-logo me-3">
+                    <div>
+                        <h5 class="footer-brand-title mb-0">Raipur Development<br>Authority</h5>
+                    </div>
+                </div>
+
+                <p class="footer-desc text-light">
+                    Raipur Development Authority is an urban Development Authority constituted under the Chhattisgarh Town and Country Planning Act 1973. Raipur Development Authority is commonly referred to as RDA Raipur.
+                </p>
+
+                <div class="mt-4">
+                    <h6 class="social-heading">Follow up</h6>
+                    <div class="social-icons">
+                        <a href="#"><i class='bx bxl-facebook-square'></i></a>
+                        <a href="#"><i class='bx bxl-twitter'></i></a>
+                        <a href="#"><i class='bx bxl-instagram'></i></a>
+                        <a href="#"><i class='bx bxl-youtube'></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading">Quick Links</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#"><i class='bx bx-chevron-right'></i> News</a></li>
+                    <li><a href="#"><i class='bx bx-chevron-right'></i> Gallery</a></li>
+                    <li><a href="#"><i class='bx bx-chevron-right'></i> Schemes</a></li>
+                    <li><a href="#"><i class='bx bx-chevron-right'></i> Organization</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading">Popular Links</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="https://cgstate.gov.in" target="_blank"><i class='bx bx-link-external'></i> cgstate.gov.in</a></li>
+                    <li><a href="https://rajyotsava.info" target="_blank"><i class='bx bx-link-external'></i> rajyotsava.info</a></li>
+                    <li><a href="https://chhattisgarh.nic.in" target="_blank"><i class='bx bx-link-external'></i> chhattisgarh.nic.in</a></li>
+                    <li><a href="https://rera.cgstate.gov.in" target="_blank"><i class='bx bx-link-external'></i> rera.cgstate.gov.in</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h5 class="footer-heading">Contact Us</h5>
+                <ul class="list-unstyled footer-contact">
+                    <li class="d-flex mb-3">
+                        <i class='bx bxs-phone'></i>
+                        <span>1800-233-7188<br />7224980800</span>
+                    </li>
+                    <li class="d-flex mb-4">
+                        <i class='bx bxs-envelope'></i>
+                        <span>ceordaryp@gmail.com</span>
+                    </li>
+                </ul>
+
+                <div class="visitor-counter">
+                    <h6 class="mb-1">Total Visitors</h6>
+                    <div class="d-flex align-items-center">
+                        <i class='bx bx-bar-chart-alt-2'></i>
+                        <span class="count-number">124,560</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="footer-heading">Locate Us</h5>
+                <div class="footer-map-container">
+                    <iframe src="https://maps.google.com/maps?q=Raipur+Development+Authority,+Raipur,+Chhattisgarh&t=&z=15&ie=UTF8&iwloc=B&output=embed"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+
+        <hr class="footer-divider" />
+
+        <div class="row align-items-center footer-bottom">
+            <div class="col-md-5 text-center text-md-start">
+                Copyright © @DateTime.Now.Year <strong>Raipur Development Authority</strong>. All Rights Reserved.
+            </div>
+
+            <div class="col-md-7 text-center text-md-end mt-3 mt-md-0 d-flex flex-wrap align-items-center justify-content-center justify-content-md-end">
+                <div class="me-2 mb-2 mb-md-0">
+                    Site designed and developed by <strong>NIC</strong>, Raipur.
+                </div>
+                <a href="https://www.nic.in" target="_blank" class="nic-link">
+                    <img src="~/images/external_logos/nic_logo.png" alt="NIC Logo">
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .rda-footer {
+        background-color: #0d233a;
+        border-top: clamp(3px, 0.4vw, 5px) solid #178acc;
+        padding-top: clamp(30px, 5vw, 60px);
+        padding-bottom: clamp(15px, 3vw, 25px);
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .footer-logo {
+        height: clamp(45px, 5vw, 65px);
+        width: auto;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: clamp(3px, 0.5vw, 6px);
+        border-radius: 6px;
+    }
+
+    .footer-brand-title {
+        font-weight: 700;
+        color: #ffffff;
+        font-size: clamp(0.95rem, 1.2vw, 1.2rem);
+        line-height: 1.3;
+        letter-spacing: 0.5px;
+    }
+
+    .footer-desc {
+        opacity: 0.8;
+        line-height: 1.8;
+        text-align: justify;
+        font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+        margin-bottom: 0;
+    }
+
+    .social-heading {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: clamp(0.9rem, 1vw, 1rem);
+        margin-bottom: 12px;
+    }
+
+    .social-icons a {
+        color: #ffffff;
+        font-size: clamp(1.4rem, 1.8vw, 1.6rem);
+        opacity: 0.8;
+        transition: 0.3s;
+        margin-right: 12px;
+        display: inline-block;
+    }
+
+    .social-icons a:hover {
+        opacity: 1;
+        color: #178acc;
+        transform: translateY(-3px);
+    }
+
+    .footer-heading {
+        color: #ffffff;
+        margin-bottom: clamp(15px, 2vw, 25px);
+        font-weight: 600;
+        border-bottom: 2px solid #178acc;
+        display: inline-block;
+        padding-bottom: 5px;
+        font-size: clamp(1rem, 1.1vw, 1.15rem);
+    }
+
+    .footer-links {
+        line-height: clamp(2, 2.5vw, 2.2);
+    }
+
+    .footer-links li a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: clamp(0.8rem, 0.9vw, 0.9rem);
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .footer-links i {
+        color: #178acc;
+        margin-right: 5px;
+        font-size: 1.1rem;
+        transition: 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: #178acc;
+        padding-left: 6px;
+        opacity: 1;
+    }
+
+    .footer-links a:hover i {
+        color: #ffffff;
+    }
+
+    .footer-contact li {
+        font-size: clamp(0.8rem, 0.9vw, 0.9rem);
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+        word-break: break-word;
+    }
+
+    .footer-contact i {
+        color: #178acc;
+        font-size: clamp(1.1rem, 1.3vw, 1.3rem);
+        margin-top: 3px;
+        margin-right: 10px;
+    }
+
+    .visitor-counter {
+        padding: clamp(8px, 1vw, 12px);
+        margin-top: 15px;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .visitor-counter h6 {
+        color: #178acc;
+        font-size: clamp(0.75rem, 0.85vw, 0.85rem);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .visitor-counter i {
+        color: #ffffff;
+        font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+        margin-right: 10px;
+    }
+
+    .count-number {
+        font-family: monospace;
+        font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+        letter-spacing: 1px;
+        font-weight: bold;
+        color: #ffffff;
+    }
+
+    .footer-map-container {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        height: clamp(180px, 20vw, 220px);
+        width: 100%;
+        position: relative;
+    }
+
+    .footer-map-container iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .footer-divider {
+        border-color: rgba(255, 255, 255, 0.15);
+        margin-top: clamp(20px, 3vw, 30px);
+        margin-bottom: clamp(15px, 2.5vw, 25px);
+    }
+
+    .footer-bottom {
+        font-size: clamp(0.75rem, 0.85vw, 0.85rem);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-bottom strong {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .nic-link img {
+        height: clamp(30px, 4vw, 38px);
+        width: auto;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 3px 6px;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .nic-link:hover img {
+        transform: scale(1.05);
+        background-color: #ffffff;
+    }
+
+    @@media (max-width: 991px) {
+        .footer-desc {
+            text-align: left;
+        }
+    }
+</style>

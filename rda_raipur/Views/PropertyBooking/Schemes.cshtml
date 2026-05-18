@@ -1,0 +1,491 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model rda_raipur.Models.ViewModels.TenderLiveCreateVM
+
+@{
+    // 🔥 BILINGUAL LOGIC: Checking selected language 🔥
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEng = culture.StartsWith("en");
+
+    ViewData["Title"] = isEng ? "Available Properties for Booking" : "बुकिंग के लिए उपलब्ध संपत्तियां";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var schemeSummary = ViewBag.SchemeSummary as IEnumerable<dynamic>;
+
+    // 🔥 Property Type Logic for Search Box 🔥
+    string selectedType = ViewBag.SelectedPropertyType?.ToString()?.ToLower() ?? "";
+    string unitLabel = isEng ? "Unit" : "यूनिट";
+
+    bool isPlotOrShop = selectedType.Contains("plot") || selectedType.Contains("land") || selectedType.Contains("shop") || selectedType.Contains("commercial");
+
+    if (selectedType.Contains("flat")) { unitLabel = isEng ? "Flat" : "फ्लैट"; }
+    else if (selectedType.Contains("plot") || selectedType.Contains("land")) { unitLabel = isEng ? "Plot" : "प्लॉट"; }
+    else if (selectedType.Contains("shop") || selectedType.Contains("commercial")) { unitLabel = isEng ? "Shop" : "दुकान"; }
+    else if (selectedType.Contains("house") || selectedType.Contains("makan")) { unitLabel = isEng ? "House" : "मकान"; }
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --govt-primary: #003366; /* Official Navy Blue */
+        --govt-secondary: #e88d14; /* Saffron/Orange accent */
+        --govt-bg: #f4f6f9; /* Clean light gray */
+        --govt-text: #333333;
+        --govt-border: #dee2e6;
+    }
+
+    body {
+        background-color: var(--govt-bg);
+        font-family: 'Roboto', Arial, sans-serif;
+        color: var(--govt-text);
+    }
+
+    .page-wrapper {
+        width: 100%;
+        padding: 20px 30px;
+        margin: 0;
+    }
+
+    /* --- OFFICIAL HEADER --- */
+    .header-section {
+        text-align: center;
+        padding: 20px 0 25px 0;
+        margin-bottom: 20px;
+        background: #ffffff;
+        border-bottom: 3px solid var(--govt-primary);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border-radius: 4px;
+    }
+
+        .header-section h1 {
+            font-weight: 700;
+            color: var(--govt-primary);
+            margin-bottom: 8px;
+            font-size: 2rem;
+        }
+
+        .header-section p {
+            font-size: 1rem;
+            color: #555555;
+            margin-bottom: 10px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    .header-divider {
+        width: 80px;
+        height: 3px;
+        background: var(--govt-secondary);
+        margin: 0 auto;
+    }
+
+    /* --- SIDEBAR FILTER (Govt Style) --- */
+    .filter-panel {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 90px;
+        background: #ffffff;
+        border: 1px solid var(--govt-border);
+        border-top: 4px solid var(--govt-primary);
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .filter-header {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--govt-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .filter-header h6 {
+            margin: 0;
+            font-weight: 700;
+            color: var(--govt-primary);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+    .filter-body {
+        padding: 15px;
+    }
+
+    .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 2px;
+        border: 1px solid #ced4da;
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--govt-primary);
+            box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.1);
+        }
+
+    .btn-search {
+        background: var(--govt-primary);
+        color: #fff;
+        border: none;
+        border-radius: 2px;
+        padding: 10px;
+        font-weight: 600;
+        width: 100%;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        transition: 0.2s;
+    }
+
+        .btn-search:hover {
+            background: #002244;
+            color: #fff;
+        }
+
+    /* --- PROPERTY CARDS (Clean & Official) --- */
+    .property-card {
+        background: #ffffff;
+        border: 1px solid var(--govt-border);
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        transition: all 0.2s ease-in-out;
+    }
+
+        .property-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #b3c2d1;
+        }
+
+    /* 🔥 MODERN SHIMMER LOADER FOR CARD IMAGES 🔥 */
+    .card-img-container {
+        position: relative;
+        height: 160px;
+        border-bottom: 1px solid var(--govt-border);
+        overflow: hidden;
+        /* Shimmer Background */
+        background: #e2e8f0;
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmerLoaderProp 1.5s infinite;
+    }
+
+    @@keyframes shimmerLoaderProp {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* 🔥 FADE-IN EFFECT 🔥 */
+    .card-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0; /* Pehle chhupa rahega */
+        transition: opacity 0.6s ease-in-out, transform 0.4s ease;
+    }
+
+        .card-img-container img.loaded {
+            opacity: 1; /* Load hone par dikhega */
+        }
+
+    /* Hover Zoom Effect */
+    .property-card:hover .card-img-container img.loaded {
+        transform: scale(1.05);
+    }
+
+    .official-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--govt-primary);
+        color: #ffffff;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        border-radius: 2px;
+        z-index: 2;
+    }
+
+    .price-tag {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+        padding: 4px 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-left: 3px solid var(--govt-secondary);
+        z-index: 2;
+    }
+
+    .card-body-content {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .project-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--govt-primary);
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .location-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+
+    .info-table {
+        width: 100%;
+        margin-bottom: 15px;
+        font-size: 0.8rem;
+        border: 1px solid var(--govt-border);
+    }
+
+        .info-table th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 6px 8px;
+            border: 1px solid var(--govt-border);
+            width: 40%;
+        }
+
+        .info-table td {
+            padding: 6px 8px;
+            border: 1px solid var(--govt-border);
+            color: #212529;
+            font-weight: 500;
+        }
+
+    .doc-links {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .doc-link {
+        font-size: 0.75rem;
+        color: var(--govt-primary);
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid var(--govt-primary);
+        padding: 3px 8px;
+        border-radius: 2px;
+        background: #fff;
+    }
+
+        .doc-link:hover {
+            background: var(--govt-primary);
+            color: #fff;
+        }
+
+    .btn-view {
+        background: #28a745; /* Standard Govt Green */
+        color: #fff;
+        border: none;
+        padding: 10px;
+        width: 100%;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border-radius: 2px;
+        text-align: center;
+        text-decoration: none;
+        margin-top: auto;
+    }
+
+        .btn-view:hover {
+            background: #218838;
+            color: #fff;
+        }
+</style>
+
+<div class="page-wrapper">
+
+    <div class="header-section">
+        <h1>@(isEng ? "Available Properties for Booking" : "बुकिंग के लिए उपलब्ध संपत्तियां")</h1>
+        <p>@(isEng ? "RDA offers a variety of residential and commercial options. Select your preferred property to view detailed unit lists." : "RDA आवासीय और व्यावसायिक संपत्तियों के विभिन्न विकल्प प्रदान करता है। विस्तृत यूनिट सूची देखने के लिए अपनी पसंदीदा संपत्ति चुनें।")</p>
+        <div class="header-divider"></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-3 col-lg-4">
+            <div class="filter-panel">
+                <div class="filter-header">
+                    <h6>@(isEng ? "Search Filters" : "खोज फ़िल्टर")</h6>
+                    <a href="@Url.Action("Schemes")" class="text-danger small fw-bold text-decoration-none">@(isEng ? "Clear" : "साफ़ करें")</a>
+                </div>
+                <div class="filter-body">
+                    <form method="get" asp-action="Schemes">
+
+                        <div class="mb-3">
+                            <label class="form-label">@(isEng ? "Select Project / Scheme" : "प्रोजेक्ट / योजना चुनें")</label>
+                            <select asp-for="SearchSchemeId" class="form-select">
+                                <option value="">@(isEng ? "-- All Projects --" : "-- सभी प्रोजेक्ट्स --")</option>
+                                @if (ViewBag.SchemeList != null)
+                                {
+                                    foreach (var s in ViewBag.SchemeList)
+                                    {
+                                        <option value="@s.scheme_id">@s.scheme_name_en</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@(isEng ? "Property Category" : "संपत्ति की श्रेणी")</label>
+                            <select name="propertyType" class="form-select">
+                                <option value="">@(isEng ? "-- All Categories --" : "-- सभी श्रेणियां --")</option>
+                                @if (ViewBag.PropertyTypes != null)
+                                {
+                                    foreach (var pt in ViewBag.PropertyTypes)
+                                    {
+                                        <option value="@pt" selected="@(pt == ViewBag.SelectedPropertyType ? "selected" : null)">@pt</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label d-flex justify-content-between">
+                                <span>@(isEng ? "Max Budget" : "अधिकतम बजट")</span>
+                                <span id="priceVal" class="text-primary fw-bold">@(isEng ? "Any" : "कोई भी")</span>
+                            </label>
+                            <input type="range" name="budget" value="@ViewBag.SelectedBudget" class="form-range" min="0" max="10000000" step="100000" id="budgetRange" />
+                        </div>
+
+                        <button type="submit" class="btn btn-search">
+                            <i class="bi bi-search me-1"></i> @(isEng ? "Search Properties" : "संपत्तियां खोजें")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-9 col-lg-8">
+            <div class="row g-3">
+                @if (schemeSummary != null && schemeSummary.Any())
+                {
+                    foreach (var item in schemeSummary)
+                    {
+                        // 🔥 Yahan ek Bulletproof (Safe) image check lagaya gaya hai 🔥
+                        string imageUrl = "/images/placeholder.jpg"; // Default
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(item.SchemeImage))
+                            {
+                                imageUrl = item.SchemeImage;
+                            }
+                        }
+                        catch
+                        {
+                            // Agar SchemeImage column nahi mila to page crash nahi hoga!
+                        }
+
+                        <div class="col-xl-4 col-md-6 mb-3">
+                            <div class="property-card">
+                                <div class="card-img-container">
+                                    <img src="@imageUrl" alt="Project Image" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='/images/placeholder.jpg';" />
+                                    <span class="official-badge">@item.TotalAssets @(isEng? unitLabel +"s Available" : unitLabel + " उपलब्ध")</span>
+                                    <span class="price-tag">₹ @item.MinPrice.ToString("N0") @(isEng ? "onwards" : "से शुरू")</span>
+                                </div>
+
+                                <div class="card-body-content">
+                                    <h3 class="project-title">@item.SchemeName</h3>
+                                    <div class="location-text"><i class="bi bi-geo-alt-fill text-danger"></i> Raipur, Chhattisgarh</div>
+
+                                    <table class="info-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>@(isEng ? "Type" : "प्रकार")</th>
+                                                <td>@item.PropertyType</td>
+                                            </tr>
+                                            <tr>
+                                                <th>@(isEng ? "Start Date" : "प्रारंभ तिथि")</th>
+                                                <td>@item.StartDate.ToString("dd-MM-yyyy")</td>
+                                            </tr>
+                                            <tr>
+                                                <th>@(isEng ? "End Date" : "अंतिम तिथि")</th>
+                                                <td>@item.EndDate.ToString("dd-MM-yyyy")</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="doc-links">
+                                        @if (!string.IsNullOrEmpty(item.Brochure))
+                                        {
+                                            <a href="@item.Brochure" target="_blank" class="doc-link"><i class="bi bi-file-earmark-pdf"></i> @(isEng ? "Brochure" : "ब्रोशर")</a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Layout))
+                                        {
+                                            <a href="@item.Layout" target="_blank" class="doc-link"><i class="bi bi-map"></i> @(isEng ? "Layout" : "लेआउट")</a>
+                                        }
+                                    </div>
+
+                                    <a asp-action="Units"
+                                       asp-route-schemeName="@item.SchemeName"
+                                       asp-route-propertyType="@item.PropertyType"
+                                       class="btn btn-view">
+                                        @(isEng ? "View Details & Apply" : "विवरण देखें और आवेदन करें")
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="alert alert-info text-center p-5 border" style="background-color: #fff; border-radius: 4px;">
+                            <i class="bi bi-info-circle text-primary mb-3 d-block" style="font-size: 3rem;"></i>
+                            <h4 class="fw-bold" style="color: var(--govt-primary);">@(isEng ? "No Properties Available" : "कोई संपत्ति उपलब्ध नहीं है")</h4>
+                            <p class="text-muted mb-0">@(isEng ? "Currently, there are no properties matching your criteria or open for booking." : "वर्तमान में, आपके खोज मापदंड से मेल खाने वाली या बुकिंग के लिए खुली कोई संपत्ति उपलब्ध नहीं है।")</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const range = document.getElementById("budgetRange");
+        const display = document.getElementById("priceVal");
+        const isEnglish = @isEng.ToString().ToLower();
+
+        function updatePrice() {
+            if(range.value == 0 || !range.value) {
+                display.innerText = isEnglish ? "Any" : "कोई भी";
+            } else {
+                display.innerText = "₹ " + Number(range.value).toLocaleString("en-IN");
+            }
+        }
+        updatePrice();
+        range.addEventListener("input", updatePrice);
+    </script>
+}

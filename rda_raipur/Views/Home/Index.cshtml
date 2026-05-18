@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Localization
+@using rda_raipur.Models.site
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEnglish = culture.StartsWith("en");
+    ViewData["Title"] = isEnglish ? "Home Page" : "मुख्य पृष्ठ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Controller se aa rahi News
+    var latestNewsList = ViewBag.LatestNews as List<SiteNews>;
+}
+
+@await Html.PartialAsync("_HomeStyles")
+@await Html.PartialAsync("_Carousel")
+@* @await Html.PartialAsync("_UpdateTicker", latestNewsList) *@
+
+<div class="textured-bg">
+    <div class="container-fluid px-3 px-md-5">
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-12 col-xl-3">
+                @await Html.PartialAsync("_WelcomeSection")
+            </div>
+
+            <div class="col-12 col-xl-9">
+                @await Html.PartialAsync("_NoticeAndTenders", latestNewsList)
+            </div>
+
+        </div>
+
+    </div>
+
+    @await Html.PartialAsync("_HomeGallery")
+
+    @await Html.PartialAsync("_ImportantLinks")
+</div>

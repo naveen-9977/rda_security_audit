@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Dashboard Overview";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* 🟢 MAINTENANCE PAGE STYLING 🟢 */
+    .maintenance-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+        text-align: center;
+        padding: 20px;
+    }
+
+    /* Animated Icon Design */
+    .maintenance-icon-box {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .main-gear {
+        font-size: 80px;
+        color: #003366; /* Navy Blue */
+        display: inline-block;
+        animation: gear-rotate 4s linear infinite;
+    }
+
+    .secondary-gear {
+        font-size: 40px;
+        color: #f97316; /* Saffron Orange */
+        position: absolute;
+        bottom: -5px;
+        right: -15px;
+        animation: gear-rotate-reverse 3s linear infinite;
+    }
+
+    @@keyframes gear-rotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes gear-rotate-reverse {
+        from {
+            transform: rotate(360deg);
+        }
+
+        to {
+            transform: rotate(0deg);
+        }
+    }
+
+    /* Text Styling */
+    .maintenance-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+
+    .maintenance-subtitle {
+        font-size: 1.1rem;
+        color: #64748b;
+        max-width: 500px;
+        line-height: 1.6;
+    }
+
+    .status-badge {
+        background-color: #fff7ed;
+        color: #f97316;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border: 1px solid #ffedd5;
+        margin-bottom: 20px;
+    }
+
+    /* Button Decoration */
+    .btn-refresh {
+        margin-top: 30px;
+        background-color: #003366;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+
+        .btn-refresh:hover {
+            background-color: #002244;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 51, 102, 0.2);
+        }
+</style>
+
+<div class="maintenance-wrapper">
+
+    <div class="status-badge">
+        <i class="bi bi-tools me-1"></i> Under Maintenance
+    </div>
+
+    <div class="maintenance-icon-box">
+        <i class="bi bi-gear-fill main-gear"></i>
+        <i class="bi bi-gear-wide-connected secondary-gear"></i>
+    </div>
+
+    <h2 class="maintenance-title">कार्य प्रगति पर है</h2>
+    <p class="maintenance-subtitle">
+        डैशबोर्ड के इस हिस्से को आपके लिए और बेहतर बनाया जा रहा है।
+        हम जल्द ही नए फीचर्स और लाइव डेटा के साथ वापस आएंगे।
+    </p>
+
+    <a href="javascript:location.reload();" class="btn-refresh">
+        <i class="bi bi-arrow-clockwise me-2"></i> पेज रिफ्रेश करें
+    </a>
+
+    <p class="mt-4 text-muted small">
+        Raipur Development Authority - Tech Support
+    </p>
+</div>

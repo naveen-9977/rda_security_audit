@@ -1,0 +1,85 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model List<rda_raipur.Models.site.SiteNews>
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    bool isEnglish = (requestCulture?.RequestCulture.Culture.Name ?? "en").StartsWith("en");
+}
+
+<div class="clean-panel h-100">
+    <div class="clean-panel-header p-0">
+        <ul class="nav nav-tabs border-0 w-100 custom-tabs" id="noticeTab" role="tablist">
+            <li class="nav-item flex-fill" role="presentation">
+                <button class="nav-link active w-100 border-0 rounded-0 py-3" id="notices-tab" data-bs-toggle="tab" data-bs-target="#notices-content" type="button" role="tab">
+                    <i class='bx bxs-megaphone me-2'></i>@(isEnglish ? "NOTICES" : "सूचना पटल")
+                </button>
+            </li>
+            <li class="nav-item flex-fill" role="presentation">
+                <button class="nav-link w-100 border-0 rounded-0 py-3" id="tenders-tab" data-bs-toggle="tab" data-bs-target="#tenders-content" type="button" role="tab">
+                    <i class='bx bxs-file-pdf me-2'></i>@(isEnglish ? "ACTIVE TENDERS" : "सक्रिय निविदाएं")
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="clean-panel-body">
+        <div class="tab-content h-100" id="noticeTabContent">
+
+            <div class="tab-pane fade show active h-100" id="notices-content" role="tabpanel">
+                <div class="scroll-content-vertical">
+                    <ul class="clean-list">
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var news in Model)
+                            {
+                                string text = isEnglish ? news.NewsText_en : news.NewsText_hi;
+                                <li>
+                                    <div class="notice-title-wrapper">
+                                        <i class='bx bx-right-arrow-alt text-primary mt-1 me-2'></i>
+                                        @if (!string.IsNullOrEmpty(news.PdfFilePath))
+                                        {
+                                            <a href="@news.PdfFilePath" target="_blank" class="notice-link">@text <span class="badge-pdf">PDF</span></a>
+                                        }
+                                        else if (!string.IsNullOrEmpty(news.LinkUrl))
+                                        {
+                                            <a href="@news.LinkUrl" target="_blank" class="notice-link">@text <i class='bx bx-link-external ms-1'></i></a>
+                                        }
+                                        else
+                                        {
+                                            <span class="notice-link">@text</span>
+                                        }
+                                    </div>
+                                    <div class="notice-date-badge">
+                                        <i class='bx bx-calendar-event me-1'></i> @news.CreatedDate.ToString("dd MMM yyyy")
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab-pane fade h-100" id="tenders-content" role="tabpanel">
+                <div class="scroll-content-vertical">
+                    <ul class="clean-list">
+                        <li>
+                            <div class="notice-title-wrapper">
+                                <i class='bx bx-right-arrow-alt text-primary mt-1 me-2'></i>
+                                <a href="#" class="notice-link">@(isEnglish ? "E-Tender for Auction of Plots in Transport Nagar" : "ट्रांसपोर्ट नगर में भूखंडों की नीलामी के लिए ई-निविदा")</a>
+                            </div>
+                            <div class="notice-date-badge"><i class='bx bx-time-five me-1'></i> Closing: 15/05/2026</div>
+                        </li>
+                        <li>
+                            <div class="notice-title-wrapper">
+                                <i class='bx bx-right-arrow-alt text-primary mt-1 me-2'></i>
+                                <a href="#" class="notice-link">@(isEnglish ? "Tender for construction of Commercial Complex at Kamal Vihar" : "कमल विहार में व्यावसायिक परिसर के निर्माण के लिए निविदा")</a>
+                            </div>
+                            <div class="notice-date-badge"><i class='bx bx-time-five me-1'></i> Closing: 22/05/2026</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

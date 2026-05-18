@@ -1,0 +1,96 @@
+﻿@model IEnumerable<rda_raipur.Models.PropertyModelMaster>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<h1>Property Model Master</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.scheme_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.sector_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.block_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Property_Type_Name_en)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Property_Type_Name_hi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.created_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Create_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.scheme_id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.sector_id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.block_id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Property_Type_Name_en)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Property_Type_Name_hi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Create_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Property_Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Property_Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Property_Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

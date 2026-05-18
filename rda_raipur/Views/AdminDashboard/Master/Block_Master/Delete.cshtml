@@ -1,0 +1,32 @@
+﻿@model rda_raipur.Models.Block_Master
+@{
+    ViewData["Title"] = "Delete Block";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="alert alert-danger shadow-sm mb-4 border-left-danger" role="alert">
+        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i> Are you sure?</h4>
+        <p class="mb-0">You are about to delete this block. This will soft-delete the record and hide it from active lists.</p>
+    </div>
+
+    <div class="card shadow border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Block: @Model.block_name_en</h5>
+            <dl class="row mb-4">
+                <dt class="col-sm-3 text-muted">Block Name (HI)</dt>
+                <dd class="col-sm-9">@Model.block_name_hi</dd>
+                <dt class="col-sm-3 text-muted">Status</dt>
+                <dd class="col-sm-9">@(Model.IsActive ? "Active" : "Inactive")</dd>
+            </dl>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="block_id" />
+                <button type="submit" class="btn btn-danger px-4">
+                    <i class="bi bi-trash-fill me-1"></i> Confirm Delete
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

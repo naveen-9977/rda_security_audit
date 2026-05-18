@@ -1,0 +1,78 @@
+﻿@model IEnumerable<rda_raipur.Models.FlatTypeMaster>
+
+@{
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Flat_name_en)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Flat_name_hi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.created_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Create_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Flat_name_en)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Flat_name_hi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Create_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Flat_id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Flat_id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Flat_id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

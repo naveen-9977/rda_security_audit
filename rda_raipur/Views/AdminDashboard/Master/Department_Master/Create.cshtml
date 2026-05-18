@@ -1,0 +1,53 @@
+﻿@model rda_raipur.Models.Department_Master
+
+@{
+    ViewData["Title"] = "Add Department";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+        <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Add Department</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm"><i class="bi bi-arrow-left me-1"></i> Back to List</a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Department Details</h6>
+                </div>
+                <div class="card-body bg-light">
+                    <form asp-action="Create" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="dpt_name_en" class="form-label font-weight-bold">Department Name (English) <span class="text-danger">*</span></label>
+                                <input asp-for="dpt_name_en" class="form-control" placeholder="e.g. Information Technology" required autocomplete="off" />
+                                <span asp-validation-for="dpt_name_en" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="dpt_name_hi" class="form-label font-weight-bold">Department Name (Hindi) <span class="text-danger">*</span></label>
+                                <input asp-for="dpt_name_hi" class="form-control" placeholder="उदा. सूचना प्रौद्योगिकी" required autocomplete="off" />
+                                <span asp-validation-for="dpt_name_hi" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <hr class="mt-4 mb-4" />
+
+                        <div class="text-end">
+                            <button type="reset" class="btn btn-secondary me-2"><i class="bi bi-x-circle me-1"></i> Clear</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i> Save Department</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

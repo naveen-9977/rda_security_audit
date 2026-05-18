@@ -1,0 +1,278 @@
+﻿@model rda_raipur.Models.Property.TenderPropertyCreation
+
+@{
+    ViewData["Title"] = "Edit Tender Property";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 border-top border-warning border-4">
+        <div class="card-header bg-white">
+            <h4 class="mb-0 text-warning fw-bold">Edit Property Inventory (Master)</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Property_Id" />
+                <input type="hidden" asp-for="created_by" />
+                <input type="hidden" asp-for="Create_Date" />
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="fw-bold">Scheme Name</label>
+                        <select asp-for="scheme_id" id="scheme_id" class="form-select" asp-items="ViewBag.Schemes">
+                            <option value="">-- Select Scheme --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Property Type</label>
+                        <select asp-for="Property_Type_Name_en" id="Property_Type_Name_en" class="form-select">
+                            <option value="">-- Select Type --</option>
+                            <option value="Plot">Plot</option>
+                            <option value="Shop">Shop</option>
+                            <option value="Flat">Flat</option>
+                            <option value="House">House</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Property Model (LIG/HIG/EWS)</label>
+                        <select asp-for="Model_Id" id="model_id" class="form-select">
+                            <option value="">-- Loading Models... --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Flat Configuration</label>
+                        <select asp-for="Flat_id" id="Flat_id" class="form-select">
+                            <option value="">-- Select Flat --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Sector Name</label>
+                        <select asp-for="sector_id" id="sector_id" class="form-select">
+                            <option value="">-- Select Sector --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Block Name</label>
+                        <select asp-for="block_id" id="block_id" class="form-select">
+                            <option value="">-- Select Block --</option>
+                        </select>
+                    </div>
+
+                    <hr />
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">House / Flat Number</label>
+                        <input asp-for="House_No" id="House_No" class="form-control" placeholder="e.g. B-102" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Auto-Generated Property Code</label>
+                        <input type="text" asp-for="Property_Id" id="Tender_Property_Id" class="form-control bg-light fw-bold text-primary" readonly />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">User Category (Reservation)</label>
+                        <select asp-for="res_category_id" id="res_category_id" class="form-select">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Offset Price (₹)</label>
+                        <input asp-for="offset_Price" class="form-control" type="number" step="0.01" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">EMD Amount (₹)</label>
+                        <input asp-for="EMD_Amount" class="form-control" type="number" step="0.01" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Super Buildup Area (Sq.Ft)</label>
+                        <input asp-for="Super_Buildup_Area" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Buildup Area (Sq.Ft)</label>
+                        <input asp-for="Buildup_Area" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Carpet Area (Sq.Ft)</label>
+                        <input asp-for="Carpet_Area" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Allotment Type</label>
+                        <select asp-for="allotement_type_id" asp-items="ViewBag.AllotmentList" class="form-select">
+                            <option value="">-- Select Allotment --</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="mt-5 border-top pt-3">
+                    <button type="submit" class="btn btn-warning btn-lg px-5 shadow fw-bold"><i class="bi bi-pencil-square"></i> Update Inventory</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
+                </div>
+
+                <div asp-validation-summary="All" class="text-danger mt-3"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 🔥 Variables to hold existing data for pre-selection in Edit mode
+            var currentModelId = '@Model.Model_Id';
+            var currentCategoryId = '@Model.res_category_id';
+            var currentFlatId = '@Model.Flat_id';
+            var currentSchemeId = '@Model.scheme_id';
+            var currentSectorId = '@Model.sector_id';
+            var currentBlockId = '@Model.block_id';
+
+            // Initial Data Load with Pre-selection logic
+            loadModels();
+            loadUserCategory();
+            loadFlats();
+            loadSectorsAndBlocksForEdit();
+
+            // 1. SCHEME → SECTOR (On Change)
+            $("#scheme_id").change(function () {
+                var schemeId = $(this).val();
+                $("#sector_id").empty().append('<option value="">Select Sector</option>');
+                $("#block_id").empty().append('<option value="">Select Block</option>');
+
+                if(schemeId) {
+                    $.get("/PropertyMaster/GetSectors", { schemeId: schemeId }, function (data) {
+                        $.each(data, function (i, row) {
+                            $("#sector_id").append('<option value="' + row.sector_id + '">' + row.sector_name_en + '</option>');
+                        });
+                    });
+                }
+            });
+
+            // 2. SECTOR → BLOCK (On Change)
+            $("#sector_id").change(function () {
+                var sectorId = $(this).val();
+                $("#block_id").empty().append('<option value="">Select Block</option>');
+
+                if(sectorId) {
+                    $.get("/PropertyMaster/GetBlocks", { sectorId: sectorId }, function (data) {
+                        $.each(data, function (i, row) {
+                            $("#block_id").append('<option value="' + row.block_id + '">' + row.block_name_en + '</option>');
+                        });
+                    });
+                }
+            });
+
+            // 3. LOAD MODELS (LIG/HIG/EWS)
+            function loadModels() {
+                $.get("/PropertyMaster/GetModels", function (data) {
+                    var dropdown = $('#model_id');
+                    dropdown.empty().append('<option value="">Select Model</option>');
+                    $.each(data, function (i, item) {
+                        dropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                    });
+                    // Pre-select existing value
+                    if (currentModelId) { dropdown.val(currentModelId); }
+                });
+            }
+
+            // 4. LOAD USER CATEGORY
+            function loadUserCategory() {
+                $.get("/PropertyMaster/GetUserCategory", function (data) {
+                    var dropdown = $('#res_category_id');
+                    dropdown.empty().append('<option value="">Select Category</option>');
+                    $.each(data, function (i, item) {
+                        dropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                    });
+                    // Pre-select existing value
+                    if (currentCategoryId) { dropdown.val(currentCategoryId); }
+                });
+            }
+
+            // 5. LOAD FLAT TYPES
+            function loadFlats() {
+                $.get("/PropertyMaster/GetFlats", function (data) {
+                    $('#Flat_id').empty().append('<option value="">Select Flat</option>');
+                    $.each(data, function (i, item) {
+                        var flatId = item.flat_id || item.Flat_id;
+                        var flatName = item.flat_name_en || item.Flat_name_en;
+                        $('#Flat_id').append('<option value="' + flatId + '">' + flatName + '</option>');
+                    });
+                    // Pre-select existing value
+                    if (currentFlatId) { $('#Flat_id').val(currentFlatId); }
+                });
+            }
+
+            // 🔥 EDIT MODE ONLY: Pre-load Sectors and Blocks 🔥
+            function loadSectorsAndBlocksForEdit() {
+                if (currentSchemeId) {
+                    $.get("/PropertyMaster/GetSectors", { schemeId: currentSchemeId }, function (data) {
+                        $("#sector_id").empty().append('<option value="">Select Sector</option>');
+                        $.each(data, function (i, row) {
+                            $("#sector_id").append('<option value="' + row.sector_id + '">' + row.sector_name_en + '</option>');
+                        });
+
+                        if (currentSectorId) {
+                            $("#sector_id").val(currentSectorId);
+
+                            // Nested call to load blocks after sectors are loaded
+                            $.get("/PropertyMaster/GetBlocks", { sectorId: currentSectorId }, function (bData) {
+                                $("#block_id").empty().append('<option value="">Select Block</option>');
+                                $.each(bData, function (i, row) {
+                                    $("#block_id").append('<option value="' + row.block_id + '">' + row.block_name_en + '</option>');
+                                });
+                                if (currentBlockId) { $("#block_id").val(currentBlockId); }
+                            });
+                        }
+                    });
+                }
+            }
+
+            // 6. PROPERTY CODE GENERATE (Triggers on any ID change)
+            $("#scheme_id, #sector_id, #block_id, #model_id, #Flat_id, #House_No").change(function () {
+                var schemeId = $("#scheme_id").val();
+                var sectorId = $("#sector_id").val();
+                var blockId = $("#block_id").val();
+                var modelId = $("#model_id").val();
+                var flatId = $("#Flat_id").val();
+                var houseNo = $("#House_No").val();
+
+                if (schemeId && houseNo) {
+                    $.get("/PropertyMaster/GeneratePropertyCode", {
+                        schemeId: schemeId,
+                        sectorId: sectorId,
+                        blockId: blockId,
+                        modelId: modelId,
+                        flatId: flatId,
+                        houseNo: houseNo
+                    }, function (code) {
+                        $("#Tender_Property_Id").val(code);
+                    });
+                }
+            });
+
+            // 7. DUPLICATE CHECK
+            $("#House_No").blur(function () {
+                var houseNo = $(this).val();
+                var blockId = $("#block_id").val();
+                if(houseNo && blockId) {
+                    $.get("/PropertyMaster/CheckDuplicate", { blockId: blockId, houseNo: houseNo }, function (res) {
+                        if (res == false) {
+                            alert("House number already exists in this block!");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

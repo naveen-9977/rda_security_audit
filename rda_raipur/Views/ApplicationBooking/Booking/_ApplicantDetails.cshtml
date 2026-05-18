@@ -1,0 +1,103 @@
+﻿<div class="govt-section">
+    <div class="govt-section-header">@(ViewBag.IsEnglish ? "2. Applicant Details" : "2. आवेदक का विवरण")</div>
+    <div class="govt-section-body">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "First Name" : "प्रथम नाम") <span class="req-mark">*</span></label>
+                <input type="text" class="form-control govt-control" id="fname" required>
+            </div>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Last Name" : "अंतिम नाम") <span class="req-mark">*</span></label>
+                <input type="text" class="form-control govt-control" id="lname" required>
+            </div>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Father's/Husband's Name" : "पिता/पति का नाम") <span class="req-mark">*</span></label>
+                <input type="text" class="form-control govt-control" id="fhname" required>
+            </div>
+
+            <div class="col-md-3">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Date of Birth" : "जन्म तिथि") <span class="req-mark">*</span></label>
+                <input type="date" class="form-control govt-control" id="dob" required onchange="calculateAge()">
+            </div>
+            <div class="col-md-2">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Age" : "आयु")</label>
+                <input type="text" class="form-control govt-control bg-light text-center fw-bold text-primary" id="age" readonly placeholder="-">
+            </div>
+            <div class="col-md-3">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Gender" : "लिंग") <span class="req-mark">*</span></label>
+                <select class="form-select govt-control" id="gender" required>
+                    <option value="">-- @(ViewBag.IsEnglish ? "Select" : "चुनें") --</option>
+                    <option value="Male">@(ViewBag.IsEnglish ? "Male" : "पुरुष")</option>
+                    <option value="Female">@(ViewBag.IsEnglish ? "Female" : "महिला")</option>
+                    <option value="Transgender">@(ViewBag.IsEnglish ? "Transgender" : "ट्रांसजेंडर")</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Verified Mobile No." : "सत्यापित मोबाइल नंबर")</label>
+                <input type="text" class="form-control govt-control bg-light" id="verified-mobile-display" readonly>
+            </div>
+
+            <div class="col-md-4 mt-2">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Email ID" : "ईमेल आईडी") <span class="req-mark">*</span></label>
+                <input type="email" class="form-control govt-control" id="Email" placeholder="@(ViewBag.IsEnglish ? "Enter your email" : "अपना ईमेल दर्ज करें")" required>
+            </div>
+        </div>
+
+        <div class="row mt-3 border-top pt-3 bg-light pb-2 rounded">
+            <div class="col-md-5">
+                <label class="govt-label text-muted">@(ViewBag.IsEnglish ? "Base Property Price" : "संपत्ति की मूल कीमत")</label>
+                <input type="text" class="form-control govt-control bg-white text-dark fw-bold" value="₹ @ViewBag.TotalPrice" readonly tabindex="-1">
+                <input type="hidden" id="hidden-base-price" value="@ViewBag.TotalPrice">
+                <span id="base-price-words" class="text-secondary fw-bold" style="font-size:12px; display:block; margin-top:4px;"></span>
+            </div>
+            <div class="col-md-5 offset-md-1">
+                <label class="govt-label text-primary">@(ViewBag.IsEnglish ? "Your Bid Amount" : "आपकी बोली राशि (Bid Amount)") <span class="req-mark">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white px-2 border-primary" style="font-size: 13px; height: 30px; border-radius: 2px 0 0 2px;">₹</span>
+                    <input type="number" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" onkeyup="handleBidAmountChange()" class="form-control govt-control border-primary text-success fw-bold" style="border-radius: 0 2px 2px 0 !important; border-left: none !important; font-size:14px !important;" id="bid-amount" required placeholder="Enter amount">
+                </div>
+                <span id="bid-amount-words" class="text-success fw-bold d-block mt-1" style="font-size:12px; text-transform: capitalize;"></span>
+
+                <span class="hint-text text-danger mt-1" id="bid-error" style="display:none; font-weight:bold; font-size:11px;">
+                    <i class='bx bx-error-circle'></i> @(ViewBag.IsEnglish ? "Bid amount MUST BE GREATER than the Total Price!" : "बोली राशि कुल कीमत से अधिक होनी चाहिए!")
+                </span>
+            </div>
+        </div>
+
+        <div class="row mt-3 border-top pt-3">
+            <div class="col-md-6">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Permanent Address" : "स्थायी पता") <span class="req-mark">*</span></label>
+                <textarea id="permanentAddress" class="form-control" rows="3" required placeholder="Enter full permanent address..."></textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Correspondence Address" : "पत्राचार का पता") <span class="req-mark">*</span></label>
+                <div class="mb-1">
+                    <input type="checkbox" id="sameAddress" onchange="copyAddress()">
+                    <label for="sameAddress" style="font-size:12px; font-weight:bold; color:#0056b3; cursor: pointer;">
+                        @(ViewBag.IsEnglish ? "Same as Permanent Address" : "स्थायी पते के समान")
+                    </label>
+                </div>
+                <textarea id="correspondenceAddress" class="form-control" rows="2" required placeholder="Enter correspondence address..."></textarea>
+            </div>
+        </div>
+
+        <!-- 🔥 NEW: BANK DETAILS FOR REFUND 🔥 -->
+        <div class="row mt-3 border-top pt-3">
+            <h6 class="govt-label text-primary mb-3"><i class='bx bxs-bank'></i> @(ViewBag.IsEnglish ? "Bank Account Details (For Refunds)" : "बैंक खाता विवरण (रिफंड के लिए)")</h6>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Account Number" : "खाता संख्या") <span class="req-mark">*</span></label>
+                <input type="text" class="form-control govt-control" id="bank-acc-no" required onkeypress="return event.charCode >= 48 && event.charCode <= 57" placeholder="Enter Bank A/c No.">
+            </div>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "IFSC Code" : "आईएफएससी कोड (IFSC)") <span class="req-mark">*</span></label>
+                <input type="text" class="form-control govt-control text-uppercase" id="ifsc-code" required maxlength="11" oninput="fetchBankDetails()" placeholder="e.g. SBIN0001234">
+                <span id="ifsc-error" class="text-danger mt-1" style="display:none; font-size:11px; font-weight:bold;"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="govt-label">@(ViewBag.IsEnglish ? "Bank & Branch Name" : "बैंक और शाखा का नाम")</label>
+                <input type="text" class="form-control govt-control bg-light" id="bank-name" readonly placeholder="@(ViewBag.IsEnglish ? "Auto-fetched from IFSC" : "IFSC से अपने आप आएगा")">
+            </div>
+        </div>
+
+    </div>
+</div>

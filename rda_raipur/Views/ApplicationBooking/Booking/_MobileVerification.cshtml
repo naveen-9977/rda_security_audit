@@ -1,0 +1,184 @@
+﻿<style>
+    /* 🔥 OFFICIAL GOVT STYLE FOR SECTIONS 🔥 */
+    .govt-section {
+        margin: 0 15px 20px 15px;
+        background: #ffffff;
+        border: 1px solid #ced4da;
+        border-radius: 2px;
+    }
+
+    .govt-section-header {
+        background-color: #f8f9fa; /* Light Gray Header */
+        color: #003366; /* Official Navy Blue */
+        font-weight: 700;
+        font-size: 1.05rem;
+        padding: 10px 15px;
+        border-bottom: 2px solid #003366;
+        text-transform: uppercase;
+    }
+
+    /* 🔥 Added padding bottom so absolute message has space 🔥 */
+    .verify-wrapper {
+        padding: 20px 25px 35px 25px;
+    }
+
+    .govt-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+
+    .req-mark {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    /* --- Input Styles --- */
+    .phone-prefix {
+        background-color: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        border-right: none;
+        border-radius: 2px 0 0 2px;
+        border: 1px solid #ced4da;
+        font-size: 0.9rem;
+    }
+
+    .verify-input {
+        border-radius: 0 2px 2px 0 !important;
+        border: 1px solid #ced4da;
+        border-left: none !important;
+        font-size: 0.9rem !important;
+        font-weight: 500;
+    }
+
+        .verify-input:focus, .otp-box:focus {
+            box-shadow: none !important;
+            border-color: #003366 !important;
+            outline: none;
+        }
+
+    .otp-box {
+        letter-spacing: 5px;
+        font-size: 15px !important;
+        text-align: center;
+        font-weight: 700;
+        color: #28a745;
+        border-radius: 2px;
+        border: 1px solid #ced4da;
+        height: 36px; /* Matches button height perfectly */
+    }
+
+    /* --- Button Styles --- */
+    .btn-govt-action {
+        background-color: #003366;
+        color: #ffffff;
+        border: none;
+        border-radius: 2px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        height: 36px;
+        width: 100%;
+    }
+
+        .btn-govt-action:hover {
+            background-color: #002244;
+            color: #ffffff;
+        }
+
+    .btn-govt-success {
+        background-color: #28a745;
+        color: #ffffff;
+        border: none;
+        border-radius: 2px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        height: 36px;
+        width: 100%;
+    }
+
+        .btn-govt-success:hover {
+            background-color: #218838;
+            color: #ffffff;
+        }
+
+    /* --- Links & Validation --- */
+    .change-num-link {
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        color: #dc3545 !important;
+    }
+
+        .change-num-link:hover {
+            text-decoration: underline !important;
+        }
+
+    /* 🔥 FIX: Absolute container for messages so it doesn't push the buttons down 🔥 */
+    .msg-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 5px;
+        width: 100%;
+    }
+</style>
+
+<div class="govt-section mt-3" id="section-verification">
+    <div class="govt-section-header">
+        <i class='bi bi-phone me-1'></i> @(ViewBag.IsEnglish ? "1. Mobile Number Verification" : "1. मोबाइल नंबर सत्यापन")
+    </div>
+
+    <div class="verify-wrapper">
+        <div class="row align-items-end g-3">
+
+            <div class="col-lg-4 col-md-5">
+                <div class="d-flex justify-content-between mb-1">
+                    <label class="govt-label mb-0">@(ViewBag.IsEnglish ? "Mobile Number" : "मोबाइल नंबर") <span class="req-mark">*</span></label>
+                    <a href="javascript:void(0)" id="link-change-mobile" class="change-num-link" style="display:none !important;" onclick="resetMobileField()">
+                        <i class='bi bi-pencil-square'></i> @(ViewBag.IsEnglish ? "Edit" : "सुधारें")
+                    </a>
+                </div>
+
+                <div class="input-group position-relative">
+                    <span class="input-group-text phone-prefix px-3">+91</span>
+                    <input type="tel" class="form-control verify-input" id="verify-mobile" required maxlength="10" placeholder="10 Digit Number" oninput="validateNumberInput(this, 'mobile-error')" autocomplete="off">
+
+                    <div class="msg-container">
+                        <span id="mobile-error" class="text-danger" style="display:none; font-size:11px; font-weight:bold;">
+                            <i class='bi bi-exclamation-circle'></i> @(ViewBag.IsEnglish ? "Characters not allowed" : "अक्षर मान्य नहीं हैं")
+                        </span>
+                        <span id="verified-success-msg" class="text-success" style="display:none; font-size:13px; font-weight:bold;">
+                            <i class="bx bx-check-circle fs-6 align-middle"></i> Mobile Verified
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-3" id="btn-get-otp-wrapper">
+                <button type="button" class="btn-govt-action" id="btn-get-otp" onclick="sendOtp()">
+                    @(ViewBag.IsEnglish ? "Send OTP" : "ओटीपी भेजें")
+                </button>
+            </div>
+
+            <div class="col-lg-3 col-md-4 otp-field" style="display:none;">
+                <label class="govt-label mb-1 text-success" id="lbl-enter-otp">
+                    @(ViewBag.IsEnglish ? "Enter 6-Digit OTP" : "6-अंकों का ओटीपी दर्ज करें") <span class="req-mark">*</span>
+                </label>
+                <input type="text" class="form-control otp-box border-success" id="otp-input" maxlength="6" placeholder="------" onkeypress="return event.charCode >= 48 && event.charCode <= 57" autocomplete="off">
+            </div>
+
+            <div class="col-lg-2 col-md-3 otp-field" style="display:none;">
+                <button type="button" class="btn-govt-success btn-verify-otp" id="btn-verify-action" onclick="verifyOtp()">
+                    <i class='bi bi-check2-circle'></i> @(ViewBag.IsEnglish ? "Verify" : "सत्यापित करें")
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

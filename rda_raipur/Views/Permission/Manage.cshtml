@@ -1,0 +1,378 @@
+﻿@model rda_raipur.Models.PermissionModel.ManagePermissionVM
+
+@{
+    ViewData["Title"] = "Manage Access Rights | PIS";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+
+    // Unique Categories nikalna
+    var categories = Model.Modules
+        .Select(m => m.Category ?? "General System")
+        .Distinct()
+        .ToList();
+}
+
+<style>
+    .gov-container {
+        font-family: 'Arial', sans-serif;
+    }
+
+    .gov-header-bar {
+        background-color: #003366;
+        color: #ffffff;
+        border-bottom: 5px solid #FF9933;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .gov-card {
+        border: 1px solid #999;
+        border-radius: 0 !important;
+        background-color: #ffffff;
+    }
+
+    .emp-summary-box {
+        background-color: #f1f5f9;
+        border: 2px solid #003366;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .emp-photo {
+        width: 80px;
+        height: 90px;
+        object-fit: cover;
+        border: 2px solid #003366;
+        padding: 2px;
+        background: #fff;
+    }
+
+    .emp-label {
+        font-size: 11px;
+        font-weight: bold;
+        color: #555;
+        text-transform: uppercase;
+        margin-bottom: 0;
+    }
+
+    .emp-value {
+        font-size: 14px;
+        font-weight: bold;
+        color: #111;
+        text-transform: uppercase;
+    }
+
+    .gov-section-title {
+        background-color: #e2e8f0;
+        border-left: 4px solid #003366;
+        color: #003366;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 10px 15px;
+        font-size: 14px;
+        margin-bottom: 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .gov-table th {
+        background-color: #f8f9fa;
+        text-transform: uppercase;
+        font-size: 12px;
+        color: #333;
+    }
+
+    .gov-table td {
+        vertical-align: middle;
+        font-size: 14px;
+        font-weight: bold;
+        color: #222;
+    }
+
+    .gov-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #003366;
+    }
+
+    .row-select-all {
+        accent-color: #0d6efd; /* Blue for Row Select All */
+    }
+
+    .gov-btn {
+        background-color: #003366;
+        color: #ffffff;
+        border-radius: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        border: none;
+        padding: 8px 25px;
+        letter-spacing: 1px;
+    }
+
+        .gov-btn:hover {
+            background-color: #002244;
+            color: #ffffff;
+        }
+
+    .gov-btn-warning {
+        background-color: #FF9933;
+        color: #fff;
+        border-radius: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        border: 1px solid #cc7a00;
+        padding: 8px 20px;
+    }
+
+        .gov-btn-warning:hover {
+            background-color: #e68a00;
+            color: #fff;
+        }
+
+    .gov-btn-danger {
+        background-color: #dc3545;
+        color: #fff;
+        border-radius: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        border: 1px solid #a71d2a;
+        padding: 8px 20px;
+    }
+</style>
+
+<div class="container-fluid mt-4 gov-container mb-5">
+
+    <div class="gov-header-bar d-flex justify-content-between align-items-center shadow-sm">
+        <div>
+            <h4 class="mb-1 fw-bold" style="letter-spacing: 1px;">SYSTEM ACCESS CONFIGURATION</h4>
+            <span style="font-size: 13px; color: #cbd5e1;">अधिकार प्रबंधन - PIS Security Module</span>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-light btn-sm rounded-0 fw-bold text-dark border border-dark">
+                <i class="bi bi-arrow-left me-1"></i> BACK TO DIRECTORY
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success rounded-0 border-success border-start border-4 shadow-sm fw-bold">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <form asp-action="SavePermissions" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="EmployeeName" />
+
+        <div class="gov-card p-4 mb-4">
+            <div class="emp-summary-box d-flex align-items-center">
+                <div class="me-4">
+                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    {
+                        <img src="@Model.ImagePath" class="emp-photo" alt="Employee Photo" onerror="this.src='/images/default-avatar.png'" />
+                    }
+                    else
+                    {
+                        <div class="emp-photo d-flex align-items-center justify-content-center bg-secondary text-white">
+                            <i class="bi bi-person-fill fs-1"></i>
+                        </div>
+                    }
+                </div>
+                <div class="flex-grow-1 row">
+                    <div class="col-md-12 mb-2 border-bottom border-secondary pb-2">
+                        <h5 class="fw-bold text-dark mb-0 text-uppercase">GRANTING ACCESS TO: <span class="text-primary">@Model.EmployeeName</span></h5>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="emp-label">EMPLOYEE CODE</p>
+                        <p class="emp-value text-danger">@(Model.EmpCode ?? "N/A")</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="emp-label">DEPARTMENT</p>
+                        <p class="emp-value">@(Model.DepartmentName ?? "N/A")</p>
+                    </div>
+                    <div class="col-md-5">
+                        <p class="emp-label">DESIGNATION</p>
+                        <p class="emp-value">@(Model.DesignationName ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 border">
+                <div class="text-danger fw-bold" style="font-size: 13px;">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> CAUTION: Assign privileges strictly based on the employee's official role.
+                </div>
+                <div>
+                    <button type="button" class="btn gov-btn-warning shadow-sm" id="btnSelectAllGlobal">
+                        <i class="bi bi-check2-all me-1"></i> GRANT ALL ACCESS
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row">
+                @foreach (var category in categories)
+                {
+                    string catId = "cat_" + category.GetHashCode().ToString().Replace("-", "");
+
+                    <div class="col-12 mb-4">
+                        <div class="border border-dark">
+                            <div class="gov-section-title d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-folder-fill me-2 text-warning"></i> @category</span>
+                                <div class="form-check m-0">
+                                    <input class="form-check-input select-all-cat rounded-0 border-dark" type="checkbox" id="chk_@catId" data-category="@catId" style="cursor: pointer; transform: scale(1.2);">
+                                    <label class="form-check-label text-dark ms-2 fw-bold" for="chk_@catId" style="cursor: pointer; font-size: 12px;">SELECT ALL IN CATEGORY</label>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive bg-white">
+                                <table class="table table-bordered table-hover mb-0 gov-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 px-3" style="width: 35%;"><i class="bi bi-arrow-return-right me-1"></i> MODULE NAME</th>
+                                            <th class="text-center py-2">VIEW</th>
+                                            <th class="text-center py-2">ADD</th>
+                                            <th class="text-center py-2">EDIT</th>
+                                            <th class="text-center py-2 text-danger">DELETE</th>
+                                            <th class="text-center py-2 text-primary border-start border-2 border-dark" style="width: 10%;">ALL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Modules.Count; i++)
+                                        {
+                                            if ((Model.Modules[i].Category ?? "General System") == category)
+                                            {
+                                                <tr class="cat-row-@catId">
+                                                    <td class="align-middle px-3 text-dark">
+                                                        <input type="hidden" asp-for="Modules[i].ModuleId" />
+                                                        <input type="hidden" asp-for="Modules[i].ModuleName" />
+                                                        <input type="hidden" asp-for="Modules[i].Category" />
+                                                        <i class="bi bi-caret-right-fill text-muted" style="font-size: 10px;"></i> @Model.Modules[i].ModuleName
+                                                    </td>
+                                                    <td class="text-center align-middle bg-light">
+                                                        <input type="checkbox" asp-for="Modules[i].CanView" class="gov-checkbox chk-perm" />
+                                                    </td>
+                                                    <td class="text-center align-middle">
+                                                        <input type="checkbox" asp-for="Modules[i].CanAdd" class="gov-checkbox chk-perm" />
+                                                    </td>
+                                                    <td class="text-center align-middle bg-light">
+                                                        <input type="checkbox" asp-for="Modules[i].CanEdit" class="gov-checkbox chk-perm" />
+                                                    </td>
+                                                    <td class="text-center align-middle">
+                                                        <input type="checkbox" asp-for="Modules[i].CanDelete" class="gov-checkbox chk-perm" style="accent-color: #dc3545;" />
+                                                    </td>
+                                                    <td class="text-center align-middle bg-light border-start border-2 border-dark">
+                                                        <input type="checkbox" class="gov-checkbox row-select-all" title="Select All Permissions for @Model.Modules[i].ModuleName" />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="position-sticky bottom-0 bg-white p-3 shadow-lg border-top border-dark text-end d-flex justify-content-between align-items-center" style="z-index: 1000; margin-bottom: -2rem;">
+            <span class="text-muted fw-bold small"><i class="bi bi-info-circle me-1"></i> Review all selections before saving.</span>
+            <button type="submit" class="btn gov-btn px-5 py-2 shadow">
+                <i class="bi bi-shield-check me-2"></i> SAVE CONFIGURATION
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Function to check and update Row Select All state based on individual checkboxes
+            function updateRowSelectAllState(row) {
+                const perms = row.querySelectorAll('.chk-perm');
+                const rowAll = row.querySelector('.row-select-all');
+                if (rowAll && perms.length > 0) {
+                    const allChecked = Array.from(perms).every(cb => cb.checked);
+                    rowAll.checked = allChecked;
+                }
+            }
+
+            // Initialization: Check Row Select All boxes if all elements in that row are checked on page load
+            document.querySelectorAll('tr[class^="cat-row-"]').forEach(row => {
+                updateRowSelectAllState(row);
+            });
+
+            // 🔥 1. NAYA LOGIC: Row-wise Select All
+            document.querySelectorAll('.row-select-all').forEach(rowChk => {
+                rowChk.addEventListener('change', function () {
+                    const row = this.closest('tr');
+                    row.querySelectorAll('.chk-perm').forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            });
+
+            // Event listener for individual permission checkboxes to update Row Select All
+            document.querySelectorAll('.chk-perm').forEach(chk => {
+                chk.addEventListener('change', function () {
+                    const row = this.closest('tr');
+                    updateRowSelectAllState(row);
+                });
+            });
+
+            // 2. Category wise select all
+            const categoryCheckboxes = document.querySelectorAll('.select-all-cat');
+            categoryCheckboxes.forEach(chk => {
+                chk.addEventListener('change', function () {
+                    const catClass = this.getAttribute('data-category');
+                    const rows = document.querySelectorAll('.cat-row-' + catClass);
+                    rows.forEach(row => {
+                        // Update individual permissions
+                        row.querySelectorAll('.chk-perm').forEach(cb => {
+                            cb.checked = this.checked;
+                        });
+                        // Update the Row Select All checkbox too
+                        const rowAll = row.querySelector('.row-select-all');
+                        if (rowAll) {
+                            rowAll.checked = this.checked;
+                        }
+                    });
+                });
+            });
+
+            // 3. Global Select All
+            const btnGlobal = document.getElementById('btnSelectAllGlobal');
+            let globalToggle = false;
+
+            btnGlobal.addEventListener('click', function () {
+                globalToggle = !globalToggle;
+
+                // Update all permission checkboxes
+                document.querySelectorAll('.chk-perm').forEach(cb => {
+                    cb.checked = globalToggle;
+                });
+
+                // Update category master switches
+                document.querySelectorAll('.select-all-cat').forEach(cb => {
+                    cb.checked = globalToggle;
+                });
+
+                // Update Row-wise master switches
+                document.querySelectorAll('.row-select-all').forEach(cb => {
+                    cb.checked = globalToggle;
+                });
+
+                if(globalToggle){
+                    this.innerHTML = '<i class="bi bi-x-octagon-fill me-1"></i> REVOKE ALL ACCESS';
+                    this.classList.replace('gov-btn-warning', 'gov-btn-danger');
+                } else {
+                    this.innerHTML = '<i class="bi bi-check2-all me-1"></i> GRANT ALL ACCESS';
+                    this.classList.replace('gov-btn-danger', 'gov-btn-warning');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,300 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    // सिस्टम की करेंट भाषा पढ़ें
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEnglish = culture.StartsWith("en");
+
+    string propertyName = ViewBag.PropertyName ?? (isEnglish ? "Kaushalya Mata Vihar" : "कौशल्या माता विहार");
+    string unitNo = ViewBag.UnitNo ?? "N/A";
+    string amount = ViewBag.Amount ?? "500";
+
+    // डमी डेटा (असली प्रोजेक्ट में डेटाबेस से आएगा)
+    string applicationNo = "RDA" + DateTime.Now.ToString("yyyyMMdd") + new Random().Next(1000, 9999);
+    string txnId = "TXN" + new Random().Next(10000000, 99999999);
+    string currentDate = DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt");
+
+    // Real UPI URL Generation (Dynamically injects the correct amount)
+    string upiId = "rda.raipur@sbi"; // Dummy official UPI ID
+    string payeeName = "Raipur Development Authority";
+    string upiString = $"upi://pay?pa={upiId}&pn={Uri.EscapeDataString(payeeName)}&am={amount}&cu=INR&tn=Property%20Booking";
+    string qrCodeUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={Uri.EscapeDataString(upiString)}";
+
+    ViewData["Title"] = isEnglish ? "Secure Payment Gateway" : "सुरक्षित भुगतान गेटवे";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* 1. Page Styling matching the Global Theme */
+    .payment-page-bg {
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 100 L100 0 M-10 10 L10 -10 M90 110 L110 90' stroke='%23f1f5f9' stroke-width='1'/%3E%3Cpath d='M0 0 L100 100 M-10 90 L10 110 M90 -10 L110 10' stroke='%23f1f5f9' stroke-width='1'/%3E%3C/svg%3E");
+        padding: 50px 0;
+        min-height: 100vh;
+    }
+
+    .payment-container {
+        max-width: 950px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .order-summary {
+        background: #f8fafc;
+        padding: 40px 30px;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    /* 2. Payment Tabs Styling */
+    .nav-pills .nav-link {
+        color: #475569;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        border: 1.5px solid #e2e8f0;
+        padding: 12px 15px;
+        transition: 0.3s;
+        text-align: left;
+    }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-color: #1e293b;
+            color: #fff;
+        }
+
+    /* 3. Success Section & Receipt */
+    .receipt-box {
+        background: #fff;
+        padding: 40px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .receipt-header {
+        border-bottom: 2px dashed #cbd5e1;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+
+    .btn-theme-gradient {
+        background: linear-gradient(180deg, #ff9f43 0%, #f97316 100%);
+        color: white !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 25px;
+        transition: 0.3s;
+    }
+
+    /* Loading Overlay */
+    #paymentOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        .receipt-box, .receipt-box * {
+            visibility: visible;
+        }
+
+        .receipt-box {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+</style>
+
+<div id="paymentOverlay">
+    <div class="spinner-grow text-warning mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+    <h3 class="fw-bold">@(isEnglish ? "Processing Secure Payment..." : "सुरक्षित भुगतान प्रोसेस हो रहा है...")</h3>
+    <p class="text-muted">@(isEnglish ? "Please wait, fetching your application form details..." : "कृपया प्रतीक्षा करें, आपका आवेदन फॉर्म प्राप्त किया जा रहा है...")</p>
+</div>
+
+<div class="payment-page-bg">
+
+    <div class="container" id="paymentMainForm">
+        <div class="payment-container">
+            <div class="row g-0">
+
+                <div class="col-md-4 order-summary">
+                    <div class="text-center mb-4 border-bottom pb-3">
+                        <img src="~/images/rda-logo.png" style="height: 75px;" class="mb-2" alt="RDA Logo">
+                        <h6 class="fw-bold text-dark mb-0">RAIPUR DEVELOPMENT AUTHORITY</h6>
+                        <small class="text-muted fw-bold">(RDA RAIPUR)</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-bold">@(isEnglish ? "Property / Scheme" : "संपत्ति / योजना")</label>
+                        <p class="fw-bold text-dark fs-5">@Html.Raw(propertyName)</p>
+                        <small class="text-muted d-block mt-n2">@(isEnglish ? "Unit No:" : "भवन क्र:") <strong>@unitNo</strong></small>
+                    </div>
+
+                    <div class="p-3 rounded-4 bg-white border border-warning mb-4">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>@(isEnglish ? "Registration Fee" : "पंजीकरण शुल्क")</span>
+                            <span>₹ @amount</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">@(isEnglish ? "Total Payable" : "कुल देय")</span>
+                            <h4 class="mb-0 fw-bold text-primary">₹ @amount</h4>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="javascript:history.back()" class="text-danger small fw-bold text-decoration-none">
+                            <i class='bx bx-left-arrow-alt'></i> @(isEnglish ? "Cancel Transaction" : "लेनदेन रद्द करें")
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-8 p-4 p-md-5">
+                    <h4 class="fw-bold mb-4">@(isEnglish ? "Select Payment Method" : "भुगतान विधि चुनें")</h4>
+
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="nav flex-column nav-pills" id="v-pills-tab">
+                                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#v-pills-upi"><i class='bx bx-qr-scan'></i> UPI / QR Code</button>
+                                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-pills-card"><i class='bx bx-credit-card'></i> Debit/Credit Card</button>
+                                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-pills-net"><i class='bx bxs-bank'></i> NetBanking</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-7 mt-4 mt-sm-0 border-start ps-md-4">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="v-pills-upi">
+                                    <div class="text-center p-3 border border-dashed rounded-4 mb-4" style="background: #fffaf5;">
+
+                                        <img src="@qrCodeUrl" alt="UPI QR Code" class="img-fluid rounded" style="width: 180px; height: 180px; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+
+                                        <p class="fw-bold small mt-3 mb-0 text-success">@(isEnglish ? "Scan using any UPI App (GPay, PhonePe, Paytm)" : "किसी भी UPI ऐप से स्कैन करें")</p>
+                                        <h5 class="fw-bold mt-1">₹ @amount</h5>
+                                    </div>
+                                    <button class="btn btn-success w-100 py-3 fw-bold rounded-pill shadow-sm" onclick="processPayment()">
+                                        @(isEnglish ? "I Have Made The Payment" : "मैंने भुगतान कर दिया है") <i class='bx bx-check-circle ms-1'></i>
+                                    </button>
+                                </div>
+
+                                <div class="tab-pane fade text-center py-5 text-muted" id="v-pills-card">
+                                    <i class='bx bx-credit-card fs-1'></i>
+                                    <p>Card gateway integration goes here.</p>
+                                </div>
+                                <div class="tab-pane fade text-center py-5 text-muted" id="v-pills-net">
+                                    <i class='bx bxs-bank fs-1'></i>
+                                    <p>Netbanking gateway integration goes here.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="successSection" style="display: none;">
+        <div class="receipt-box shadow-lg">
+
+            <div class="text-center mb-4">
+                <i class='bx bxs-check-circle text-success' style="font-size: 5rem;"></i>
+                <h2 class="fw-bold text-dark mt-2">@(isEnglish ? "Payment Successful!" : "भुगतान सफल!")</h2>
+                <p class="text-muted">@(isEnglish ? "Your application fee has been securely processed." : "आपका आवेदन शुल्क सुरक्षित रूप से संसाधित हो गया है।")</p>
+            </div>
+
+            <div class="receipt-header d-flex justify-content-between align-items-end">
+                <div class="d-flex align-items-center">
+                    <img src="~/images/rda-logo.png" style="height: 75px;" class="me-3" alt="RDA Logo">
+                    <div>
+                        <h4 class="fw-bold text-primary mb-0">RAIPUR DEVELOPMENT AUTHORITY</h4>
+                        <small class="text-muted fw-bold">GOVERNMENT OF CHHATTISGARH | E-RECEIPT / पावती</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <p class="mb-0 small fw-bold text-muted">DATE: @currentDate</p>
+                    <span class="badge bg-success px-3 py-2 mt-1 fs-6">PAID</span>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <tbody class="fw-bold">
+                        <tr><td class="bg-light text-muted w-50">APPLICATION NO.</td><td>@applicationNo</td></tr>
+                        <tr><td class="bg-light text-muted">TRANSACTION ID</td><td class="text-primary">@txnId</td></tr>
+                        <tr><td class="bg-light text-muted">PROPERTY / SCHEME</td><td>@Html.Raw(propertyName)</td></tr>
+                        <tr><td class="bg-light text-muted">UNIT NUMBER</td><td>@unitNo</td></tr>
+                        <tr class="fs-5"><td class="bg-light text-dark">AMOUNT PAID</td><td class="text-success">₹ @amount</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="no-print mt-5 d-flex flex-wrap justify-content-center gap-3">
+                <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" onclick="window.print()">
+                    <i class='bx bx-printer me-2'></i> @(isEnglish ? "PRINT RECEIPT" : "रसीद प्रिंट करें")
+                </button>
+
+                <button class="btn btn-theme-gradient rounded-pill px-4 shadow-sm" onclick="downloadApplicationForm()">
+                    <i class='bx bx-file-blank me-2'></i> @(isEnglish ? "OPEN APPLICATION FORM" : "आवेदन फॉर्म खोलें")
+                </button>
+
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+                    <i class='bx bx-home-alt me-2'></i> @(isEnglish ? "HOME" : "मुख्य पृष्ठ")
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function processPayment() {
+            // Show Loader Overlay
+            $('#paymentOverlay').css('display', 'flex');
+
+            // Simulate Payment Gateway API Delay (3 Seconds)
+            setTimeout(function() {
+                // Hide Loader and Payment Form
+                $('#paymentOverlay').hide();
+                $('#paymentMainForm').hide();
+
+                // Show Success Receipt Section
+                $('#successSection').fadeIn(500);
+                window.scrollTo(0, 0);
+
+            }, 3000); // 3000ms = 3 Seconds
+        }
+
+        // Opens the application form view dynamically based on the details
+        function downloadApplicationForm() {
+            let appNo = '@applicationNo';
+            let propName = encodeURIComponent('@Html.Raw(propertyName)');
+            let uNo = '@unitNo';
+            let amt = '@amount';
+
+            // Redirects to PrintApplicationForm view with Data
+            window.open(`@Url.Action("PrintApplicationForm", "Home")?applicationNo=${appNo}&propertyName=${propName}&unitNo=${uNo}&amount=${amt}`, '_blank');
+        }
+    </script>
+}

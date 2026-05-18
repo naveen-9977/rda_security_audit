@@ -1,0 +1,160 @@
+﻿@model rda_raipur.Models.PropertyModelTypeMaster
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>PropertyModelTypeMaster</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Model_Id" />
+            <div class="form-group">
+                <label asp-for="Model_name_en" class="control-label"></label>
+                <input asp-for="Model_name_en" class="form-control" />
+                <span asp-validation-for="Model_name_en" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Model_name_hi" class="control-label"></label>
+                <input asp-for="Model_name_hi" class="form-control" />
+                <span asp-validation-for="Model_name_hi" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="created_by" class="control-label"></label>
+                <input asp-for="created_by" class="form-control" />
+                <span asp-validation-for="created_by" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Create_Date" class="control-label"></label>
+                <input asp-for="Create_Date" class="form-control" />
+                <span asp-validation-for="Create_Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="updated_Date" class="control-label"></label>
+                <input asp-for="updated_Date" class="form-control" />
+                <span asp-validation-for="updated_Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="updated_by" class="control-label"></label>
+                <input asp-for="updated_by" class="form-control" />
+                <span asp-validation-for="updated_by" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+@* @model rda_raipur.Models.PropertyModelTypeMaster
+
+@{
+    ViewData["Title"] = "Edit Property Model Type";
+     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+ *@
+@* <div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h3>Edit Property Model Type</h3>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+
+    </div>
+
+    <div class="card shadow">
+
+        <div class="card-header">
+            <h6 class="font-weight-bold text-primary">
+                Update Model Type
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Edit">
+
+                <input type="hidden" asp-for="Model_Id" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Model Name (English)</label>
+
+                        <input asp-for="Model_name_en" class="form-control" />
+
+                        <span asp-validation-for="Model_name_en" class="text-danger"></span>
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label>Model Name (Hindi)</label>
+
+                        <input asp-for="Model_name_hi" class="form-control" />
+
+                        <span asp-validation-for="Model_name_hi" class="text-danger"></span>
+
+                    </div>
+
+                </div>
+
+                <div class="form-check mb-3">
+
+                    <input class="form-check-input" asp-for="IsActive" />
+
+                    <label class="form-check-label">Active</label>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+
+                    <i class="fa fa-save"></i> Update
+
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div> *@
+
+@* @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@

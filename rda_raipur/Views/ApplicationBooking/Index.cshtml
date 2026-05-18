@@ -1,0 +1,50 @@
+﻿@model rda_raipur.Models.ViewModels.BookingFormViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@* 1. Styles Load Karein (Correct Path) *@
+@await Html.PartialAsync("Booking/_BookingStyles")
+
+<div class="govt-page-bg">
+    <div class="container govt-form-container shadow-lg rounded-3 overflow-hidden">
+
+        <div class="govt-page-header">
+            <h4>RAIPUR DEVELOPMENT AUTHORITY - PROPERTY APPLICATION</h4>
+        </div>
+
+        @* 2. Property Info Table (Correct Path) *@
+        @await Html.PartialAsync("Booking/_PropertyInfo")
+
+        <form id="bookingForm" enctype="multipart/form-data">
+            <div id="form-entry-section">
+
+                @* 3. Mobile Verification Section *@
+                @await Html.PartialAsync("Booking/_MobileVerification")
+
+                <div id="main-application-form" class="disabled-section">
+
+                    @* 4. Applicant Details Section *@
+                    @await Html.PartialAsync("Booking/_ApplicantDetails")
+
+                    @* 5. Document Uploads Section *@
+                    @await Html.PartialAsync("Booking/_DocumentUploads")
+
+                    <div class="text-center my-4">
+                        <button type="button" onclick="showPreviewSection()" class="btn btn-govt-primary btn-lg px-5">
+                            Next: Review & Pay <i class='bx bx-right-arrow-alt'></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            @* 6. Application Preview & Payment Section *@
+            @await Html.PartialAsync("Booking/_ApplicationPreview")
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @* 7. Scripts Load Karein *@
+    @await Html.PartialAsync("Booking/_BookingScripts")
+}

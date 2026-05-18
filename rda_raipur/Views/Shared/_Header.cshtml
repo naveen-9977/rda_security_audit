@@ -1,0 +1,404 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "en";
+    bool isEnglish = culture.StartsWith("en");
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+}
+
+<style>
+    .accessibility-bar {
+        background-color: #f8f9fa;
+        color: #475569;
+        font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+        padding: clamp(3px, 0.5vw, 5px) 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+        .accessibility-bar a, .accessibility-bar button {
+            color: #475569;
+            text-decoration: none;
+            background: none;
+            border: none;
+            padding: 0 clamp(4px, 0.6vw, 8px);
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+            .accessibility-bar a:hover, .accessibility-bar button:hover {
+                color: #003366;
+            }
+
+    .acc-divider {
+        color: #cbd5e1;
+        margin: 0 clamp(1px, 0.2vw, 2px);
+    }
+
+    .font-resize-btn {
+        font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+        padding: 1px 5px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 3px;
+        background: #fff !important;
+        margin: 0 2px;
+    }
+
+        .font-resize-btn:hover {
+            background: #e2e8f0 !important;
+        }
+
+    .staff-login-link {
+        color: #dc2626 !important;
+        font-weight: 800 !important;
+    }
+
+        .staff-login-link:hover {
+            color: #991b1b !important;
+            text-decoration: underline;
+        }
+
+    .branding-wrapper {
+        background-color: #ffffff;
+        padding: clamp(8px, 1vw, 12px) 0;
+    }
+
+    .brand-text-en {
+        color: #003366;
+        font-size: clamp(0.95rem, 1.2vw + 0.2rem, 1.25rem);
+        line-height: 1.1;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .brand-text-hi {
+        color: #f97316;
+        font-size: clamp(0.85rem, 1vw + 0.2rem, 1.1rem);
+        font-weight: 700;
+        margin-top: 1px;
+    }
+
+    .navbar-brand img {
+        height: clamp(45px, 5vw, 60px);
+    }
+
+    .header-action-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .header-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            color: #fff !important;
+        }
+
+    .header-main-nav {
+        background-color: #003366;
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .custom-navbar {
+        padding: 0;
+    }
+
+    .custom-nav-links .nav-item {
+        position: relative;
+    }
+
+    .custom-nav-links .nav-link {
+        font-size: clamp(0.75rem, 0.8vw, 0.85rem);
+        font-weight: 500;
+        color: #e2e8f0 !important;
+        padding: 0.8rem clamp(0.6rem, 0.8vw, 1rem) !important;
+        text-transform: capitalize;
+        letter-spacing: 0.8px;
+        transition: 0.3s;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+    }
+
+        .custom-nav-links .nav-link:hover, .custom-nav-links .nav-link.active {
+            background-color: #002244;
+            border-bottom: 3px solid #f97316;
+            color: #ffffff !important;
+        }
+
+    @@media (min-width: 1200px) {
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+            animation: fadeInHeader 0.3s ease;
+        }
+    }
+
+    @@keyframes fadeInHeader {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .custom-nav-links .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border-top: 3px solid #f97316;
+        border-radius: 0 0 6px 6px;
+        padding: 0;
+        margin-top: 0;
+        background-color: #ffffff;
+    }
+
+    .custom-nav-links .dropdown-item {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #334155;
+        padding: 10px 20px;
+        transition: 0.2s;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+        .custom-nav-links .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .custom-nav-links .dropdown-item:hover {
+            color: #f97316;
+            background-color: #fff7ed;
+            padding-left: 25px;
+        }
+
+    html {
+        font-size: 16px;
+        transition: font-size 0.3s ease;
+    }
+
+    @@media (max-width: 1199px) {
+        .custom-navbar {
+            padding: 0;
+        }
+
+        .branding-wrapper {
+            padding: 10px 0;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .accessibility-bar {
+            display: none;
+        }
+
+        .header-main-nav {
+            position: static !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            height: 0;
+            border: none !important;
+        }
+
+        .custom-nav-links .nav-link {
+            color: #1e293b !important;
+            padding: 12px 15px !important;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            white-space: normal;
+        }
+
+            .custom-nav-links .nav-link:hover, .custom-nav-links .nav-link.active {
+                background-color: #f1f5f9;
+                color: #f97316 !important;
+                border-bottom: 1px solid #f97316;
+            }
+    }
+</style>
+
+<div class="accessibility-bar d-none d-lg-block">
+    <div class="container-fluid px-md-5 d-flex justify-content-between align-items-center flex-wrap">
+
+        <div class="d-flex align-items-center flex-wrap">
+            <a href="tel:07712536188" class="text-decoration-none d-flex align-items-center">
+                <i class='bx bx-phone-call me-1 fs-6'></i> @(isEnglish ? "Helpline" : "हेल्पलाइन"): 0771-2536188
+            </a>
+            <span class="acc-divider ms-2 me-2">|</span>
+            <a href="mailto:info@rdaraipur.com" class="text-decoration-none d-flex align-items-center">
+                <i class='bx bx-envelope me-1 fs-6'></i> info@rdaraipur.com
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap">
+            <span class="me-1 fw-bold text-muted" style="font-size: clamp(0.65rem, 0.8vw, 0.75rem);">A</span>
+            <button class="font-resize-btn" onclick="resizeText(-1)" title="Decrease Font Size">A-</button>
+            <button class="font-resize-btn" onclick="resizeText(0)" title="Normal Font Size">A</button>
+            <button class="font-resize-btn" onclick="resizeText(1)" title="Increase Font Size">A+</button>
+            <span class="acc-divider ms-2 me-2">|</span>
+            <a href="@Url.Action("SetLanguage", "Home", new { culture = "en", returnUrl = Context.Request.Path + Context.Request.QueryString })" class="@(isEnglish ? "text-primary fw-bolder" : "")">English</a>
+            <span class="acc-divider">|</span>
+            <a href="@Url.Action("SetLanguage", "Home", new { culture = "hi", returnUrl = Context.Request.Path + Context.Request.QueryString })" class="@(!isEnglish ? "text-primary fw-bolder" : "")">हिन्दी</a>
+            <span class="acc-divider ms-2 me-2">|</span>
+            <a href="@Url.Action("EmployeeLogin", "Account")" class="staff-login-link"><i class='bx bxs-lock-alt me-1'></i> @(isEnglish ? "Staff Login" : "विभागीय लॉगिन")</a>
+        </div>
+    </div>
+</div>
+
+<div class="branding-wrapper">
+    <div class="container-fluid px-md-5 d-flex justify-content-between align-items-center flex-wrap">
+        <a class="navbar-brand d-flex align-items-center text-decoration-none" asp-controller="Home" asp-action="Index">
+            <img src="~/images/rda-logo.png" alt="RDA Raipur Logo" class="me-3">
+            <div class="d-flex flex-column">
+                <span class="brand-text-en">RAIPUR DEVELOPMENT AUTHORITY</span>
+                <span class="brand-text-hi">रायपुर विकास प्राधिकरण</span>
+            </div>
+        </a>
+
+        <div class="d-none d-xl-flex gap-3 align-items-center">
+     
+
+            <a href="@Url.Action("Schemes", "PropertyBooking")" class="btn text-white fw-bold d-flex align-items-center shadow-sm header-action-btn" style="background-color: #003366;">
+                <div class="bg-white text-dark rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                    <i class='bx bx-building-house'></i>
+                </div>
+                <span>@(isEnglish ? "Book Property" : "संपत्ति बुक करें")</span>
+            </a>
+
+           
+        </div>
+
+        <div class="d-xl-none d-flex align-items-center">
+            <button class="navbar-toggler border-0 shadow-none bg-light p-1 rounded" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+                <i class='bx bx-menu fs-2 text-dark'></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="header-main-nav">
+    <div class="container-fluid px-md-5">
+        <nav class="navbar navbar-expand-xl custom-navbar">
+            <div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+                <div class="offcanvas-header border-bottom bg-light">
+                    <h5 class="offcanvas-title fw-bold text-dark" id="offcanvasMenuLabel">Menu</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasMenu" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body p-0">
+                    <ul class="navbar-nav me-auto custom-nav-links">
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController=="Home" && currentAction=="Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
+                                <i class='bx bxs-home-circle me-1'></i> @(isEnglish ? "Home" : "होम")
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="aboutUsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class='bx bxs-info-circle me-1'></i> @(isEnglish ? "About Us" : "हमारे बारे में")
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="aboutUsDropdown">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Organization">@(isEnglish ? "Organization" : "संगठन")</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Leadership">@(isEnglish ? "Leadership" : "हमारा नेतृत्व")</a></li>
+                                <li><a class="dropdown-item" href="#">@(isEnglish ? "Act" : "अधिनियम")</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Rti">@(isEnglish ? "Rti" : "आरटीआई")</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="projectsSchemesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class='bx bxs-city me-1'></i> @(isEnglish ? "Projects & Schemes" : "प्रोजेक्ट्स और योजनाएं")
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="projectsSchemesDropdown">
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="AllSchemes">@(isEnglish ? "All RDA Schemes" : "सभी आरडीए योजनाएं")</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="SearchProperty">@(isEnglish ? "Scheme / Search Property" : "योजना / संपत्ति खोजें")</a></li>
+                                <li><a class="dropdown-item" asp-controller="Home" asp-action="Brochure">@(isEnglish ? "Brochure" : "ब्रोशर")</a></li>
+                                <li><a class="dropdown-item" href="#">@(isEnglish ? "Drawing" : "ड्राइंग")</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="tendersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class='bx bxs-file-pdf me-1'></i> @(isEnglish ? "Tenders" : "निविदाएं")
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="tendersDropdown">
+                                <li><a class="dropdown-item" href="#">@(isEnglish ? "Property Sale By Tender" : "निविदा द्वारा संपत्ति की बिक्री")</a></li>
+                                <li><a class="dropdown-item" href="#">@(isEnglish ? "Property Sale By Lottery" : "लॉटरी द्वारा संपत्ति की बिक्री")</a></li>
+                                <li><a class="dropdown-item" href="#">@(isEnglish ? "Procurement Tender" : "खरीद निविदा")</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://saccess.nic.in/" target="_blank" rel="noopener noreferrer">
+                                <i class='bx bxs-briefcase me-1'></i> @(isEnglish ? "E-Office" : "ई-ऑफिस")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentAction=="Gallery" ? "active" : "")" asp-controller="Home" asp-action="Gallery">
+                                <i class='bx bxs-image-add me-1'></i> @(isEnglish ? "Gallery" : "गैलरी")
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentAction=="Contact" ? "active" : "")" asp-controller="Home" asp-action="Contact">
+                                <i class='bx bxs-phone-call me-1'></i> @(isEnglish ? "Contact" : "संपर्क")
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="d-xl-none mt-auto p-4 border-top w-100 bg-light">
+                        <div class="d-flex flex-column gap-3">
+                            <a href="@Url.Action("SetLanguage", "Home", new { culture = isEnglish ? "hi" : "en", returnUrl = Context.Request.Path + Context.Request.QueryString })" class="btn btn-outline-primary w-100 border fw-bold py-2 bg-white">
+                                <i class='bx bx-globe'></i> @(isEnglish ? "Switch to हिन्दी" : "Switch to English")
+                            </a>
+
+                            <a href="@Url.Action("EmployeeLogin", "Account")" class="btn btn-danger text-center py-2 w-100 fw-bold mt-2">
+                                <i class='bx bxs-lock-alt'></i> @(isEnglish ? "Staff Login" : "विभागीय लॉगिन")
+                            </a>
+
+                            <hr class="my-2" />
+                            <a href="@Url.Action("PayOtherCharges", "Home")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #f97316;">
+                                <i class='bx bx-wallet fs-5 me-2'></i> @(isEnglish ? "Pay Online" : "ऑनलाइन भुगतान")
+                            </a>
+                            <a href="@Url.Action("Schemes", "PropertyBooking")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #003366;">
+                                <i class='bx bx-building-house fs-5 me-2'></i> @(isEnglish ? "Book Property" : "संपत्ति बुक करें")
+                            </a>
+                            <a href="@Url.Action("AllotteeLogin", "Account")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #16a34a;">
+                                <i class='bx bxs-user-detail fs-5 me-2'></i> @(isEnglish ? "Allottee Portal" : "आवंटी पोर्टल")
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<div id="main-content"></div>
+
+<script>
+    let currentZoomHeader = 16;
+    function resizeText(step) {
+        if (step === 0) { currentZoomHeader = 16; }
+        else if (step === 1 && currentZoomHeader < 20) { currentZoomHeader += 2; }
+        else if (step === -1 && currentZoomHeader > 12) { currentZoomHeader -= 2; }
+        document.documentElement.style.fontSize = currentZoomHeader + 'px';
+        localStorage.setItem('rda_fontsize', currentZoomHeader);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        let savedSize = localStorage.getItem('rda_fontsize');
+        if (savedSize) {
+            currentZoomHeader = parseInt(savedSize);
+            document.documentElement.style.fontSize = currentZoomHeader + 'px';
+        }
+    });
+</script>

@@ -1,0 +1,155 @@
+﻿@model IEnumerable<rda_raipur.Models.PropertyModelTypeMaster>
+
+@* @{
+    ViewData["Title"] = "Index";
+} *@
+@{
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}@* 
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Model_name_en)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Model_name_hi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.created_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Create_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Model_name_en)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Model_name_hi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Create_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Model_Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Model_Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Model_Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table> *@
+
+
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between mb-3">
+
+        <h3>Property Model Type Master</h3>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Add Model Type
+        </a>
+
+    </div>
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Model Name (EN)</th>
+                <th>Model Name (HI)</th>
+                <th>created_by/th>
+                <th>Create_Date</th>
+                <th>Updated_Date</th>
+                <th>updated_by </th>
+                <th>Status</th>
+                <th>IsDeleted</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@item.Model_Id</td>
+                    <td>@item.Model_name_en</td>
+                    <td>@item.Model_name_hi</td>
+                    <td>@item.created_by</td>
+                    <td> @item.Create_Date</td>
+                    <td> @item.updated_Date</td>
+                    <td>@item.updated_by</td>
+                    <td>@item.IsDeleted</td>
+
+                    <td>
+
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <a asp-action="Edit" asp-route-id="@item.Model_Id" class="btn btn-sm btn-primary">
+                            <i class="fa fa-edit"></i>
+                        </a>
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

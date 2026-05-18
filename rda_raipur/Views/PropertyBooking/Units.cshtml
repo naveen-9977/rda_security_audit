@@ -1,0 +1,504 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model IEnumerable<rda_raipur.Models.ViewModels.TenderPropertyItemVM>
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEng = culture.StartsWith("en");
+
+    ViewData["Title"] = isEng ? "Official Asset Inventory - RDA" : "आधिकारिक संपत्ति सूची - आरडीए";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string propType = ViewBag.PropertyType?.ToString()?.ToLower() ?? "";
+    string unitLabel = isEng ? "Unit No." : "यूनिट नं.";
+
+    // 🔥 DYNAMIC HIDE/SHOW LOGIC 🔥
+    bool isPlotOrShop = propType.Contains("plot") || propType.Contains("land") || propType.Contains("shop") || propType.Contains("commercial");
+
+    if (propType.Contains("flat")) { unitLabel = isEng ? "Flat No." : "फ्लैट क्र."; }
+    else if (propType.Contains("plot") || propType.Contains("land")) { unitLabel = isEng ? "Plot No." : "प्लॉट (भूखंड) क्र."; }
+    else if (propType.Contains("shop") || propType.Contains("commercial")) { unitLabel = isEng ? "Shop No." : "दुकान क्र."; }
+    else if (propType.Contains("house") || propType.Contains("makan")) { unitLabel = isEng ? "House No." : "मकान क्र."; }
+}
+
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --govt-primary: #003366;
+        --govt-secondary: #e88d14;
+        --govt-bg: #f4f6f9;
+        --govt-text: #333333;
+        --govt-border: #dee2e6;
+    }
+
+    body {
+        background-color: var(--govt-bg);
+        font-family: 'Roboto', Arial, sans-serif;
+        color: var(--govt-text);
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-wrapper {
+        max-width: 1450px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .project-summary-banner {
+        background: #ffffff;
+        border-radius: 4px;
+        border: 1px solid var(--govt-border);
+        border-bottom: 4px solid var(--govt-primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .banner-left {
+        padding: 20px 25px;
+        border-right: 1px solid var(--govt-border);
+    }
+
+    .banner-right {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .badge-official {
+        background: var(--govt-primary);
+        color: white;
+        font-size: 0.65rem;
+        padding: 4px 8px;
+        border-radius: 2px;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .scheme-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--govt-primary);
+        margin-bottom: 5px;
+    }
+
+    .date-box-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #495057;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .date-box-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 12px;
+        border-left: 3px solid var(--govt-secondary);
+        padding-left: 10px;
+    }
+
+    .btn-doc-link {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--govt-primary);
+        background: #ffffff;
+        border: 1px solid var(--govt-primary);
+        border-radius: 2px;
+        padding: 6px 12px;
+        text-decoration: none;
+        transition: 0.2s;
+        text-transform: uppercase;
+    }
+
+        .btn-doc-link:hover {
+            background: var(--govt-primary);
+            color: #ffffff !important;
+        }
+
+    .table-controls {
+        background: #ffffff;
+        padding: 15px 20px;
+        border-radius: 4px;
+        border: 1px solid var(--govt-border);
+        margin-bottom: 15px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    .filter-input {
+        background: #f8f9fa;
+        padding: 8px 15px 8px 40px;
+        border-radius: 2px;
+        border: 1px solid #ced4da;
+        width: 100%;
+        color: var(--govt-text);
+        font-size: 0.9rem;
+    }
+
+        .filter-input:focus {
+            border-color: var(--govt-primary);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.1);
+        }
+
+    .table-container {
+        background: #ffffff;
+        border-radius: 4px;
+        border: 1px solid var(--govt-border);
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        margin-bottom: 20px;
+    }
+
+    .custom-table thead {
+        background-color: var(--govt-primary) !important;
+    }
+
+        .custom-table thead th {
+            color: #ffffff !important;
+            background-color: var(--govt-primary) !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 12px 10px !important;
+            border: 1px solid #002244 !important;
+            font-size: 0.75rem;
+            vertical-align: middle !important;
+        }
+
+    .custom-table td {
+        padding: 10px 12px !important;
+        color: #333333;
+        font-weight: 500;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+
+    .custom-table tr:hover {
+        background-color: #f1f5f9;
+    }
+
+    .column-filter {
+        width: 100%;
+        margin-top: 6px;
+        border: 1px solid #ced4da;
+        font-size: 0.7rem;
+        padding: 2px;
+        color: #495057;
+        border-radius: 2px;
+        background: #ffffff;
+    }
+
+    .price-bold {
+        font-weight: 700;
+        color: #000;
+    }
+
+    .btn-book-now {
+        background: #28a745;
+        color: #ffffff !important;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 6px 12px;
+        border-radius: 2px;
+        font-size: 0.75rem;
+        width: 100%;
+        transition: 0.2s;
+    }
+
+        .btn-book-now:hover {
+            background: #218838;
+        }
+
+    .btn-back {
+        background: #ffffff;
+        color: var(--govt-primary);
+        border: 1px solid var(--govt-primary);
+        border-radius: 2px;
+        padding: 6px 15px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.8rem;
+    }
+
+        .btn-back:hover {
+            background: var(--govt-primary);
+            color: #ffffff;
+        }
+
+    .confirm-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 0.9rem;
+    }
+
+    .confirm-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    .confirm-val {
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .bhk-badge {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #0d6efd;
+    }
+
+    .res-badge {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #dc3545;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="project-summary-banner row g-0">
+        <div class="col-lg-8 banner-left">
+            <span class="badge-official">@(isEng ? "Official Inventory" : "आधिकारिक सूची")</span>
+            <h1 class="scheme-title">@ViewBag.SelectedScheme</h1>
+            <p class="text-muted mb-3 small fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> @(ViewBag.SectorLocation ?? "N/A"), @(isEng ? "Raipur (C.G.)" : "रायपुर (छ.ग.)")</p>
+
+            <div class="d-flex align-items-center gap-4">
+                <h5 class="fw-bold text-success mb-0" style="font-size: 1.2rem;">@(isEng ? "Starts at" : "शुरुआती कीमत") ₹@((ViewBag.MinPrice != null ? Convert.ToDecimal(ViewBag.MinPrice) : 0).ToString("N0"))/-</h5>
+                <div class="d-flex gap-2">
+                    @if (!string.IsNullOrEmpty(ViewBag.SchemeBrochure))
+                    {
+                        <a href="@ViewBag.SchemeBrochure" target="_blank" class="btn-doc-link"><i class="bi bi-file-earmark-pdf"></i> @(isEng ? "Brochure" : "ब्रोशर")</a>
+                    }
+                    @if (!string.IsNullOrEmpty(ViewBag.SchemeLayout))
+                    {
+                        <a href="@ViewBag.SchemeLayout" target="_blank" class="btn-doc-link"><i class="bi bi-map"></i> @(isEng ? "Layout" : "लेआउट")</a>
+                    }
+                    <a href="/Home/TermsAndConditions" target="_blank" class="btn-doc-link"><i class="bi bi-journal-text"></i> @(isEng ? "Rules & Terms" : "नियम एवं शर्तें")</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 banner-right">
+            <div class="date-box-title">@(isEng ? "Application Closing Date" : "आवेदन की अंतिम तिथि")</div>
+            <div class="date-box-value">@(ViewBag.EndDate != null ? Convert.ToDateTime(ViewBag.EndDate).ToString("dd/MM/yyyy") : "N/A") | 05:00 PM</div>
+            <div class="date-box-title">@(isEng ? "Offer Opening Date" : "ऑफर खुलने की तिथि")</div>
+            <div class="date-box-value">@(ViewBag.OfferDate != null ? Convert.ToDateTime(ViewBag.OfferDate).ToString("dd/MM/yyyy hh:mm tt") : "N/A")</div>
+        </div>
+    </div>
+
+    <div class="table-controls d-flex justify-content-between align-items-center">
+        <div style="position:relative; width:450px;">
+            <i class="bi bi-search" style="position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#6c757d;"></i>
+            <input type="text" id="assetSearchInput" class="filter-input" placeholder="@(isEng ? "Search by Sector or " + unitLabel + "..." : "सेक्टर या " + unitLabel + " से खोजें...")">
+        </div>
+        <a asp-action="Schemes" class="btn-back"><i class="bi bi-arrow-left"></i> @(isEng ? "Back to Projects" : "प्रोजेक्ट्स पर वापस जाएं")</a>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table custom-table w-100" id="assetDataTable">
+                <thead>
+                    <tr>
+                        <th>@(isEng ? "Sector" : "सेक्टर")</th>
+
+                        @if (!isPlotOrShop)
+                        {
+                            <th>@(isEng ? "Block" : "ब्लॉक")</th>
+                            <th>@unitLabel</th>
+                            <th>@(isEng ? "Type" : "प्रकार")</th>
+                        }
+                        else
+                        {
+                            <th>@unitLabel</th>
+                            <th>@(isEng ? "Width" : "चौड़ाई")</th>
+                            <th>@(isEng ? "Depth" : "गहराई")</th>
+                            <th>@(isEng ? "Dir." : "दिशा")</th>
+                            <th>@(isEng ? "Loc." : "लोकेशन")</th>
+                        }
+
+                        <th>@(isEng ? "Reservation" : "आरक्षण")</th>
+                        <th>@(isEng ? "Allotment" : "आवंटन")</th>
+                        <th>@(isEng ? "Area" : "क्षेत्रफल")</th>
+
+                        @* 🔥 PRICE UPDATED TO OFFSET PRICE 🔥 *@
+                        <th>@(isEng ? "Offset Price (₹)" : "ऑफ़सेट कीमत (₹)")</th>
+
+                        <th>@(isEng ? "EMD (₹)" : "धरोहर राशि (₹)")</th>
+                        <th class="text-center">@(isEng ? "Action" : "कार्रवाई")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Sector</td>
+
+                            @if (!isPlotOrShop)
+                            {
+                                <td>@item.Block</td>
+                                <td class="fw-bold">@item.Property_Number</td>
+                                <td><span class="bhk-badge">@item.Flat_Type</span></td>
+                            }
+                            else
+                            {
+                                <td class="fw-bold text-primary">@item.Property_Number</td>
+                                <td>@item.Width</td>
+                                <td>@item.Depth</td>
+                                <td>@item.Direction</td>
+                                <td><span class="small fw-bold text-muted">@item.BetterLocationName</span></td>
+                            }
+
+                            <td><span class="res-badge">@item.UserCategory</span></td>
+                            <td><span class="small fw-bold text-secondary">@item.Allotment_Type</span></td>
+                            <td>@item.Property_Size</td>
+                            <td class="price-bold">@item.Offset_Price.ToString("N0")</td>
+                            <td class="text-success fw-bold">@item.EMD_Amount.ToString("N0")</td>
+                            <td>
+                                <button type="button" class="btn btn-book-now btn-confirm-trigger"
+                                        data-id="@item.PropertyId"
+                                        data-scheme="@item.Scheme_Name"
+                                        data-sector="@item.Sector"
+                                        data-block="@item.Block"
+                                        data-house="@item.Property_Number"
+                                        data-bhk="@item.Flat_Type"
+                                        data-price="@item.Offset_Price.ToString("N0")"
+                                        data-emd="@item.EMD_Amount.ToString("N0")"
+                                        data-res="@item.UserCategory"
+                                        data-class="@(item.Property_Classification ?? "Residential")"
+                                        data-width="@item.Width"
+                                        data-depth="@item.Depth"
+                                        data-direction="@item.Direction"
+                                        data-betterloc="@item.BetterLocationName">
+                                    @(isEng ? "Book Now" : "अभी बुक करें")
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/Shared/_InstructionModal.cshtml" />
+
+<div class="modal fade" id="bookingConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header" style="background: var(--govt-primary); color: white; border-radius: 4px 4px 0 0;">
+                <h5 class="modal-title"><i class="bi bi-card-checklist me-2"></i> @(isEng ? "Confirm Selection" : "चयन की पुष्टि करें")</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-white text-dark">
+                <div class="confirm-item"><span class="confirm-label">@(isEng ? "Scheme:" : "योजना:")</span> <span class="confirm-val" id="c-scheme"></span></div>
+                <div class="confirm-item"><span class="confirm-label">@(isEng ? "Sector:" : "सेक्टर:")</span> <span class="confirm-val" id="c-sector"></span></div>
+
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "none" : "flex");"><span class="confirm-label">@(isEng ? "Block:" : "ब्लॉक:")</span> <span class="confirm-val" id="c-block"></span></div>
+
+                <div class="confirm-item"><span class="confirm-label">@unitLabel:</span> <span class="confirm-val fs-6 text-primary" id="c-house"></span></div>
+
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "none" : "flex");"><span class="confirm-label">@(isEng ? "Type/BHK:" : "प्रकार:")</span> <span class="confirm-val" id="c-bhk"></span></div>
+
+                @* 🔥 NAYA: MODAL ME 4 ALAG ALAG LINES FOR PLOT 🔥 *@
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "flex" : "none");"><span class="confirm-label">@(isEng ? "Width:" : "चौड़ाई:")</span> <span class="confirm-val" id="c-width"></span></div>
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "flex" : "none");"><span class="confirm-label">@(isEng ? "Depth:" : "गहराई:")</span> <span class="confirm-val" id="c-depth"></span></div>
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "flex" : "none");"><span class="confirm-label">@(isEng ? "Direction:" : "दिशा:")</span> <span class="confirm-val" id="c-dir"></span></div>
+                <div class="confirm-item" style="display: @(isPlotOrShop ? "flex" : "none");"><span class="confirm-label">@(isEng ? "Location:" : "लोकेशन:")</span> <span class="confirm-val text-muted" id="c-bloc"></span></div>
+
+                @* 🔥 OFFSET PRICE UPDATED HERE 🔥 *@
+                <div class="confirm-item mt-3 pt-2 border-top"><span class="confirm-label text-success">@(isEng ? "Offset Price (₹):" : "ऑफ़सेट कीमत (₹):")</span> <span class="confirm-val text-success fs-5" id="c-price"></span></div>
+                <div class="confirm-item"><span class="confirm-label text-danger">@(isEng ? "EMD (₹):" : "धरोहर राशि (₹):")</span> <span class="confirm-val text-danger" id="c-emd"></span></div>
+            </div>
+            <div class="modal-footer bg-light d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">@(isEng ? "Cancel" : "रद्द करें")</button>
+                <form asp-controller="PropertyBooking" asp-action="InitiateBooking" method="post" id="finalBookingForm">
+                    <input type="hidden" name="mappingId" id="final-mapping-id" value="" />
+                    <button type="submit" class="btn btn-success fw-bold px-4" style="background: #28a745; border:none;">@(isEng ? "Confirm & Proceed" : "पुष्टि करें और आगे बढ़ें") <i class="bi bi-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#instructionModal').modal('show');
+
+            var isPlot = @(isPlotOrShop.ToString().ToLower());
+
+            // 🔥 NAYA DATATABLE LOGIC: Filter and Order columns accordingly 🔥
+            // If Plot: Filter on Sector(0), Dir(4), Loc(5), Res(6), Allotment(7). Price is col(9).
+            // If Flat: Filter on Sector(0), Block(1), Type(3), Res(4), Allotment(5). Price is col(7).
+            var filterCols = isPlot ? [0, 4, 5, 6, 7] : [0, 1, 3, 4, 5];
+            var orderCol = isPlot ? 9 : 7;
+
+            var table = $('#assetDataTable').DataTable({
+                pageLength: 15,
+                dom: '<"top"l>rt<"bottom"ip><"clear">',
+                order: [[orderCol, "asc"]],
+                language: {
+                    paginate: { previous: "&laquo;", next: "&raquo;" },
+                    search: "@(isEng ? "Search:" : "खोजें:")",
+                    lengthMenu: "@(isEng ? "Show _MENU_ entries" : "_MENU_ प्रविष्टियां दिखाएं")",
+                    info: "@(isEng ? "Showing _START_ to _END_ of _TOTAL_ entries" : "कुल _TOTAL_ में से _START_ से _END_ तक दिखा रहा है")",
+                    infoEmpty: "@(isEng ? "Showing 0 to 0 of 0 entries" : "0 प्रविष्टियां")",
+                    emptyTable: "@(isEng ? "No data available in table" : "टेबल में कोई डेटा उपलब्ध नहीं है")"
+                },
+                initComplete: function () {
+                    this.api().columns(filterCols).every(function () {
+                        var column = this;
+                        var select = $('<select class="column-filter form-select form-select-sm"><option value="">@(isEng ? "All" : "सभी")</option></select>')
+                            .appendTo($(column.header()))
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                column.search(val ? '^' + val + '$' : '', true, false).draw();
+                            });
+                        column.data().unique().sort().each(function (d, j) {
+                            var textVal = $('<div/>').html(d).text().trim();
+                            if (textVal) { select.append('<option value="' + textVal + '">' + textVal + '</option>'); }
+                        });
+                    });
+                }
+            });
+
+            $('.btn-confirm-trigger').on('click', function() {
+                var btn = $(this);
+                $('#c-scheme').text(btn.data('scheme'));
+                $('#c-sector').text(btn.data('sector'));
+                $('#c-block').text(btn.data('block') || '-');
+                $('#c-house').text(btn.data('house'));
+                $('#c-bhk').text(btn.data('bhk') || '-');
+
+                // 🔥 NAYA: Charo details modal me set ki ja rahi hain 🔥
+                $('#c-width').text(btn.data('width') + " Ft.");
+                $('#c-depth').text(btn.data('depth') + " Ft.");
+                $('#c-dir').text(btn.data('direction'));
+                $('#c-bloc').text(btn.data('betterloc'));
+
+                $('#c-res').text(btn.data('res'));
+                $('#c-price').text('₹ ' + btn.data('price'));
+                $('#c-emd').text('₹ ' + btn.data('emd'));
+                $('#final-mapping-id').val(btn.data('id'));
+                $('#bookingConfirmModal').modal('show');
+            });
+
+            $('#assetSearchInput').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+}

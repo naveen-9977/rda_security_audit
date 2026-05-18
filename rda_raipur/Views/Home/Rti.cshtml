@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "hi";
+    bool isEnglish = (culture == "en");
+
+    ViewData["Title"] = isEnglish ? "Right to Information (RTI)" : "सूचना का अधिकार (आरटीआई)";
+}
+
+<style>
+    .rti-header-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: white;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .rti-title {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        color: #f97316;
+    }
+
+    .pdf-viewer-container {
+        width: 100%;
+        height: 85vh; /* 85% of viewport height for a large, clear view */
+        min-height: 600px;
+        border: 4px solid #0d9488;
+        border-radius: 10px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        overflow: hidden;
+        background-color: #525659; /* Default PDF viewer background color */
+    }
+
+    .pdf-embed {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+
+<div class="rti-header-section">
+    <div class="container">
+        <h1 class="rti-title">@(isEnglish ? "RIGHT TO INFORMATION (RTI)" : "सूचना का अधिकार (आरटीआई)")</h1>
+        <p class="lead mb-0 text-white-50">@(isEnglish ? "Raipur Development Authority" : "रायपुर विकास प्राधिकरण")</p>
+    </div>
+</div>
+
+<div class="container-fluid px-md-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-12">
+
+            <div class="pdf-viewer-container">
+                <iframe src="@Url.Content("~/documents/RTI_Book_CG_OCT20.pdf")#pagemode=thumbs&navpanes=1&view=Fit"
+                        class="pdf-embed"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+        </div>
+    </div>
+</div>

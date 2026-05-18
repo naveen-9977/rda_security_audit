@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Localization
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    bool isEnglish = (requestCulture?.RequestCulture.Culture.Name ?? "en").StartsWith("en");
+}
+
+<div class="quick-action-bar">
+    <div class="container-fluid px-md-5">
+        <div class="row g-3 justify-content-center">
+
+            <div class="col-12 col-md-4">
+                <a href="@Url.Action("PayOtherCharges", "Home")" class="btn-govt-action btn-accent-orange w-100">
+                    <div class="icon-circle"><i class='bx bx-wallet'></i></div>
+                    <span>@(isEnglish ? "Pay Online" : "ऑनलाइन भुगतान")</span>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <a href="@Url.Action("Schemes", "PropertyBooking")" class="btn-govt-action btn-accent-blue w-100">
+                    <div class="icon-circle"><i class='bx bx-building-house'></i></div>
+                    <span>@(isEnglish ? "Book Property" : "संपत्ति बुक करें")</span>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <a href="@Url.Action("AllotteeLogin", "Account")" class="btn-govt-action btn-accent-green w-100">
+                    <div class="icon-circle"><i class='bx bxs-user-detail'></i></div>
+                    <span>@(isEnglish ? "Allottee Portal" : "आवंटी पोर्टल")</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

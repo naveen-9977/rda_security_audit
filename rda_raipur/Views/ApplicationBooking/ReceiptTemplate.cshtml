@@ -1,0 +1,497 @@
+﻿@model rda_raipur.Models.PaymentDetail
+@{
+    Layout = null;
+    var booking = Model?.PropertyBooking;
+    var profile = booking?.BookingProfileDetail;
+    string photo = ViewBag.PhotoPath;
+    string sign = ViewBag.SignPath;
+
+    string resCat = ViewBag.ReserveCategory?.ToString()?.ToLower() ?? "general";
+    bool isGeneral = resCat.Contains("general") || resCat.Contains("unreserved") || resCat == "";
+
+    string propType = ViewBag.PropertyType?.ToString()?.ToLower() ?? "";
+    string unitLabel = "यूनिट नं.";
+
+    bool isPlotOrShop = propType.Contains("plot") || propType.Contains("land") || propType.Contains("shop") || propType.Contains("commercial");
+
+    if (propType.Contains("flat")) { unitLabel = "फ्लैट क्र."; }
+    else if (propType.Contains("plot") || propType.Contains("land")) { unitLabel = "प्लॉट क्र."; }
+    else if (propType.Contains("shop") || propType.Contains("commercial")) { unitLabel = "दुकान क्र."; }
+    else if (propType.Contains("house") || propType.Contains("makan")) { unitLabel = "मकान क्र."; }
+
+    string NumberToHindiWords(decimal doubleNumber)
+    {
+        long number = (long)doubleNumber;
+        if (number == 0) return "शून्य रुपये मात्र";
+        if (number < 0) return "ऋण " + NumberToHindiWords(Math.Abs(number));
+
+        string[] h = { "", "एक", "दो", "तीन", "चार", "पांच", "छह", "सात", "आठ", "नौ", "दस",
+            "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस", "बीस",
+            "इक्कीस", "बाईस", "तेईस", "चौबीस", "पच्चीस", "छब्बीस", "सत्ताईस", "अट्ठाईस", "उनतीस", "तीस",
+            "इकतीस", "बत्तीस", "तैंतीस", "चौंतीस", "पैंतीस", "छत्तीस", "सैंतीस", "अड़तीस", "उनतालीस", "चालीस",
+            "इकतालीस", "बयालीस", "तैंतालीस", "चवालीस", "पैंतालीस", "छियालीस", "सैंतालीस", "अड़तालीस", "उनचास", "पचास",
+            "इक्यावन", "बावन", "तिरेपन", "चौवन", "पचपन", "छप्पन", "सत्तावन", "अट्ठावन", "उनसठ", "साठ",
+            "इकसठ", "बासठ", "तिरसठ", "चौंसठ", "पैंसठ", "छियासठ", "सड़सठ", "अड़सठ", "उनहत्तर", "सत्तर",
+            "इकहत्तर", "बहत्तर", "तिहत्तर", "चौहत्तर", "पचहत्तर", "छिहत्तर", "सतहत्तर", "अठहत्तर", "उन्नासी", "अस्सी",
+            "इक्यासी", "बयासी", "तिरासी", "चौरासी", "पचासी", "छियासी", "सत्तासी", "अट्ठासी", "नवासी", "नब्बे",
+            "इक्यानवे", "बानवे", "तिरानवे", "चौरानवे", "पचानवे", "छियानवे", "सत्तानवे", "अट्ठानवे", "निन्यानवे" };
+
+        string words = "";
+
+        if ((number / 10000000) > 0) { words += h[number / 10000000] + " करोड़ "; number %= 10000000; }
+        if ((number / 100000) > 0) { words += h[number / 100000] + " लाख "; number %= 100000; }
+        if ((number / 1000) > 0) { words += h[number / 1000] + " हजार "; number %= 1000; }
+        if ((number / 100) > 0) { words += h[number / 100] + " सौ "; number %= 100; }
+        if (number > 0) { words += h[number] + " "; }
+
+        return words.Trim() + " रुपये मात्र";
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RDA Receipt - @(Model?.OrderId)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #525659;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Naya Style for multiple pages */
+        .pdf-page {
+            background: #fff;
+            padding: 20px 30px;
+            width: 800px;
+            box-sizing: border-box;
+            font-size: 13px;
+            line-height: 1.3;
+            color: #000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 2px;
+        }
+
+        .rda-logo {
+            height: 80px;
+            width: auto;
+        }
+
+        .header-text {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+            .header-text h2 {
+                margin: 0;
+                font-size: 26px;
+                font-weight: 900;
+                color: #000;
+            }
+
+            .header-text p {
+                margin: 2px 0;
+                font-size: 11px;
+                font-weight: 700;
+            }
+
+        .title-wrapper {
+            border-top: 2px solid #000;
+            margin-top: 5px;
+            padding-top: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 800;
+            text-decoration: underline;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 5px 8px;
+            text-align: left;
+            font-size: 11.5px;
+            color: #000;
+        }
+
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .section-title {
+            background: #dee2e6;
+            font-weight: 800;
+            padding: 5px 10px;
+            border: 1.5px solid #000;
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .applicant-info-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .photo-sign-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 120px;
+        }
+
+        .photo-box {
+            width: 100px;
+            height: 120px;
+            border: 1.5px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+            .photo-box img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .applicant-sign-box {
+            width: 100px;
+            height: 40px;
+            border: 1.5px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+            .applicant-sign-box img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">
+        <h2 style="color: #003366;">प्रक्रिया जारी है...</h2>
+        <p>आपकी रसीद और नियम एवं शर्तें तैयार की जा रही हैं।</p>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 🔥 PAGE 1: RECEIPT DETAILS 🔥 -->
+    <!-- ============================================== -->
+    <div id="pdf-page-1" class="pdf-page">
+        <div class="header-container">
+            <img src="/images/rda-logo.png" class="rda-logo" alt="RDA Logo" crossorigin="anonymous">
+            <div class="header-text">
+                <h2>रायपुर विकास प्राधिकरण</h2>
+                <p>भक्त माताकर्मा व्यावसायिक परिसर, न्यू राजेन्द्र नगर, रायपुर (छत्तीसगढ़) - 492006</p>
+                <p>वेबसाइट : http://rda.cgstate.gov.in | टोल फ्री नं : 18002337188</p>
+            </div>
+            <div style="width: 80px;"></div>
+        </div>
+
+        <div class="title-wrapper">
+            <div class="title">निविदा आवेदन पत्र</div>
+        </div>
+
+        <p style="margin: 5px 0; font-size: 13px; font-weight: bold;"><strong>योजना (Scheme):</strong> @ViewBag.SchemeName</p>
+
+        <div class="section-title">1. संपत्ति का विवरण (Property Details)</div>
+
+        @if (!isPlotOrShop)
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 14%;">प्रयोजन</th>
+                        <th style="width: 16%;">सेक्टर / ब्लॉक</th>
+                        <th style="width: 12%;">@unitLabel</th>
+                        <th style="width: 12%;">प्रकार</th>
+                        <th style="width: 14%;">लोकेशन</th>
+                        <th style="width: 10%;">आवंटन</th>
+                        <th style="width: 12%;">आरक्षण</th>
+                        <th style="width: 10%;">क्षेत्रफल</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@ViewBag.PropertyType</td>
+                        <td>@ViewBag.SectorName @(string.IsNullOrEmpty(ViewBag.BlockName) ? "" : " / " + ViewBag.BlockName)</td>
+                        <td style="font-weight: bold;">@booking?.PropertyId</td>
+                        <td style="font-weight: bold;">@(ViewBag.FlatType != "NA" ? ViewBag.FlatType : "-")</td>
+                        <td>@(ViewBag.BetterLocationName ?? "NA")</td>
+                        <td style="font-weight: bold; color: green;">@ViewBag.AllotmentType</td>
+                        <td>@ViewBag.ReserveCategory</td>
+                        <td>@ViewBag.Area Sq.Ft.</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">प्रयोजन</th>
+                        <th style="width: 10%;">सेक्टर</th>
+                        <th style="width: 10%;">@unitLabel</th>
+                        <th style="width: 10%;">चौड़ाई</th>
+                        <th style="width: 10%;">गहराई</th>
+                        <th style="width: 10%;">दिशा</th>
+                        <th style="width: 12%;">लोकेशन</th>
+                        <th style="width: 10%;">आवंटन</th>
+                        <th style="width: 10%;">आरक्षण</th>
+                        <th style="width: 8%;">क्षेत्रफल</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@(ViewBag.PropertyType ?? "Plot")</td>
+                        <td>@(ViewBag.SectorName ?? "NA")</td>
+                        <td style="font-weight: bold; font-size: 13px;">@booking?.PropertyId</td>
+                        <td>@(ViewBag.Width ?? "NA") Ft.</td>
+                        <td>@(ViewBag.Depth ?? "NA") Ft.</td>
+                        <td>@(ViewBag.Direction ?? "NA")</td>
+                        <td>@(ViewBag.BetterLocationName ?? "NA")</td>
+                        <td style="font-weight: bold; color: green;">@ViewBag.AllotmentType</td>
+                        <td>@(ViewBag.ReserveCategory ?? "NA")</td>
+                        <td>@(ViewBag.Area ?? "0")</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+        <table style="margin-top: -8px; border-top: none;">
+            <tr>
+                <td style="width: 25%; background: #f9f9f9; font-weight: bold;">ऑफ़सेट दर (Offset Rate)</td>
+                <td style="width: 25%; font-weight: bold;">₹ @((ViewBag.OffsetPrice != null ? Convert.ToDecimal(ViewBag.OffsetPrice) : 0).ToString("N2"))</td>
+                <td style="width: 25%; background: #f9f9f9; font-weight: bold;">धरोहर राशि (EMD)</td>
+                <td style="width: 25%; font-weight: bold; color:red;">₹ @((booking?.EMDAmount ?? 0).ToString("N2"))</td>
+            </tr>
+            <tr>
+                <td style="background: #f9f9f9; font-weight: bold;">बोली राशि (Bid Amt)</td>
+                <td colspan="3" style="font-weight: bold; color: green; font-size: 14px;">₹ @((booking?.BidAmount ?? 0).ToString("N2"))</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="background: #fff; font-size: 11px; font-style: italic; border-top: none;">
+                    <strong>बोली राशि शब्दों में:</strong> @NumberToHindiWords(booking?.BidAmount ?? 0)
+                </td>
+            </tr>
+        </table>
+
+        <div class="section-title">2. निविदादाता की जानकारी (Applicant Details)</div>
+        <div class="applicant-info-container">
+            <table style="width: 100%; margin-bottom: 0;">
+                <tr><td style="width: 35%; background: #f9f9f9; font-weight: bold;">नाम (Name)</td><td>@profile?.ApplicantName</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">पिता/पति का नाम</td><td>@profile?.FatherHusbandName</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">जन्म तिथि / उम्र</td><td>@(profile?.DOB?.ToString("dd-MM-yyyy")) (@profile?.Age वर्ष)</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">लिंग (Gender)</td><td>@profile?.Gender</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">ईमेल (Email ID)</td><td>@profile?.EmailId</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">मोबाइल नं (Mobile)</td><td>@profile?.MobileNo</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">आधार कार्ड संख्या (Aadhaar No.)</td><td>@profile?.AadharNo</td></tr>
+                <tr><td style="background: #f9f9f9; font-weight: bold;">पता (Address)</td><td>@profile?.PresentAddress</td></tr>
+            </table>
+
+            <div class="photo-sign-wrapper">
+                <div class="photo-box">
+                    @if (!string.IsNullOrEmpty(photo))
+                    {
+                        <img src="@photo" alt="Photo" crossorigin="anonymous" />
+                    }
+                    else
+                    {
+
+                        <span style="font-size:10px; color:#888;">PHOTO</span>
+                    }
+                </div>
+                <div class="applicant-sign-box">
+                    @if (!string.IsNullOrEmpty(sign))
+                    {
+                        <img src="@sign" alt="Signature" crossorigin="anonymous" />
+                    }
+                    else
+                    {
+
+                        <span style="font-size:9px; color:#888;">SIGNATURE</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">3. बैंक खाते का विवरण (Bank Account Details for Refund)</div>
+        <table>
+            <tr>
+                <td style="width: 25%; background: #f9f9f9; font-weight: bold;">खाता संख्या (A/c No)</td>
+                <td style="width: 25%; font-weight: bold;">@(profile?.BankAccountNo ?? "-")</td>
+                <td style="width: 25%; background: #f9f9f9; font-weight: bold;">IFSC कोड</td>
+                <td style="width: 25%; font-weight: bold;">@(profile?.IfscCode ?? "-")</td>
+            </tr>
+            <tr>
+                <td style="background: #f9f9f9; font-weight: bold;">बैंक का नाम (Bank Name)</td>
+                <td colspan="3" style="font-weight: bold;">@(profile?.BankName ?? "-")</td>
+            </tr>
+        </table>
+
+        <div class="section-title">4. संलग्न दस्तावेज़ (Documents)</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40%;">दस्तावेज़ का प्रकार</th>
+                    <th style="width: 40%;">विवरण / संख्या</th>
+                    <th style="width: 20%; text-align: center;">स्थिति</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!string.IsNullOrEmpty(profile?.AadharPath))
+                {
+                    <tr><td>आधार कार्ड</td><td>@profile?.AadharNo</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(profile?.PanPath))
+                {
+                    <tr><td>पैन कार्ड</td><td>@profile?.PanNo</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(profile?.CastePath) && !isGeneral)
+                {
+                    <tr><td>जाति प्रमाण पत्र</td><td>@(profile?.CasteNo ?? "-")</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(profile?.IncomePath))
+                {
+                    <tr><td>आय प्रमाण पत्र</td><td>@(profile?.IncomeNo ?? "-")</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(profile?.DomicilePath))
+                {
+                    <tr><td>निवास प्रमाण पत्र</td><td>@(profile?.DomicileNo ?? "-")</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+
+                <tr>
+                    <td>बैंक पासबुक</td>
+                    <td>-</td>
+                    @if (!string.IsNullOrEmpty(profile?.BankPassbookPath))
+                    {
+                        <td style="color: green; text-align:center; font-weight: bold;">Uploaded</td>
+                    }
+                    else
+                    {
+                        <td style="color: red; text-align:center; font-weight: bold;">Not Uploaded</td>
+                    }
+                </tr>
+
+                @if (!string.IsNullOrEmpty(profile?.AffidavitPath))
+                {
+                    <tr><td>शपथ पत्र</td><td>-</td><td style="color: green; text-align:center; font-weight: bold;">Uploaded</td></tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="section-title">5. भुगतान का विवरण (Transaction Details)</div>
+        <table>
+            <tr><td style="width: 35%; background: #f9f9f9; font-weight: bold;">आवेदन क्र. (App No)</td><td style="font-weight: bold;">@booking?.ApplicationNo</td></tr>
+            <tr><td style="background: #f9f9f9; font-weight: bold;">बैंक ट्रैकिंग / ऑर्डर आईडी</td><td>@Model?.TransactionId | @Model?.OrderId</td></tr>
+            <tr><td style="background: #f9f9f9; font-weight: bold;">भुगतान तिथि</td><td>@(Model?.PaymentDate.ToString("dd-MM-yyyy hh:mm tt"))</td></tr>
+            <tr><td style="background: #f9f9f9; font-weight: bold;">आवेदन शुल्क (Application Fee)</td><td>₹ @((booking?.ApplicationFee ?? 0).ToString("N2"))</td></tr>
+            <tr><td style="background: #f9f9f9; font-weight: bold; font-size: 14px; color: #003366;">कुल जमा राशि (Total Payable)</td><td style="font-weight: bold; font-size: 14px; color: #003366;">₹ @((Model?.Amount ?? 0).ToString("N2"))</td></tr>
+            <tr><td style="background: #f9f9f9; font-weight: bold;">स्थिति (Status)</td><td><strong style="color: green;">@Model?.PaymentStatus</strong></td></tr>
+        </table>
+
+        <div class="footer-section">
+            <p style="font-size:10px; margin: 0; color: #666;">Generated on: @DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") | This is a computer-generated receipt.</p>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 🔥 PAGE 2: TERMS AND CONDITIONS 🔥 -->
+    <!-- ============================================== -->
+    <div id="pdf-page-2" class="pdf-page">
+        <!-- Render the terms and conditions partial view -->
+        @Html.Partial("_TermsAndConditions")
+    </div>
+
+    <!-- 🔥 JAVASCRIPT FOR MULTI-PAGE EXPORT 🔥 -->
+    <script>
+        window.onload = function () {
+            setTimeout(function() {
+                const page1 = document.getElementById('pdf-page-1');
+                const page2 = document.getElementById('pdf-page-2');
+
+                // First process Page 1
+                html2canvas(page1, { scale: 2, useCORS: true, scrollY: 0, windowWidth: 850 }).then(canvas1 => {
+                    const imgData1 = canvas1.toDataURL('image/jpeg', 1.0);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const margin = 5;
+                    const printWidth = pdfWidth - (margin * 2);
+                    const printHeight1 = (canvas1.height * printWidth) / canvas1.width;
+
+                    pdf.addImage(imgData1, 'JPEG', margin, margin, printWidth, printHeight1);
+
+                    // Now process Page 2 (Terms & Conditions)
+                    html2canvas(page2, { scale: 2, useCORS: true, scrollY: 0, windowWidth: 850 }).then(canvas2 => {
+                        pdf.addPage(); // Add a new blank page
+
+                        const imgData2 = canvas2.toDataURL('image/jpeg', 1.0);
+                        const printHeight2 = (canvas2.height * printWidth) / canvas2.width;
+
+                        pdf.addImage(imgData2, 'JPEG', margin, margin, printWidth, printHeight2);
+
+                        // Final PDF save with both pages
+                        pdf.save('RDA_Receipt_@(booking?.ApplicationNo).pdf');
+                        document.getElementById('loading').style.display = 'none';
+
+                        setTimeout(() => { window.close(); }, 1000);
+                    });
+                });
+            }, 800);
+        };
+    </script>
+</body>
+</html>

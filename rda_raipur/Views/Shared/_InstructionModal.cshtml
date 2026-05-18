@@ -1,0 +1,143 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    // 🔥 BILINGUAL LOGIC: Checking selected language 🔥
+    bool isEng = true;
+    if (ViewBag.IsEnglish != null)
+    {
+        isEng = (bool)ViewBag.IsEnglish;
+    }
+    else
+    {
+        var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+        var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+        isEng = culture.StartsWith("en");
+    }
+}
+
+<style>
+    .modal-instruction-header {
+        background-color: #003366; /* Govt Navy Blue */
+        color: white;
+        border-radius: 6px 6px 0 0;
+        padding: 15px 20px;
+    }
+
+    .instruction-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-left: 4px solid #003366;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+        .instruction-card.warning-card {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .instruction-card h6 {
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+    .doc-table {
+        font-size: 0.85rem;
+        margin-bottom: 0;
+    }
+
+        .doc-table th {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+    .btn-proceed {
+        background: #28a745;
+        color: white;
+        font-weight: 700;
+        padding: 8px 25px;
+        border: none;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+        .btn-proceed:hover {
+            background: #218838;
+        }
+</style>
+
+<div class="modal fade" id="instructionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 6px;">
+
+            <div class="modal-instruction-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold mb-0">
+                    <i class="bi bi-info-circle-fill text-warning me-2"></i>
+                    @(isEng ? "Important Instructions" : "महत्वपूर्ण निर्देश")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <p class="fw-bold text-dark mb-4">
+                    @(isEng ? "Please read the following main instructions, rules, and conditions carefully before booking the property:" : "कृपया प्रॉपर्टी बुकिंग करने के पूर्व नीचे दिए गए मुख्य निर्देशों एवं नियमों र्को ध्यान पूर्वक पढ़ें:")
+                </p>
+
+                <div class="instruction-card warning-card">
+                    <h6 class="text-danger"><i class="bi bi-wallet2 me-1"></i> 1. @(isEng ? "Application Fee" : "आवेदन शुल्क")</h6>
+                    <p class="mb-0 fw-bold" style="font-size: 0.9rem; color: #333;">
+                        @(isEng ? "A processing fee of" : "आवेदन पत्र जमा करने के लिए")
+                        <span class="text-danger fs-6">₹590/- <small class="text-muted">(₹500 + 18% GST)</small></span>
+                        @(isEng ? "will be payable to submit the application form. This amount is strictly" : "का प्रक्रिया शुल्क (Processing Fee) देय होगा। यह राशि किसी भी परिस्थिति में")
+                        <span class="text-decoration-underline">@(isEng ? "Non-Refundable" : "वापस नहीं (Non-Refundable)")</span>
+                        @(isEng ? "under any circumstances." : "की जाएगी।")
+                    </p>
+                </div>
+
+                <div class="instruction-card">
+                    <h6><i class="bi bi-card-checklist me-1"></i> 2. @(isEng ? "General Rules" : "सामान्य नियम")</h6>
+                    <ul class="mb-0" style="font-size: 0.85rem; padding-left: 20px; color: #495057;">
+                        <li class="mb-1"><strong>@(isEng ? "For LIG:" : "LIG हेतु:")</strong> @(isEng ? "Applicant's family annual income limit should be between Rs. 3,00,000/- to Rs. 6,00,000/-." : "आवेदक की पारिवारिक वार्षिक आय सीमा रू. 3,00,000/- से रू. 6,00,000/- तक होनी चाहिए।")</li>
+                        <li class="mb-1"><strong>@(isEng ? "For EWS:" : "EWS हेतु:")</strong> @(isEng ? "Applicant's family annual income limit should be up to Rs. 3,00,000/-." : "आवेदक की पारिवारिक वार्षिक आय सीमा रू. 3,00,000/- तक होनी चाहिए।")</li>
+                        <li class="mb-1">@(isEng ? "Sale of authority properties under discount will be processed through 'Offer'." : "छूट अंतर्गत मंडल की सम्पतियों का विक्रय 'ऑफर' के माध्यम से किया जाएगा।")</li>
+                        <li class="mb-0">@(isEng ? "Allotment of constructed residential/commercial properties will be done strictly on an" : "निर्मित आवासीय/व्यावसायिक सम्पतियों का आवंटन") <strong>@(isEng ? "'As is where is'" : "'यथा स्थिति / जहाँ है जैसा है (As is where is)'")</strong> @(isEng ? "basis." : "के आधार पर किया जाएगा।")</li>
+                    </ul>
+                </div>
+
+                <div class="instruction-card">
+                    <h6><i class="bi bi-folder-check me-1"></i> 3. @(isEng ? "Required Documents" : "आवश्यक दस्तावेज़")</h6>
+                    <p class="small text-muted mb-2">@(isEng ? "It is mandatory to upload the following documents at the time of online application:" : "ऑनलाइन आवेदन के समय निम्नलिखित दस्तावेजों को अपलोड किया जाना अनिवार्य है:")</p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered doc-table">
+                            <thead>
+                                <tr>
+                                    <th>@(isEng ? "Document" : "दस्तावेज़")</th>
+                                    <th>@(isEng ? "Format" : "प्रारूप")</th>
+                                    <th>@(isEng ? "Max Size" : "अधिकतम आकार")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>@(isEng ? "Passport Size Photo" : "पासपोर्ट साइज फोटो")</td><td>JPG / PNG</td><td>500 KB</td></tr>
+                                <tr><td>@(isEng ? "Signature" : "हस्ताक्षर")</td><td>JPG / PNG</td><td>500 KB</td></tr>
+                                <tr><td>@(isEng ? "ID Proof (PAN / Aadhaar / Voter ID)" : "पहचान पत्र (PAN / Aadhaar / Voter ID)")</td><td>PDF / JPG</td><td>2 MB</td></tr>
+                                <tr><td>@(isEng ? "Domicile Certificate" : "निवास प्रमाण पत्र")</td><td>PDF / JPG</td><td>2 MB</td></tr>
+                                <tr><td>@(isEng ? "Caste Certificate" : "जाति प्रमाण पत्र") <span class="text-muted small">- @(isEng ? "If applicable" : "यदि लागू हो")</span></td><td>PDF</td><td>2 MB</td></tr>
+                                <tr><td>@(isEng ? "Income Certificate" : "आय प्रमाण पत्र") <span class="text-muted small">- @(isEng ? "Mandatory for LIG/EWS" : "LIG/EWS हेतु अनिवार्य")</span></td><td>PDF</td><td>2 MB</td></tr>
+                                <tr><td>@(isEng ? "Affidavit" : "शपथ पत्र")</td><td>PDF</td><td>2 MB</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer bg-light d-flex justify-content-center border-top-0">
+                <button type="button" class="btn-proceed shadow-sm" id="btnAcceptTerms" data-bs-dismiss="modal">
+                    @(isEng ? "PROCEED" : "आगे बढ़ें") <i class="bi bi-arrow-right-circle ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

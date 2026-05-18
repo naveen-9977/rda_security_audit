@@ -1,0 +1,71 @@
+﻿@using rda_raipur.Data
+@using Microsoft.AspNetCore.Localization
+@inject ApplicationDbContext _context
+
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "hi";
+    bool isEnglish = currentCulture.StartsWith("en");
+
+    // 🔥 Database se sabse latest 4 Photos nikalna 🔥
+    var recentPhotos = _context.SiteGalleries
+        .Where(g => g.IsActive && !g.IsDeleted)
+        .OrderByDescending(g => g.Id)
+        .Take(4)
+        .ToList();
+}
+
+<!-- Textured background class jo aapke pehle se _HomeStyles.cshtml me hai -->
+<section class="textured-bg py-5">
+    <div class="container-fluid px-md-5">
+
+        <!-- Section Title (Bootstrap classes only) -->
+        @* <div class="text-center mb-5">
+            <h2 class="fw-bolder text-dark text-uppercase mb-2" style="letter-spacing: 1px;">
+                @(isEnglish ? "Recent Photo Gallery" : "नवीनतम फोटो गैलरी")
+            </h2>
+            <!-- Teal Color Border Line -->
+            <div class="mx-auto rounded" style="width: 70px; height: 4px; background-color: #0d9488;"></div>
+        </div> *@
+
+        <div class="row g-4 justify-content-center">
+            @if (recentPhotos != null && recentPhotos.Any())
+            {
+                foreach (var img in recentPhotos)
+                {
+                    var title = currentCulture == "hi" ? img.Title_hi : img.Title_en;
+
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-light shadow-sm h-100 rounded-4 overflow-hidden">
+                            <!-- Image Wrapper -->
+                            <div style="height: 220px; overflow: hidden;">
+                                <img src="@img.ImagePath" class="w-100 h-100 object-fit-cover" alt="@title" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'">
+                            </div>
+
+                            <!-- Title Box -->
+                            @if (!string.IsNullOrEmpty(title))
+                            {
+                                <div class="card-body text-center bg-white p-3">
+                                    <h6 class="fw-bold text-dark mb-0 text-truncate" title="@title">@title</h6>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center text-muted py-4">
+                    <p>@(isEnglish ? "No recent photos available." : "कोई नवीनतम तस्वीर उपलब्ध नहीं है।")</p>
+                </div>
+            }
+        </div>
+
+        <!-- 🔥 View All Pictures Button 🔥 -->
+        <div class="text-center mt-5">
+            <a href="@Url.Action("Gallery", "Home")" class="btn btn-lg fw-bold text-white px-5 rounded-pill shadow-sm" style="background-color: #0d9488;">
+                <i class='bx bx-images me-2'></i> @(isEnglish ? "VIEW ALL PICTURES" : "सभी तस्वीरें देखें")
+            </a>
+        </div>
+    </div>
+</section>

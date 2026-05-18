@@ -1,0 +1,137 @@
+﻿@model rda_raipur.Models.AllotmentType_Master
+
+@{
+    ViewData["Title"] = "Add Allotment Type";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0 text-gray-800">Allotment Type Master</h2>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Add New Allotment Type
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row">
+
+                    <!-- Hindi Name -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Allotment Type Name (Hindi)</label>
+                        <input asp-for="allotement_type_name_hi" class="form-control" placeholder="आवंटन प्रकार नाम" />
+                        <span asp-validation-for="allotement_type_name_hi" class="text-danger"></span>
+                    </div>
+
+                    <!-- English Name -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Allotment Type Name (English)</label>
+                        <input asp-for="allotement_type_name_en" class="form-control" placeholder="Enter allotment type name" />
+                        <span asp-validation-for="allotement_type_name_en" class="text-danger"></span>
+                    </div>
+
+
+
+                    <div class="col-md-6 md-3">
+                        <label class="form-label">Created_by</label>
+                         <input asp-for="created_by" class="form-control" placeholder="Enter allotment created by" />
+                        <span asp-validation-for="created_by" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="col-md-6 md-3">
+                        <label class="form-label">Create_Date</label>
+                         
+                        <input asp-for="Create_Date" class="form-control" />
+                        <span asp-validation-for="Create_Date" class="text-danger"></span>
+                    </div>
+
+
+
+                    <div class="col-md-6 md-3">
+                        <label class="form-label">Update_Date</label>
+                        <input asp-for="updated_Date" class="form-control" />
+                        <span asp-validation-for="updated_Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 md-3">
+                        <label class="form-label">updated_by</label>
+                      
+                        <input asp-for="updated_by" class="form-control" />
+                        <span asp-validation-for="updated_by" class="text-danger"></span>
+                    </div>
+
+
+
+
+                </div>
+
+                <div class="row">
+
+                    <!-- Status -->
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Status</label>
+                        <div>
+                            <input type="checkbox" asp-for="IsActive" checked /> Active
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">IsDeleted</label>
+                        <div>
+                            <input type="checkbox" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
+                            </div>
+                    </div>
+
+                </div>
+                
+
+
+                <!-- Hidden Fields -->
+                <input type="hidden" asp-for="created_by" value="Admin" />
+                <input type="hidden" asp-for="Create_Date" value="@DateTime.Now" />
+                <input type="hidden" asp-for="IsDeleted" value="false" />
+
+                <!-- Buttons -->
+                <div class="mt-3">
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Save
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

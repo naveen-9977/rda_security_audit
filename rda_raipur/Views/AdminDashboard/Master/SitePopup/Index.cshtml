@@ -1,0 +1,171 @@
+﻿@model IEnumerable<rda_raipur.Models.site.SitePopup>
+@using rda_raipur.Data
+@using System.Security.Claims
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Manage Welcome Popups";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+
+    // ==========================================
+    // PERMISSION LOGIC FOR UI BUTTONS
+    // ==========================================
+    var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    int userId = 0;
+    int.TryParse(userIdStr, out userId);
+
+    bool isAdmin = User.IsInRole("Admin");
+
+    // Default permissions
+    bool canAdd = isAdmin;
+    bool canEdit = isAdmin;
+    bool canDelete = isAdmin;
+
+    // Agar Admin nahi hai, toh DB se check karein
+    if (!isAdmin && userId > 0)
+    {
+        var permission = (from p in _context.EmployeePermissions
+                          join m in _context.AppModules on p.ModuleId equals m.ModuleId
+                          where p.UserId == userId && m.ControllerName == "SitePopup"
+                          select p).FirstOrDefault();
+
+        if (permission != null)
+        {
+            canAdd = permission.CanAdd;
+            canEdit = permission.CanEdit;
+            canDelete = permission.CanDelete;
+        }
+    }
+}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-window-stack me-2"></i>Manage Welcome Popups</h5>
+
+            @if (canAdd)
+            {
+                <a asp-action="Create" class="btn btn-light btn-sm text-primary fw-bold">
+                    <i class="bi bi-plus-lg"></i> Add New Popup
+                </a>
+            }
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-1"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive mt-2">
+                <table id="popupTable" class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 50px;">S.No.</th>
+                            <th style="width: 150px;">Popup Image</th>
+                            <th>Title</th>
+                            <th>Display Order</th>
+                            <th>Status</th>
+                            <th style="width: 150px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            int count = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@count</td>
+
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            <a href="@item.ImagePath" target="_blank">
+                                                <img src="@item.ImagePath" alt="Popup Image" class="img-thumbnail shadow-sm" style="height: 60px; width: 100px; object-fit: cover;" onerror="this.src='/images/placeholder-image.png'" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light text-muted border rounded mx-auto d-flex align-items-center justify-content-center" style="height: 60px; width: 100px;">
+                                                <i class="bi bi-image" style="font-size: 1.5rem;"></i>
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td class="text-start">@(item.Title ?? "N/A")</td>
+
+                                    <td><span class="badge bg-secondary">@item.DisplayOrder</span></td>
+
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactive</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            @if (canEdit)
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+                                            }
+
+                                            @if (canDelete)
+                                            {
+                                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this popup?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @if (!canEdit && !canDelete)
+                                            {
+                                                <span class="text-muted small">No Access</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#popupTable').DataTable({
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "language": {
+                    "search": "Quick Search: ",
+                    "lengthMenu": "Show _MENU_ Popups"
+                }
+            });
+        });
+    </script>
+}

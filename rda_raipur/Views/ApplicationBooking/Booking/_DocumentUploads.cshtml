@@ -1,0 +1,194 @@
+﻿<div class="govt-section">
+    <div class="govt-section-header">@(ViewBag.IsEnglish ? "3. Document Enclosures (Uploads & Details)" : "3. दस्तावेज़ संलग्नक (अपलोड और विवरण)")</div>
+    <div class="govt-section-body p-2">
+
+        <div class="row g-2 mb-3 pb-2 border-bottom justify-content-center">
+            <div class="col-md-5">
+                <div class="p-2 border rounded bg-light text-center h-100 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Passport Photo" : "पासपोर्ट फोटो") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (JPG/PNG)</span>
+                    </div>
+                    <div id="prev-img-photo" class="govt-preview-box photo-preview-box mx-auto mb-2" style="width: 100px; height: 120px; background: #fff; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; overflow:hidden;">
+                        <i class='bx bx-user' style='font-size: 4rem; color: #e0e0e0;'></i>
+                    </div>
+                    <input type="file" class="form-control govt-control form-control-sm mx-auto" style="max-width: 220px;" id="doc-photo" accept=".jpg,.jpeg,.png" required onchange="if(validateFile(this, 50, 1024, ['jpg', 'jpeg', 'png'], 'err-photo')){ renderPreview(this, 'prev-img-photo', 'preview-p-photo'); }">
+                    <span id="err-photo" class="text-danger d-block mt-1" style="font-size:10px; font-weight:bold;"></span>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="p-2 border rounded bg-light text-center h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Signature" : "हस्ताक्षर") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (JPG/PNG)</span>
+                    </div>
+                    <div id="prev-img-sig" class="govt-preview-box sig-preview-box mx-auto mb-2" style="width: 160px; height: 60px; background: #fff; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; overflow:hidden;">
+                        <i class='bx bx-pen' style='font-size: 2rem; color: #e0e0e0;'></i>
+                    </div>
+                    <div class="mt-auto">
+                        <input type="file" class="form-control govt-control form-control-sm mx-auto" style="max-width: 220px;" id="doc-sig" accept=".jpg,.jpeg,.png" required onchange="if(validateFile(this, 50, 1024, ['jpg', 'jpeg', 'png'], 'err-sig')){ renderPreview(this, 'prev-img-sig', 'preview-p-sig'); }">
+                        <span id="err-sig" class="text-danger d-block mt-1" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-secondary mb-2" style="font-size: 13px;"><i class='bx bx-file'></i> @(ViewBag.IsEnglish ? "Other Required Documents" : "अन्य आवश्यक दस्तावेज़")</h6>
+        <div class="row g-2">
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Aadhaar Card" : "आधार कार्ड") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (JPG/PNG/PDF)</span>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-5">
+                            <input type="text" class="form-control govt-control form-control-sm" id="aadhaar-no" placeholder="12 Digit No." required maxlength="12" oninput="validateNumberInput(this, 'aadhaar-error')">
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-aadhaar" accept=".jpg,.jpeg,.png,.pdf" required onchange="validateFile(this, 50, 1024, ['jpg', 'jpeg', 'png', 'pdf'], 'err-aadhaar')">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span id="aadhaar-error" class="text-danger m-0 mt-1" style="display:none; font-size:10px; font-weight:bold;"></span>
+                        <span id="err-aadhaar" class="text-danger m-0 mt-1 text-end w-100" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "PAN Card" : "पैन कार्ड") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (JPG/PNG/PDF)</span>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-5">
+                            <input type="text" class="form-control govt-control form-control-sm text-uppercase" id="pan-no" placeholder="ABCDE1234F" required maxlength="10">
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-pan" accept=".jpg,.jpeg,.png,.pdf" required onchange="validateFile(this, 50, 1024, ['jpg', 'jpeg', 'png', 'pdf'], 'err-pan')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-pan" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6" style="@(ViewBag.IsUnreserved ? "display:none;" : "")">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">
+                            @(ViewBag.IsEnglish ? "Caste Cert." : "जाति प्रमाण पत्र")
+                            @if (!ViewBag.IsUnreserved)
+                            {
+                                <span class="req-mark">*</span>
+                            }
+                        </label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (PDF Only)</span>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-5">
+                            <input type="text" class="form-control govt-control form-control-sm" id="caste-no" placeholder="Cert. No." @(ViewBag.IsUnreserved ? "" : "required")>
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-caste" accept=".pdf" @(ViewBag.IsUnreserved ? "" : "required") onchange="validateFile(this, 50, 1024, ['pdf'], 'err-caste')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-caste" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Income Cert." : "आय प्रमाण पत्र") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (PDF Only)</span>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-5">
+                            <input type="text" class="form-control govt-control form-control-sm" id="income-no" placeholder="Cert. No." required>
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-income" accept=".pdf" required onchange="validateFile(this, 50, 1024, ['pdf'], 'err-income')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-income" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Domicile (Opt.)" : "निवास प्रमाण पत्र")</label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (PDF Only)</span>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-5">
+                            <input type="text" class="form-control govt-control form-control-sm" id="domicile-no" placeholder="Cert. No.">
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-domicile" accept=".pdf" onchange="validateFile(this, 50, 1024, ['pdf'], 'err-domicile')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-domicile" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded bg-light h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="govt-label fw-bold text-dark mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Passbook/Cancelled Cheque" : "बैंक पासबुक/चेक") <span class="req-mark">*</span></label>
+                        <span class="text-muted" style="font-size: 10px;">Min 50KB - 1MB (JPG/PNG/PDF)</span>
+                    </div>
+                    <div class="row g-1 align-items-center">
+                        <div class="col-5">
+                            <span class="text-secondary" style="font-size: 11px; font-weight: 600;"><i class='bx bx-info-circle'></i> @(ViewBag.IsEnglish ? "For Refund Processing" : "रिफंड हेतु")</span>
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm" id="doc-passbook" accept=".jpg,.jpeg,.png,.pdf" required onchange="validateFile(this, 50, 1024, ['jpg', 'jpeg', 'png', 'pdf'], 'err-passbook')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-passbook" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-2 border rounded h-100" style="background-color: #fff5f5; border-color: #f5c2c7 !important;">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <div>
+                            <label class="govt-label fw-bold text-danger mb-0" style="font-size: 12px;">@(ViewBag.IsEnglish ? "Affidavit" : "शपथ पत्र") <span class="req-mark">*</span></label>
+                            <a href="/formats/Affidavit_Format.pdf" target="_blank" class="d-inline-block mt-1 text-decoration-none fw-bold" style="font-size: 10.5px; color: #dc3545; border-bottom: 1px dashed #dc3545;">
+                                <i class='bx bxs-download'></i> @(ViewBag.IsEnglish ? "Download Format" : "प्रारूप डाउनलोड करें")
+                            </a>
+                        </div>
+                        <span class="text-muted mt-1" style="font-size: 10px;">Min 50KB - 1MB (PDF)</span>
+                    </div>
+                    <div class="row g-1 align-items-center mt-1">
+                        <div class="col-5">
+                            <span class="text-danger opacity-75" style="font-size: 11px; font-weight: 600;"><i class='bx bx-file-blank'></i> @(ViewBag.IsEnglish ? "Notary Affidavit" : "नोटरी शपथ पत्र")</span>
+                        </div>
+                        <div class="col-7">
+                            <input type="file" class="form-control govt-control form-control-sm border-danger" id="doc-affidavit" accept=".pdf" required onchange="validateFile(this, 50, 1024, ['pdf'], 'err-affidavit')">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span id="err-affidavit" class="text-danger m-0 mt-1 d-block" style="font-size:10px; font-weight:bold;"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

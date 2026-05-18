@@ -1,0 +1,149 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "hi";
+    bool isEnglish = currentCulture.StartsWith("en");
+}
+
+<style>
+    .admin-header {
+        background-color: #ffffff;
+        height: 70px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        position: sticky;
+        top: 0;
+        z-index: 1060;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* 🟢 MOBILE DRAWER BUTTON (Only on Mobile) 🟢 */
+    .mobile-hamburger-btn {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        color: #003366;
+        font-size: 1.5rem;
+        padding: 4px 10px;
+        margin-right: 15px;
+        cursor: pointer;
+        display: none; /* Default Hidden */
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .brand-text h1 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #003366;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .brand-text span {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #f97316;
+        text-transform: uppercase;
+    }
+
+    .user-profile-btn {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        padding: 5px 15px 5px 6px;
+    }
+
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        background-color: #003366;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 📱 Responsive Logic */
+    @@media (max-width: 991.98px) {
+        .mobile-hamburger-btn {
+            display: flex;
+        }
+        /* Show only on mobile */
+        .brand-text h1 {
+            font-size: 0.95rem;
+        }
+
+        .admin-header {
+            height: 65px;
+            padding: 0 10px;
+        }
+    }
+</style>
+
+<header class="admin-header justify-content-between">
+    <div class="d-flex align-items-center overflow-hidden">
+        <button class="mobile-hamburger-btn" id="mobileMenuTrigger">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <a href="@Url.Action("Index", "AdminDashboard")" class="header-brand text-decoration-none">
+            <img src="~/images/rda-logo.png" alt="RDA Logo" style="height: 48px; object-fit: contain;" />
+            <div class="brand-text d-flex flex-column justify-content-center">
+                <h1>@(isEnglish ? "Raipur Development Authority" : "रायपुर विकास प्राधिकरण")</h1>
+                <span>@(User.IsInRole("Admin") ? (isEnglish ? "Administration Panel" : "प्रशासनिक पैनल") : (isEnglish ? "Employee Portal" : "कर्मचारी पोर्टल"))</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="header-tools d-flex align-items-center">
+        <h6 class="m-0 me-4 fw-bold text-secondary d-none d-lg-block border-end pe-4" style="border-color: #cbd5e1 !important;">
+            @ViewData["Title"]
+        </h6>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle user-profile-btn" id="profileDropdown" data-bs-toggle="dropdown">
+                <div class="avatar-circle me-2 shadow-sm"><i class="bi bi-person-fill"></i></div>
+                <div class="d-none d-sm-block text-start lh-1">
+                    <div class="text-dark fw-bold small">@User.Identity.Name</div>
+                    <small class="text-muted" style="font-size: 0.65rem;">@(User.IsInRole("Admin") ? "Admin" : "Staff")</small>
+                </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" style="border-radius: 12px; min-width: 200px;">
+                <li class="px-3 py-2 bg-light rounded-3 mb-2">
+                    <span class="d-block small text-muted">@User.Identity.Name</span>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="@Url.Action("Index", "Profile")">
+                        <i class="bx bx-user me-2"></i> My Profile
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item rounded-2 py-2 text-danger fw-bold" href="@Url.Action("Logout", "Account")"><i class="bi bi-power me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const mobileBtn = document.getElementById("mobileMenuTrigger");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if(mobileBtn) {
+            mobileBtn.addEventListener("click", function() {
+                sidebar.classList.toggle("mobile-open");
+                overlay.style.display = sidebar.classList.contains("mobile-open") ? "block" : "none";
+            });
+        }
+    });
+</script>

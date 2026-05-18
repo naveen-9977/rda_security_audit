@@ -1,0 +1,131 @@
+﻿@using Microsoft.AspNetCore.Localization
+@model IEnumerable<rda_raipur.Models.Brochure>
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "hi";
+    bool isEnglish = (culture == "en");
+
+    ViewData["Title"] = isEnglish ? "Project Brochures" : "प्रोजेक्ट ब्रोशर";
+}
+
+<style>
+    .brochure-header-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: white;
+        padding: 50px 0;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .brochure-title {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        color: #f97316;
+    }
+
+    .brochure-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .brochure-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+
+    .brochure-thumbnail {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-bottom: 4px solid #0d9488;
+    }
+
+    .brochure-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+    }
+
+    .brochure-name {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    .btn-download-brochure {
+        background: linear-gradient(180deg, #0d9488 0%, #0f766e 100%);
+        color: white !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+        .btn-download-brochure:hover {
+            background: linear-gradient(180deg, #0f766e 0%, #115e59 100%);
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.4);
+        }
+</style>
+
+<div class="brochure-header-section">
+    <div class="container">
+        <h1 class="brochure-title">@(isEnglish ? "PROJECT BROCHURES" : "प्रोजेक्ट ब्रोशर")</h1>
+        <p class="lead mb-0 text-white-50">@(isEnglish ? "Download the latest brochures for our projects" : "हमारी परियोजनाओं के नवीनतम ब्रोशर डाउनलोड करें")</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4 justify-content-center">
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="brochure-card">
+                        <img src="@item.ImagePath" onerror="this.src='/images/placeholder.jpg'" alt="@item.Title_En" class="brochure-thumbnail">
+                        <div class="brochure-body">
+                            <h5 class="brochure-name">
+                                @(isEnglish? item.Title_En: item.Title_Hi)
+                            </h5>
+                            <a href="@item.PdfPath" target="_blank" download class="btn btn-download-brochure mt-auto">
+                                <i class='bx bxs-download'></i> @(isEnglish ? "Download" : "डाउनलोड करें")
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center mt-4">
+                <div class="alert alert-info" style="display:inline-block;">
+                    <i class='bx bx-info-circle'></i> @(isEnglish ? "No brochures are currently available." : "वर्तमान में कोई ब्रोशर उपलब्ध नहीं है।")
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

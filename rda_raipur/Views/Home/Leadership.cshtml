@@ -1,0 +1,112 @@
+﻿@{
+    bool isEnglish = ViewBag.IsEnglish ?? true;
+    ViewData["Title"] = isEnglish ? "Our Leadership" : "हमारा नेतृत्व";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .leadership-section {
+        background-color: #f9f9f9;
+        padding: 50px 0;
+        min-height: 80vh;
+    }
+
+    .key-person-card {
+        text-align: center;
+        padding: 30px 15px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+        .key-person-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+    .key-person-img {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #ff9800;
+        padding: 5px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .key-person-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0056b3;
+        margin-bottom: 8px;
+    }
+
+    .key-person-designation {
+        font-size: 1rem;
+        color: #555;
+        font-weight: 600;
+    }
+</style>
+
+<div class="leadership-section">
+    <div class="container">
+
+        <nav aria-label="breadcrumb" class="mb-5">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")" class="text-decoration-none text-primary fw-bold">
+                        <i class='bx bx-home-alt'></i> @(isEnglish ? "Home" : "होम")
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">@(isEnglish ? "Our Leadership" : "हमारा नेतृत्व")</li>
+            </ol>
+        </nav>
+
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark text-uppercase mb-2">@(isEnglish ? "Our Leadership" : "हमारा नेतृत्व")</h2>
+            <div style="width: 80px; height: 4px; background-color: #ff9800; margin: 0 auto; border-radius: 2px;"></div>
+            <p class="text-muted mt-3">
+                @(isEnglish ? "Meet the visionaries guiding the growth and development of Raipur City." : "रायपुर शहर के विकास और प्रगति का मार्गदर्शन करने वाले दूरदर्शियों से मिलें।")
+            </p>
+        </div>
+
+        <div class="row justify-content-center g-4">
+
+            <div class="col-sm-6 col-lg-3">
+                <div class="key-person-card">
+                    <img src="~/images/CM_VishnuDeoSai.jpeg" class="key-person-img" alt="Shri Vishnu Deo Sai" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Vishnu Deo Sai" : "श्री विष्णु देव साय")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Chief Minister, Chhattisgarh" : "माननीय मुख्यमंत्री, छत्तीसगढ़")</div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <div class="key-person-card">
+                    <img src="~/images/Minister(H&E)_OPC.jpg" class="key-person-img" alt="Shri O.P. Choudhary" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri O.P. Choudhary" : "श्री ओ.पी. चौधरी")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Minister (Housing & Environment)" : "माननीय मंत्री (आवास एवं पर्यावरण)")</div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <div class="key-person-card">
+                    <img src="~/images/nand_kumar_sahu.jpg" class="key-person-img" alt="Shri Nand Kumar Sahu" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Nand Kumar Sahu" : "श्री नंद कुमार साहू")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Chairman, RDA" : "माननीय अध्यक्ष, रायपुर विकास प्राधिकरण")</div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <div class="key-person-card">
+                    <img src="~/images/ias_awanish_sharan.jpg" class="key-person-img" alt="Shri Awanish Sharan (IAS)" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Awanish Sharan (IAS)" : "श्री अवनीश शरण (IAS)")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Chief Executive Officer, RDA" : "मुख्य कार्यपालन अधिकारी, आर.डी.ए.")</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

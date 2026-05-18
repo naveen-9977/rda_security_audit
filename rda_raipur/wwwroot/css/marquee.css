@@ -1,0 +1,16 @@
+﻿/* News Marquee ki styling yahan rakhein */
+.news-ticker-container {
+    background-color: #f8f9fa;
+    border-left: 5px solid #0b3d91; /* RDA Raipur ka blue theme color */
+    padding: 10px 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+
+.news-ticker-title {
+    font-weight: bold;
+    color: #0b3d91;
+    margin-right: 15px;
+    white-space: nowrap;
+}

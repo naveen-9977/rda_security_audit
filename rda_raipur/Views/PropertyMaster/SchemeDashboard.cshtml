@@ -1,0 +1,153 @@
+﻿@model IEnumerable<rda_raipur.Models.Property.TenderPropertyCreation>
+
+@{
+    ViewData["Title"] = "Scheme Dashboard";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+
+    // Data ko Scheme ke hisaab se group kar rahe hain
+    var groupedSchemes = Model.GroupBy(x => string.IsNullOrEmpty(x.Scheme_name_en) ? "Unassigned" : x.Scheme_name_en)
+                              .OrderBy(g => g.Key)
+                              .ToList();
+}
+
+<style>
+    .dashboard-bg {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
+
+    .scheme-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+
+        .scheme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
+            border-color: #bae6fd;
+        }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        padding: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .scheme-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #0369a1;
+        margin: 0;
+    }
+
+    .stats-container {
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        text-align: center;
+    }
+
+    .stat-box {
+        background: #f8fafc;
+        padding: 15px 10px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    .text-total {
+        color: #0f172a;
+    }
+
+    .text-vacant {
+        color: #10b981;
+    }
+
+    .text-sold {
+        color: #ef4444;
+    }
+
+    .card-footer-custom {
+        background: #ffffff;
+        padding: 15px 20px;
+        border-top: 1px dashed #f1f5f9;
+        text-align: right;
+        font-weight: 700;
+        color: #0ea5e9;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="dashboard-bg pt-4 px-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Schemes Overview</h3>
+            <p class="text-muted small mb-0">Select a scheme to view its detailed property inventory.</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4 py-2">
+                <i class="bi bi-plus-circle me-1"></i> Add Property
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var group in groupedSchemes)
+        {
+            int total = group.Count();
+            int vacant = group.Count(x => x.Booking_Status == "Vacant");
+            int sold = total - vacant;
+
+            <div class="col-md-6 col-xl-4">
+                <a href="@Url.Action("Index", "PropertyMaster", new { scheme = group.Key })" class="scheme-card shadow-sm">
+                    <div class="card-header-custom d-flex align-items-center">
+                        <div class="bg-white p-2 rounded-circle shadow-sm me-3">
+                            <i class="bi bi-buildings text-primary fs-4"></i>
+                        </div>
+                        <h4 class="scheme-title">@group.Key</h4>
+                    </div>
+
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <span class="stat-label">Total</span>
+                            <span class="stat-number text-total">@total</span>
+                        </div>
+                        <div class="stat-box" style="background: #ecfdf5; border-color: #d1fae5;">
+                            <span class="stat-label">Vacant</span>
+                            <span class="stat-number text-vacant">@vacant</span>
+                        </div>
+                        <div class="stat-box" style="background: #fef2f2; border-color: #fee2e2;">
+                            <span class="stat-label">Sold/Booked</span>
+                            <span class="stat-number text-sold">@sold</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer-custom">
+                        View Inventory <i class="bi bi-arrow-right ms-1"></i>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>

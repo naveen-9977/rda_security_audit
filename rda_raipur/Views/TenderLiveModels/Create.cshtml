@@ -1,0 +1,159 @@
+﻿@model rda_raipur.Models.TenderLiveModel
+
+@{
+    ViewData["Title"] = "Create Tender Live";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+
+    <h3>Create Tender Live</h3>
+
+    <form asp-action="Create" method="post">
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Tender Start Date</label>
+                <input asp-for="Tender_Start_Date" type="date" class="form-control" />
+                <span asp-validation-for="Tender_Start_Date" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label>Tender End Date</label>
+                <input asp-for="Tender_End_Date" type="date" class="form-control" />
+                <span asp-validation-for="Tender_End_Date" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label>Property Status</label>
+                <select asp-for="Property_Status" class="form-control">
+                    <option value="">Select</option>
+                    <option value="Vacant">Vacant</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label>Status</label>
+                <select asp-for="Status" class="form-control">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+
+        </div>
+
+        <hr />
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Select</th>
+                        <th>S.No</th>
+                        <th>Tender_Property_Id</th>
+                        <th>Scheme Name</th>
+                        <th>Property Type</th>
+                        <th>Sector</th>
+                        <th>Block</th>
+                        <th>Property Number</th>
+                        <th>UserCategory</th>
+                        <th>Offset Price</th>
+                        <th>EMD Amount</th>
+                        <th>Property Model</th>
+                        <th>Property Size</th>
+                        <th>Property Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Properties != null)
+                    {
+                        for (int i = 0; i < Model.Properties.Count; i++)
+                        {
+
+                            <tr>
+
+                                <td>
+
+                                    <input type="checkbox" asp-for="Properties[i].IsSelected" />
+
+                                    <input type="hidden" asp-for="Properties[i].PropertyId" />
+                                    <input type="hidden" asp-for="Properties[i].Tender_Property_Id" />
+                                    <input type="hidden" asp-for="Properties[i].Scheme_Name" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Type" />
+                                    <input type="hidden" asp-for="Properties[i].Sector" />
+                                    <input type="hidden" asp-for="Properties[i].Block" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Number" />
+                                    <input type="hidden" asp-for="Properties[i].UserCategory" />
+                                    <input type="hidden" asp-for="Properties[i].Offset_Price" />
+                                    <input type="hidden" asp-for="Properties[i].EMD_Amount" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Model" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Size" />
+                                    <input type="hidden" asp-for="Properties[i].Property_Status" />
+
+                                </td>
+                                <td>@(i + 1)</td>
+
+                                <td>@Model.Properties[i].Tender_Property_Id</td>
+
+                                <td>@Model.Properties[i].Scheme_Name</td>
+
+                                <td>@Model.Properties[i].Property_Type</td>
+
+                                <td>@Model.Properties[i].Sector</td>
+
+                                <td>@Model.Properties[i].Block</td>
+
+                                <td>@Model.Properties[i].Property_Number</td>
+
+                                <td>@Model.Properties[i].UserCategory</td>
+
+                                <td>@Model.Properties[i].Offset_Price</td>
+
+                                <td>@Model.Properties[i].EMD_Amount</td>
+
+                                <td>@Model.Properties[i].Property_Model</td>
+
+                                <td>@Model.Properties[i].Property_Size</td>
+
+                                <td>@Model.Properties[i].Property_Status</td>
+
+                            </tr>
+
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="mt-3">
+
+            <button type="submit" class="btn btn-success">
+                Save
+            </button>
+
+            <a asp-action="Index" class="btn btn-danger">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

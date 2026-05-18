@@ -1,0 +1,523 @@
+﻿@model IEnumerable<rda_raipur.Models.site.GalleryFolder>
+@{
+    ViewData["Title"] = "Photo Gallery / फोटो गैलरी";
+    var isHindi = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("hi");
+    var allImages = ViewBag.AllImages as IEnumerable<rda_raipur.Models.site.SiteGallery>;
+}
+
+<style>
+    /* 1. Official Background */
+    .official-bg {
+        background-color: #f8f9fa;
+        padding: 40px 0 60px 0;
+        min-height: 80vh;
+    }
+
+    /* 2. Page Title - Official Style */
+    .page-title-official {
+        color: #1e293b;
+        font-weight: 700;
+        font-size: 1.6rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f97316;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 30px;
+    }
+
+    /* 3. Government Panel Design */
+    .govt-panel {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .govt-panel-header {
+        background-color: #1e293b; /* Official Navy Blue */
+        border-top: 3px solid #f97316; /* Orange Accent */
+        color: #ffffff;
+        padding: 12px 20px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .govt-panel-header .header-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .govt-panel-header i {
+            color: #f97316;
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+    .govt-panel-body {
+        padding: 25px;
+    }
+
+    /* 4. Official Gallery Card Design */
+    .official-gallery-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: 0.2s ease-in-out;
+        cursor: pointer;
+        display: block;
+        height: 100%;
+    }
+
+        .official-gallery-card:hover {
+            border-color: #f97316;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+            transform: translateY(-2px);
+        }
+
+    /* 🔥 MODERN SHIMMER LOADER FOR GALLERY IMAGES 🔥 */
+    .img-wrapper {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 2px;
+        /* Shimmer Background */
+        background: #e2e8f0;
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmerLoaderGallery 1.5s infinite;
+    }
+
+    @@keyframes shimmerLoaderGallery {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* 🔥 FADE-IN EFFECT 🔥 */
+    .gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0; /* Load hone se pehle chhipi rahegi */
+        transition: opacity 0.6s ease-in-out, transform 0.3s ease;
+    }
+
+        /* Jab image load ho jayegi */
+        .gallery-img.loaded {
+            opacity: 1;
+        }
+
+    .official-gallery-card:hover .gallery-img.loaded {
+        transform: scale(1.05);
+    }
+
+    /* Overlay */
+    .img-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        background: rgba(30, 41, 59, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.2s;
+        /* Overlay hamesha img ke upar rahega */
+        z-index: 2;
+    }
+
+    .official-gallery-card:hover .img-overlay {
+        opacity: 1;
+    }
+
+    .img-overlay i {
+        color: #fff;
+        font-size: 2rem;
+        background: rgba(249, 115, 22, 0.9);
+        padding: 10px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Caption */
+    .gallery-caption {
+        padding: 12px 5px 5px;
+        text-align: center;
+    }
+
+    .caption-text {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.95rem;
+        margin: 0;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .img-caption-text {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.85rem;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 5. Buttons */
+    .btn-official-back {
+        background-color: #f8f9fa;
+        color: #1e293b;
+        border: 1px solid #ced4da;
+        font-weight: 600;
+        padding: 5px 15px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        text-transform: uppercase;
+    }
+
+        .btn-official-back:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+    /* =========================================
+               6. MODAL & IMAGE VIEWER REDESIGN (NEW)
+               ========================================= */
+    #galleryPopupModal .modal-content {
+        background: transparent;
+        border: none;
+    }
+
+    #modalImage {
+        border: 5px solid #fff;
+        border-radius: 4px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        max-height: 80vh;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .modal-close-custom {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: #ef4444;
+        border-radius: 50%;
+        padding: 5px;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 2px solid #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+    }
+
+        .modal-close-custom:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+    .gallery-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 1055;
+        backdrop-filter: blur(4px);
+    }
+
+        .gallery-nav-btn:hover {
+            background: rgba(249, 115, 22, 0.9);
+            border-color: rgba(249, 115, 22, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+    .prev-btn {
+        left: -10px;
+    }
+
+    .next-btn {
+        right: -10px;
+    }
+
+    /* Animation */
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="official-bg">
+    <div class="container-fluid px-3 px-md-5">
+
+        <div class="text-center wow fadeIn" data-wow-delay="0.1s">
+            <h1 class="page-title-official">@(isHindi ? "फोटो गैलरी" : "Photo Gallery")</h1>
+            <p class="text-muted small mt-n3 mb-4 fw-bold">@(isHindi ? "आरडीए के विभिन्न प्रोजेक्ट्स और गतिविधियों की झलकियां" : "Glimpses of RDA's various projects and activities")</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="govt-panel text-center py-5 fade-in">
+                <i class='bx bx-images text-muted' style="font-size: 4rem;"></i>
+                <h5 class="text-muted mt-3 fw-bold">@(isHindi ? "अभी कोई एल्बम उपलब्ध नहीं है।" : "No albums have been uploaded yet.")</h5>
+            </div>
+        }
+        else
+        {
+            <div id="foldersContainer" class="govt-panel fade-in">
+                <div class="govt-panel-header">
+                    <div class="header-title">
+                        <i class='bx bxs-photo-album'></i> @(isHindi ? "सभी एल्बम" : "All Albums")
+                    </div>
+                </div>
+                <div class="govt-panel-body">
+                    <div class="row g-4">
+                        @foreach (var folder in Model)
+                        {
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="official-gallery-card" onclick="showFolderImages(@folder.Id, '@folder.FolderName')">
+                                    <div class="img-wrapper">
+                                        <img src="@folder.CoverImagePath" class="gallery-img" alt="@folder.FolderName" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='/images/placeholder.jpg';">
+                                        <div class="img-overlay">
+                                            <i class='bx bx-folder-open'></i>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-caption">
+                                        <h6 class="caption-text">@folder.FolderName</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div id="imagesContainer" class="govt-panel fade-in" style="display: none;">
+                <div class="govt-panel-header">
+                    <div class="header-title">
+                        <i class='bx bx-images'></i> <span id="activeFolderName" class="ms-1"></span>
+                    </div>
+                    <button class="btn-official-back" onclick="showFolders()">
+                        <i class='bx bx-arrow-back me-1'></i> @(isHindi ? "वापस जाएं" : "Back")
+                    </button>
+                </div>
+
+                <div class="govt-panel-body">
+                    <div class="row g-4" id="allImagesGrid">
+                        @if (allImages != null && allImages.Any())
+                        {
+                            foreach (var item in allImages)
+                            {
+                                var title = isHindi ? item.Title_hi : item.Title_en;
+
+                                <div class="col-lg-3 col-md-4 col-sm-6 image-item folder-@item.FolderId" style="display: none;">
+                                    <div class="official-gallery-card current-gallery-photo"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#galleryPopupModal"
+                                         data-imgsrc="@item.ImagePath"
+                                         data-imgtitle="@title"
+                                         onclick="openGalleryModal(this)">
+
+                                        <div class="img-wrapper">
+                                            <img src="@item.ImagePath" class="gallery-img" alt="@title" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='/images/placeholder.jpg';">
+                                            <div class="img-overlay">
+                                                <i class='bx bx-zoom-in'></i>
+                                            </div>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(title))
+                                        {
+                                            <div class="gallery-caption">
+                                                <p class="img-caption-text">@title</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div id="noImagesMessage" style="display:none;" class="text-center py-5">
+                        <i class='bx bx-photo-album text-muted' style="font-size: 3.5rem;"></i>
+                        <h5 class="text-muted mt-3 fw-bold">@(isHindi ? "इस एल्बम में अभी कोई फोटो नहीं है।" : "No images found in this album.")</h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="galleryPopupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-body p-0 text-center position-relative">
+
+                <span class="modal-close-custom text-white shadow" data-bs-dismiss="modal">
+                    <i class='bx bx-x fs-4'></i>
+                </span>
+
+                <button id="prevBtn" class="gallery-nav-btn prev-btn shadow" onclick="navigateGallery(-1)">
+                    <i class='bx bx-chevron-left'></i>
+                </button>
+
+                <button id="nextBtn" class="gallery-nav-btn next-btn shadow" onclick="navigateGallery(1)">
+                    <i class='bx bx-chevron-right'></i>
+                </button>
+
+                <img src="" id="modalImage" class="bg-white p-1 rounded-1">
+
+                <div class="w-100 text-center mt-3">
+                    <div class="bg-dark bg-opacity-75 text-white p-2 rounded-1 d-inline-block px-4 shadow">
+                        <h6 class="mb-0 fw-bold" id="modalTitleText"></h6>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // गैलरी नेविगेशन के लिए वेरिएबल्स (Variables for Gallery Navigation)
+        let currentFolderImagesList = [];
+        let currentImageIndex = 0;
+
+        // 1. Function to Hide Albums and Show Images inside Folder
+        function showFolderImages(folderId, folderName) {
+            document.getElementById('foldersContainer').style.display = 'none';
+            document.getElementById('imagesContainer').style.display = 'block';
+
+            // Set Title dynamically
+            document.getElementById('activeFolderName').innerHTML = folderName;
+
+            // Hide all images first
+            var allImgs = document.querySelectorAll('.image-item');
+            allImgs.forEach(function (el) { el.style.display = 'none'; });
+
+            // Reset current folder images array
+            currentFolderImagesList = [];
+
+            // Show images belonging to the clicked folder and store them in array
+            var folderImgs = document.querySelectorAll('.folder-' + folderId);
+            folderImgs.forEach(function (el, index) {
+                el.style.display = 'block';
+
+                // Get the card element
+                let card = el.querySelector('.current-gallery-photo');
+                // Set custom data-index so we know which one was clicked
+                card.setAttribute('data-index', index);
+
+                // Add to our Array
+                currentFolderImagesList.push({
+                    src: card.getAttribute('data-imgsrc'),
+                    title: card.getAttribute('data-imgtitle')
+                });
+            });
+
+            if (folderImgs.length === 0) {
+                document.getElementById('noImagesMessage').style.display = 'block';
+            } else {
+                document.getElementById('noImagesMessage').style.display = 'none';
+            }
+
+            // Scroll to top of panel smoothly
+            document.querySelector('.page-title-official').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 2. Go Back to the Albums
+        function showFolders() {
+            document.getElementById('foldersContainer').style.display = 'block';
+            document.getElementById('imagesContainer').style.display = 'none';
+        }
+
+        // 3. Popup Image Modal Logic (Triggered on Click)
+        function openGalleryModal(element) {
+            // Get index of the clicked image
+            currentImageIndex = parseInt(element.getAttribute('data-index'));
+            updateModalContent();
+        }
+
+        // 4. Navigate Left or Right (-1 or +1)
+        function navigateGallery(direction) {
+            currentImageIndex += direction;
+            updateModalContent();
+        }
+
+        // 5. Update UI of Modal (Image, Title, and hide/show Buttons)
+        function updateModalContent() {
+            if (currentFolderImagesList.length === 0) return;
+
+            let imgData = currentFolderImagesList[currentImageIndex];
+
+            // Set Image and Title
+            document.getElementById('modalImage').src = imgData.src;
+            document.getElementById('modalTitleText').textContent = imgData.title || "";
+
+            // Hide/Show Next and Previous Buttons dynamically
+            let prevBtn = document.getElementById('prevBtn');
+            let nextBtn = document.getElementById('nextBtn');
+
+            // If it's the first image, hide Prev button
+            if (currentImageIndex === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+            }
+
+            // If it's the last image, hide Next button
+            if (currentImageIndex === currentFolderImagesList.length - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // 6. Cleanup when modal is closed
+        $('#galleryPopupModal').on('hidden.bs.modal', function () {
+            document.getElementById('modalImage').src = "";
+            document.getElementById('modalTitleText').textContent = "";
+        });
+    </script>
+}

@@ -1,0 +1,59 @@
+﻿@model rda_raipur.Models.site.SiteGallery
+@{
+    ViewData["Title"] = "Edit Gallery Image";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <h5 class="mb-0">Edit Gallery Image</h5>
+                    <a asp-action="Index" class="btn btn-light btn-sm">Back to List</a>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label asp-for="FolderId" class="form-label">Select Album / Folder <span class="text-danger">*</span></label>
+                            <select asp-for="FolderId" class="form-control" asp-items="ViewBag.Folders" required>
+                                <option value="">-- Select Folder --</option>
+                            </select>
+                            <span asp-validation-for="FolderId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title_en" class="form-label">Title (English)</label>
+                            <input asp-for="Title_en" class="form-control" />
+                            <span asp-validation-for="Title_en" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title_hi" class="form-label">Title (Hindi)</label>
+                            <input asp-for="Title_hi" class="form-control" />
+                            <span asp-validation-for="Title_hi" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                            <label class="form-check-label" asp-for="IsActive">Active Status</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">Current Image</label>
+                            <img src="@Model.ImagePath" class="img-thumbnail mb-2" style="height: 150px;" />
+                            <input asp-for="ImageUpload" type="file" class="form-control" accept="image/*" />
+                            <small class="text-muted">Leave empty to keep the current image.</small>
+                        </div>
+
+                        <hr />
+                        <button type="submit" class="btn btn-success px-4">Update Image Details</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

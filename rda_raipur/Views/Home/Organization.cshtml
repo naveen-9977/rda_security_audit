@@ -1,0 +1,267 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? "hi";
+    bool isEnglish = (culture == "en");
+
+    ViewData["Title"] = isEnglish ? "Organization" : "संगठन";
+}
+
+<style>
+    .org-header-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .org-title {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        color: #f97316;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        overflow: hidden;
+        border-top: 4px solid #0d9488;
+        transition: 0.3s;
+    }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+    .info-card-header {
+        background: #f8fafc;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .info-card-icon {
+        background: #fff7ed;
+        color: #f97316;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .info-card-title {
+        margin: 0;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.25rem;
+    }
+
+    .info-card-body {
+        padding: 25px;
+        color: #475569;
+        line-height: 1.8;
+        font-size: 0.95rem;
+        text-align: justify;
+    }
+
+    .mission-list {
+        padding-left: 20px;
+        margin-top: 15px;
+    }
+
+        .mission-list li {
+            margin-bottom: 10px;
+        }
+
+    /* Org Chart Styles */
+    .org-node {
+        background: #ffffff;
+        border-top: 4px solid #0d9488;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        margin-bottom: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .node-designation {
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 1rem;
+    }
+
+    .node-name {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .wing-title {
+        background: #1e293b;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: 700;
+        text-align: center;
+        margin: 30px 0 20px 0;
+    }
+</style>
+
+<div class="org-header-section">
+    <div class="container">
+        <h1 class="org-title">@(isEnglish ? "ABOUT THE ORGANIZATION" : "संगठन के बारे में")</h1>
+        <p class="lead mb-0 text-white-50">@(isEnglish ? "Raipur Development Authority" : "रायपुर विकास प्राधिकरण")</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon"><i class='bx bx-history'></i></div>
+                    <h3 class="info-card-title">@(isEnglish ? "HISTORY" : "इतिहास")</h3>
+                </div>
+                <div class="info-card-body">
+                    @if (isEnglish)
+                    {
+                        <p><strong>Town Improvement Trust (1963 to 1977)</strong> - In 1963 Government of Madhya Pradesh established Town Improvement Trust (TIT). The aim of TIT is to develop the growing city as per Master Plan of Raipur. The Master Plan of city always prepare by the Town & Country Planning. Town & Country Planning is one of the departments of Ministry of Housing and Environment of State Government. After the constitution of TIT at Raipur organisation started the housing project for very poor people at Tikrapara and three storied flats. Later on TIT developed Adarsh Bazar, Bombay Market, Chiruldih, Sharda Chowk Commercial Market. In housing scheme TIT developed Gabhra para, Kalibari and Jalvihar colony with all basic amenities.</p>
+                        <p><strong>Raipur Development Authority (1963 to 1977 again in 2002 onwards)</strong> – In 1977 Government of Madhya Pradesh upgraded the Town Improvement Trust to Raipur Development Authority. On 1st November 2000 Prime Minister Shri Atal Bihari Vajpayee’s Central Government constituted the new state as Chhattisgarh. New state carved from Madhya Pradesh. On 13 March Chief Minister Mr. Ajit Pramod Jogi dissolved the RDA in to Municipal Corporation of Raipur. After the election in December 2003 Dr. Raman Singh became Chief Minister. He again constituted Raipur Development Authority on 28th October 2004. After revival of RDA it is continuously working for the development of capital city of Raipur.</p>
+                    }
+                    else
+                    {
+                        <p><strong>नगर सुधार न्यास (1963 से 1977)</strong> - 1963 में मध्य प्रदेश सरकार ने नगर सुधार न्यास (TIT) की स्थापना की। इसका उद्देश्य रायपुर के मास्टर प्लान के अनुसार बढ़ते शहर का विकास करना था। शहर का मास्टर प्लान हमेशा नगर तथा ग्राम निवेश विभाग द्वारा तैयार किया जाता है, जो राज्य सरकार के आवास और पर्यावरण मंत्रालय का एक विभाग है। रायपुर में TIT के गठन के बाद, संगठन ने टिकरापारा में बहुत गरीब लोगों के लिए आवास परियोजना और तीन मंजिला फ्लैट शुरू किए। बाद में TIT ने आदर्श बाजार, बॉम्बे मार्केट, चिरुल्डीह, शारदा चौक कमर्शियल मार्केट विकसित किया। आवास योजना में TIT ने सभी बुनियादी सुविधाओं के साथ गाभरा पारा, कालीबाड़ी और जलविहार कॉलोनी विकसित की।</p>
+                        <p><strong>रायपुर विकास प्राधिकरण (1963 से 1977 और फिर 2002 से आगे)</strong> - 1977 में मध्य प्रदेश सरकार ने नगर सुधार न्यास को रायपुर विकास प्राधिकरण (RDA) में अपग्रेड किया। 1 नवंबर 2000 को प्रधानमंत्री श्री अटल बिहारी वाजपेयी की केंद्र सरकार ने छत्तीसगढ़ को एक नए राज्य के रूप में गठित किया। 13 मार्च को मुख्यमंत्री श्री अजीत प्रमोद जोगी ने RDA को रायपुर नगर निगम में भंग कर दिया। दिसंबर 2003 में चुनाव के बाद डॉ. रमन सिंह मुख्यमंत्री बने। उन्होंने 28 अक्टूबर 2004 को रायपुर विकास प्राधिकरण का पुनर्गठन किया। पुनरुद्धार के बाद से RDA रायपुर राजधानी के विकास के लिए निरंतर काम कर रहा है।</p>
+                    }
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon"><i class='bx bx-buildings'></i></div>
+                    <h3 class="info-card-title">@(isEnglish ? "BACKGROUND" : "पृष्ठभूमि")</h3>
+                </div>
+                <div class="info-card-body">
+                    @if (isEnglish)
+                    {
+                        <p>Raipur Development Authority is an urban Development Authority constituted under the Chhattisgarh Town and Country Planning Act 1973. The objective of the Authority is broadly as under:</p>
+                        <ul class="mission-list">
+                            <li>A regulated, planned city growth in accordance with the city Master Plan.</li>
+                            <li>To provide Adequate, Modern, Better urban infrastructure to the citizens of the city.</li>
+                            <li>Urgent need for improving the urban infrastructure in Raipur.</li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>रायपुर विकास प्राधिकरण छत्तीसगढ़ नगर तथा ग्राम निवेश अधिनियम 1973 के तहत गठित एक शहरी विकास प्राधिकरण है। प्राधिकरण का मुख्य उद्देश्य इस प्रकार है:</p>
+                        <ul class="mission-list">
+                            <li>शहर के मास्टर प्लान के अनुसार विनियमित और नियोजित शहर का विकास।</li>
+                            <li>शहर के नागरिकों को पर्याप्त, आधुनिक और बेहतर शहरी बुनियादी ढांचा प्रदान करना।</li>
+                            <li>रायपुर में शहरी बुनियादी ढांचे में सुधार की तत्काल आवश्यकता को पूरा करना।</li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header" style="background: #fff7ed; border-bottom-color: #f97316;">
+                    <div class="info-card-icon" style="background: #f97316; color: white;"><i class='bx bx-target-lock'></i></div>
+                    <h3 class="info-card-title">@(isEnglish ? "VISION" : "दृष्टि (विज़न)")</h3>
+                </div>
+                <div class="info-card-body font-weight-bold text-dark">
+                    @(isEnglish ? "Planned & Developed city for the better living environment of the Citizens." : "नागरिकों के बेहतर रहने के वातावरण के लिए नियोजित और विकसित शहर।")
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon"><i class='bx bx-rocket'></i></div>
+                    <h3 class="info-card-title">@(isEnglish ? "MISSION" : "मिशन")</h3>
+                </div>
+                <div class="info-card-body">
+                    @if (isEnglish)
+                    {
+                        <p>According to Chhattisgarh Town & Country Planning Act 1973 Raipur Development Authority’s Mission is Town development to accommodate the rapid increase in the city population and Planned, regulate development of the city assuring the adequacy of roads & transport, drains, water supply, electricity. Under this mission A town development scheme may make provision for any of the following matters:-</p>
+                        <ol class="mission-list">
+                            <li>Acquisition, development and sale or leasing of land for the purpose of town expansion;</li>
+                            <li>Acquisition, relaying out of, rebuilding, or relocating areas which have been badly laid out or which has developed or degenerated into a slum;</li>
+                            <li>Acquisition and development of land for public purposes such as housing development, development of shopping centers, cultural centers, administration centers;</li>
+                            <li>Acquisition and development of areas for commercial and industrial purposes;</li>
+                            <li>Undertaking of such building or construction work as may be necessary to provide housing, shopping, commercial or other facilities;</li>
+                            <li>Acquisition of land and its development for the purpose of laying out or remodeling of road and street patterns;</li>
+                            <li>Acquisition and development of land for playgrounds, parks, recreation centers and stadium;</li>
+                            <li>Reconstruction of plots for the purpose of buildings, roads, drains, sewage lines and other similar amenities;</li>
+                            <li>Any other work of a nature such as would bring about environmental improvements which may be taken up by the authority with the prior approval of the State Government.</li>
+                        </ol>
+                    }
+                    else
+                    {
+                        <p>छत्तीसगढ़ नगर तथा ग्राम निवेश अधिनियम 1973 के अनुसार रायपुर विकास प्राधिकरण का मिशन शहर की आबादी में तेजी से वृद्धि को समायोजित करने के लिए शहर का विकास करना है और सड़कों, परिवहन, नालियों, जल आपूर्ति, बिजली की पर्याप्तता का आश्वासन देते हुए शहर का नियोजित, विनियमित विकास करना है। इस मिशन के तहत नगर विकास योजना निम्नलिखित में से किसी भी मामले के लिए प्रावधान कर सकती है:-</p>
+                        <ol class="mission-list">
+                            <li>शहर के विस्तार के उद्देश्य से भूमि का अधिग्रहण, विकास और बिक्री या पट्टे पर देना;</li>
+                            <li>उन क्षेत्रों का अधिग्रहण, पुनर्निर्माण या स्थानांतरण जो खराब तरीके से बनाए गए हैं या जो झुग्गी (स्लम) में विकसित या परिवर्तित हो गए हैं;</li>
+                            <li>सार्वजनिक उद्देश्यों जैसे आवास विकास, शॉपिंग सेंटर, सांस्कृतिक केंद्र, प्रशासन केंद्र के विकास के लिए भूमि का अधिग्रहण और विकास;</li>
+                            <li>वाणिज्यिक और औद्योगिक उद्देश्यों के लिए क्षेत्रों का अधिग्रहण और विकास;</li>
+                            <li>आवास, खरीदारी, वाणिज्यिक या अन्य सुविधाएं प्रदान करने के लिए आवश्यक भवन या निर्माण कार्य शुरू करना;</li>
+                            <li>सड़क और गली के पैटर्न को बिछाने या फिर से तैयार करने के उद्देश्य से भूमि का अधिग्रहण और विकास;</li>
+                            <li>खेल के मैदानों, पार्कों, मनोरंजन केंद्रों और स्टेडियम के लिए भूमि का अधिग्रहण और विकास;</li>
+                            <li>भवनों, सड़कों, नालियों, सीवेज लाइनों और अन्य समान सुविधाओं के उद्देश्य से भूखंडों का पुनर्निर्माण;</li>
+                            <li>पर्यावरणीय सुधार लाने वाली प्रकृति का कोई अन्य कार्य जो राज्य सरकार के पूर्व अनुमोदन से प्राधिकरण द्वारा किया जा सकता है।</li>
+                        </ol>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon"><i class='bx bx-cog'></i></div>
+                    <h3 class="info-card-title">@(isEnglish ? "WORKING PROCESS" : "कार्य प्रक्रिया")</h3>
+                </div>
+                <div class="info-card-body">
+                    @if (isEnglish)
+                    {
+                        <p>Raipur Development Authority (RDA) constituted by Chhattisgarh Town & Country Planning Act 1973. RDA is a Corporation. Government appoints a Chairman, two Vice Chairman, Chief Executive Officer and Board members. Board members are appointed by State Government. Collector of Raipur, Commissioner of Municipal Corporation, Joint Director of Town and Country Planning Department, one Representative from Public Health Engineering Department, Forest Department and Ministry of Housing & Environment Department. Five members from Public or social worker in whom two are women members are compulsory.</p>
+                        <p>The Board of Directors works for making policies sanction the Planning of various Projects, Tenders etc according to Government act & rules. The Chief Executive Officer is Member Secretary of the Board. The whole Development and Construction working process of RDA has as per Government Rules and Regulations.</p>
+                        <p>RDA work on Master Plan of Raipur city. For making of proposal of any new scheme RDA’s engineering and revenue section go through the survey of the land. They check the Land records and its land use according to Master Plan. After checking the economic viability of the project RDA hires the Planner and Architect for making the best plan according to the planning norms. After preparation of the plan RDA put this proposal to the Board of Directors (BOD) which is highest decision making body of the RDA. BOD discuss on the various proposals bring on the table during the meetings. Some time BOD also takes the opinion of the expert for the projects. When BOD approved the project then it sends to State Government for further sanction. After getting the sanction from Government RDA make the Detail Project Report with all financial concepts.</p>
+                        <p>RDA gets the land by two modes. First by compulsory land acquisition, for this compensation is given to land owners. Second is mutual agreement with the land owners. After approval of layout plan from Town & Country planning RDA acquire the land for the schemes. After getting the land in possession RDA allot the work to the contractor by BID systems for construction.</p>
+                        <p>Preparation of planning of any project is also a very highly professional specialized experiencing work. While preparing of the schemes demand from people and problems of the citizens is also considered and given value. All the development and construction work done through engineering section of RDA. Engineers of RDA take care of the quality and specifications of the work. After completion of the work revenue section assess the value of the property for allotment to the citizens.</p>
+                        <p>The basic principle of RDA for their work is “No Loss, No Profit”. On this principle RDA sale it’s property. In the case of commercial property RDA go through the Tender / BID process. In this system the higher bidders get the properties. For residential building and plots RDA invite the registrations from the citizens through the News Paper Publicity. After getting the registration RDA go for the lottery system for allotments. After the allotment of property allotties get registered the property from Registrar Office for 30 years lease and give passions to allotties. After the completion of scheme means when schemes are fully developed then it is handed over to Municipal Corporation Raipur. Municipal Corporation takes Property tax, water tax, fire tax etc for the maintenance of the schemes. For the transfer and allotment like Transfer, Nomination, Sale deed, Ground rent etc are taken by RDA.</p>
+                    }
+                    else
+                    {
+                        <p>रायपुर विकास प्राधिकरण (आरडीए) का गठन छत्तीसगढ़ नगर तथा ग्राम निवेश अधिनियम 1973 के तहत किया गया है। आरडीए एक निगम है। सरकार एक अध्यक्ष, दो उपाध्यक्ष, मुख्य कार्यपालन अधिकारी और बोर्ड सदस्यों की नियुक्ति करती है। बोर्ड के सदस्य राज्य सरकार द्वारा नियुक्त किए जाते हैं, जिनमें रायपुर कलेक्टर, नगर निगम आयुक्त, नगर तथा ग्राम निवेश विभाग के संयुक्त निदेशक, लोक स्वास्थ्य यांत्रिकी विभाग, वन विभाग और आवास एवं पर्यावरण मंत्रालय का एक-एक प्रतिनिधि शामिल होता है। जनता या सामाजिक कार्यकर्ताओं में से पांच सदस्य होते हैं, जिनमें दो महिला सदस्यों का होना अनिवार्य है।</p>
+                        <p>निदेशक मंडल (बोर्ड ऑफ डायरेक्टर्स) सरकारी अधिनियम और नियमों के अनुसार नीतियां बनाने, विभिन्न परियोजनाओं, निविदाओं आदि की योजना को मंजूरी देने का काम करता है। मुख्य कार्यपालन अधिकारी बोर्ड के सदस्य सचिव होते हैं। आरडीए की संपूर्ण विकास और निर्माण कार्य प्रक्रिया सरकारी नियमों और विनियमों के अनुसार होती है।</p>
+                        <p>आरडीए रायपुर शहर के मास्टर प्लान पर काम करता है। किसी भी नई योजना का प्रस्ताव बनाने के लिए आरडीए का इंजीनियरिंग और राजस्व विंग भूमि का सर्वेक्षण करता है। वे भूमि रिकॉर्ड और मास्टर प्लान के अनुसार भूमि उपयोग की जांच करते हैं। परियोजना की आर्थिक व्यवहार्यता की जांच के बाद आरडीए योजना मानदंडों के अनुसार सर्वोत्तम योजना बनाने के लिए योजनाकार और वास्तुकार को काम पर रखता है। योजना तैयार होने के बाद आरडीए इस प्रस्ताव को निदेशक मंडल (BOD) के समक्ष रखता है जो आरडीए की सर्वोच्च निर्णय लेने वाली संस्था है।</p>
+                        <p>BOD बैठकों के दौरान पटल पर लाए गए विभिन्न प्रस्तावों पर चर्चा करता है। परियोजना को मंजूरी मिलने के बाद इसे आगे की मंजूरी के लिए राज्य सरकार के पास भेजा जाता है। सरकार से मंजूरी मिलने के बाद आरडीए सभी वित्तीय अवधारणाओं के साथ विस्तृत परियोजना रिपोर्ट (DPR) बनाता है। आरडीए दो तरीकों से जमीन प्राप्त करता है - अनिवार्य भूमि अधिग्रहण और भूस्वामियों के साथ आपसी समझौता। भूमि पर कब्जा मिलने के बाद आरडीए निर्माण के लिए निविदा (BID) प्रणाली द्वारा ठेकेदार को काम आवंटित करता है।</p>
+                        <p>आरडीए के काम का मूल सिद्धांत "नुकसान नहीं, लाभ नहीं" (No Loss, No Profit) है। इसी सिद्धांत पर आरडीए अपनी संपत्ति बेचता है। वाणिज्यिक संपत्ति के मामले में आरडीए टेंडर / बोली प्रक्रिया से गुजरता है। आवासीय भवन और भूखंडों के लिए आरडीए समाचार पत्र प्रचार के माध्यम से नागरिकों से पंजीकरण आमंत्रित करता है और फिर लॉटरी प्रणाली के माध्यम से आवंटन करता है। योजना के पूरी तरह से विकसित होने के बाद इसे नगर निगम रायपुर को सौंप दिया जाता है।</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+</div>

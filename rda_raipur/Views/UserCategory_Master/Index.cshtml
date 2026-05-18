@@ -1,0 +1,136 @@
+﻿@model IEnumerable<rda_raipur.Models.UserCategory_Master>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.res_category_name_hi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.res_category_name_en)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.created_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Create_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.updated_by)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsDeleted)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.res_category_name_hi)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.res_category_name_en)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Create_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.updated_by)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDeleted)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.res_category_id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.res_category_id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.res_category_id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@* 
+@model IEnumerable<rda_raipur.Models.UserCategory_Master>
+
+@{
+    ViewData["Title"] = "User Category Master";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h3>User Category Master</h3>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Add User Category
+        </a>
+    </div>
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Category Name (EN)</th>
+                <th>Category Name (HI)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@item.res_category_id</td>
+                    <td>@item.res_category_name_en</td>
+                    <td>@item.res_category_name_hi</td>
+
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div> *@

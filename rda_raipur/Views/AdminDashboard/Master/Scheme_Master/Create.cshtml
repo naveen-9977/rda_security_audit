@@ -1,0 +1,118 @@
+﻿@model rda_raipur.Models.Scheme_Master
+
+@{
+    ViewData["Title"] = "Create Scheme";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-semibold text-dark">Create New Scheme</h3>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+
+        <div class="card-body">
+
+            <form asp-action="Create">
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label asp-for="scheme_name_en" class="form-label fw-semibold"></label>
+                        <input asp-for="scheme_name_en" class="form-control" placeholder="Enter Scheme Name (English)" />
+                        <span asp-validation-for="scheme_name_en" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="scheme_name_hi" class="form-label fw-semibold"></label>
+                        <input asp-for="scheme_name_hi" class="form-control" placeholder="योजना का नाम (Hindi)" />
+                        <span asp-validation-for="scheme_name_hi" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="scheme_sort_name_en" class="form-label fw-semibold"></label>
+                        <input asp-for="scheme_sort_name_en" class="form-control" placeholder="Short Name (English)" />
+                        <span asp-validation-for="scheme_sort_name_en" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="scheme_sort_name_hi" class="form-label fw-semibold"></label>
+                        <input asp-for="scheme_sort_name_hi" class="form-control" placeholder="संक्षिप्त नाम (Hindi)" />
+                        <span asp-validation-for="scheme_sort_name_hi" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="scheme_rera_no" class="form-label fw-semibold"></label>
+                        <input asp-for="scheme_rera_no" class="form-control" placeholder="Enter RERA Number" />
+                        <span asp-validation-for="scheme_rera_no" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="create_date" class="form-label fw-semibold"></label>
+                        <input asp-for="create_date" type="date" class="form-control" />
+                        <span asp-validation-for="create_date" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="updated_date" class="form-label fw-semibold"></label>
+                        <input asp-for="updated_date" type="date" class="form-control" />
+                        <span asp-validation-for="updated_date" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="updated_by" class="form-label fw-semibold"></label>
+                        <input asp-for="updated_by" class="form-control" placeholder="Updated By User" />
+                        <span asp-validation-for="updated_by" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" asp-for="IsActive">
+                            <label class="form-check-label fw-semibold" asp-for="IsActive"></label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" asp-for="IsDeleted">
+                            <label class="form-check-label fw-semibold" asp-for="IsDeleted"></label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a asp-action="Index" class="btn btn-light border">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Create Scheme
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

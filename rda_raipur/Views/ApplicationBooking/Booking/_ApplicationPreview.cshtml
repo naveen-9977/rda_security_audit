@@ -1,0 +1,178 @@
+﻿<div id="form-preview-section" style="display:none;">
+    <div class="govt-section border-primary">
+        <div class="govt-section-header bg-primary text-white">
+            <i class='bx bx-check-shield'></i> @(ViewBag.IsEnglish ? "Application Preview & Payment" : "आवेदन पूर्वावलोकन और भुगतान")
+        </div>
+        <div class="govt-section-body">
+
+            <h6 class="text-decoration-underline fw-bold mb-3">@(ViewBag.IsEnglish ? "Applicant Details:" : "आवेदक का विवरण:")</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-9">
+                    <table class="table table-bordered table-sm preview-table">
+                        <tbody>
+                            <tr><th style="width: 35%;">@(ViewBag.IsEnglish ? "Full Name" : "पूरा नाम")</th><td id="p-name"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Father's/Husband's Name" : "पिता/पति का नाम")</th><td id="p-fhname"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Date of Birth (Age)" : "जन्म तिथि (आयु)")</th><td id="p-dob"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Gender" : "लिंग")</th><td id="p-gender"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Mobile Number" : "मोबाइल नंबर")</th><td id="p-mobile" class="fw-bold"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Email ID" : "ईमेल आईडी")</th><td id="p-email" class="text-primary fw-bold"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Bid Amount" : "बोली राशि")</th><td id="p-bid-amount" class="text-success fw-bold fs-6"></td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Address" : "पता")</th><td id="p-address"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="border p-3 bg-light d-inline-block rounded shadow-sm">
+                        <div id="preview-p-photo" style="width: 120px; height: 150px; overflow: hidden; background: #fff; margin: 0 auto 10px auto; border: 1px solid #ccc; display:flex; align-items:center; justify-content:center;"></div>
+                        <div id="preview-p-sig" style="width: 150px; height: 50px; overflow: hidden; background: #fff; border: 1px solid #ccc; margin: 0 auto; display:flex; align-items:center; justify-content:center;"></div>
+                    </div>
+                </div>
+            </div>
+
+            @* 🔥 PROPERTY DETAILS IN PREVIEW 🔥 *@
+            <h6 class="text-decoration-underline fw-bold mb-3">@(ViewBag.IsEnglish ? "Property Details:" : "संपत्ति का विवरण:")</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <table class="table table-bordered table-sm preview-table">
+                        <tbody>
+                            <tr><th style="width: 35%;">@(ViewBag.IsEnglish ? "Sector" : "सेक्टर")</th><td>@ViewBag.Sector</td></tr>
+                            <tr><th>@ViewBag.UnitLabel</th><td class="fw-bold text-primary">@ViewBag.UnitNo</td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Allotment Type" : "आवंटन का प्रकार")</th><td class="text-success fw-bold">@ViewBag.AllotmentType</td></tr>
+
+                            @if (ViewBag.IsPlotOrShop == true)
+                            {
+                                <tr><th>@(ViewBag.IsEnglish ? "Width" : "चौड़ाई")</th><td>@(ViewBag.Width ?? "NA") Ft.</td></tr>
+                                <tr><th>@(ViewBag.IsEnglish ? "Depth" : "गहराई")</th><td>@(ViewBag.Depth ?? "NA") Ft.</td></tr>
+                                <tr><th>@(ViewBag.IsEnglish ? "Direction" : "दिशा")</th><td>@(ViewBag.Direction ?? "NA")</td></tr>
+                                <tr><th>@(ViewBag.IsEnglish ? "Better Location" : "बेहतर लोकेशन")</th><td>@(ViewBag.BetterLocationName ?? "NA")</td></tr>
+                            }
+                            else
+                            {
+                                <tr><th>@(ViewBag.IsEnglish ? "Category" : "श्रेणी")</th><td>@ViewBag.Category</td></tr>
+                                <tr><th>@(ViewBag.IsEnglish ? "Type (LIG/MIG)" : "प्रकार (LIG/MIG)")</th><td class="text-primary fw-bold">@(ViewBag.FlatType != "NA" ? ViewBag.FlatType : "-")</td></tr>
+                            }
+
+                            <tr><th>@(ViewBag.IsEnglish ? "Area" : "क्षेत्रफल")</th><td>@ViewBag.Area Sq.Ft.</td></tr>
+                            <tr><th>@(ViewBag.IsEnglish ? "Offset Price" : "ऑफ़सेट दर")</th><td class="fw-bold">₹ @ViewBag.TotalPrice</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h6 class="text-decoration-underline fw-bold mb-3">@(ViewBag.IsEnglish ? "Uploaded Documents & Details:" : "अपलोड किए गए दस्तावेज़ और विवरण:")</h6>
+            <table class="table table-bordered table-sm mb-4 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>@(ViewBag.IsEnglish ? "Document Type" : "दस्तावेज़ का प्रकार")</th>
+                        <th>@(ViewBag.IsEnglish ? "Document Number / Details" : "दस्तावेज़ संख्या / विवरण")</th>
+                        <th class="text-center">@(ViewBag.IsEnglish ? "Upload Status" : "अपलोड स्थिति")</th>
+                        <th class="text-center">@(ViewBag.IsEnglish ? "Action" : "देखें")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "Aadhaar Card" : "आधार कार्ड")</td>
+                        <td id="p-aadhaar-no" class="fw-bold text-dark"></td>
+                        <td class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-aadhaar" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "PAN Card" : "पैन कार्ड")</td>
+                        <td id="p-pan-no" class="fw-bold text-dark text-uppercase"></td>
+                        <td class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-pan" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+                    <tr style="@(ViewBag.IsUnreserved ? "display:none;" : "")">
+                        <td>@(ViewBag.IsEnglish ? "Caste Certificate" : "जाति प्रमाण पत्र")</td>
+                        <td id="p-caste-no" class="fw-bold text-dark"></td>
+                        <td class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-caste" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "Income Certificate" : "आय प्रमाण पत्र")</td>
+                        <td id="p-income-no" class="fw-bold text-dark"></td>
+                        <td class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-income" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "Domicile Certificate" : "निवास प्रमाण पत्र")</td>
+                        <td id="p-domicile-no" class="fw-bold text-dark"></td>
+                        <td id="p-domicile-status" class="text-center fw-bold"></td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-domicile" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "Bank Passbook" : "बैंक पासबुक")</td>
+                        <td>
+                            <div class="fw-bold text-dark" id="p-bank-acc"></div>
+                            <div class="text-muted small fw-bold" id="p-bank-name"></div>
+                        </td>
+                        <td class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-passbook" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+
+                    <tr>
+                        <td>@(ViewBag.IsEnglish ? "Affidavit" : "शपथ पत्र")</td>
+                        <td class="text-muted">-</td>
+                        <td id="p-affidavit-status" class="text-success text-center fw-bold"><i class='bx bx-check-circle fs-5 align-middle'></i> Uploaded</td>
+                        <td class="text-center"><a href="#" target="_blank" id="view-affidavit" class="btn btn-sm btn-outline-primary" style="display:none; padding: 2px 10px; font-size: 12px;"><i class='bx bx-show'></i> @(ViewBag.IsEnglish ? "View" : "देखें")</a></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            @* 🔥 DYNAMIC FEE DETAILS LOGIC 🔥 *@
+            <h6 class="text-decoration-underline fw-bold mb-3">@(ViewBag.IsEnglish ? "Fee Details & Payment:" : "शुल्क विवरण और भुगतान:")</h6>
+
+            <table class="table table-bordered table-sm mb-4" style="max-width: 600px;">
+                <tbody class="text-start">
+                    <tr>
+                        <td class="bg-light" style="width: 70%; vertical-align: middle;">@(ViewBag.IsEnglish ? "Application Fee" : "आवेदन शुल्क")</td>
+                        <td class="text-dark fw-bold text-end fs-6" style="width: 30%; vertical-align: middle;">₹ @ViewBag.AppFeeBase</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-light" style="vertical-align: middle;">@(ViewBag.IsEnglish ? "GST (18%)" : "जीएसटी (18%)")</td>
+                        <td class="text-dark fw-bold text-end fs-6" style="vertical-align: middle;">+ ₹ @ViewBag.AppFeeGst</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-light text-primary" style="vertical-align: middle;">@(ViewBag.IsEnglish ? "Total Application Fee (Non-Refundable)" : "कुल आवेदन शुल्क (वापसी योग्य नहीं)")</td>
+                        <td class="text-success fw-bold text-end fs-6" style="vertical-align: middle;">₹ @ViewBag.TotalAppFee</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-light">
+                            <div class="form-check mb-0 d-flex align-items-center">
+                                <input class="form-check-input border-primary mt-0" type="checkbox" id="pay-emd-checkbox" onchange="calculateTotalFee()" style="transform: scale(1.2); cursor: pointer;">
+                                <label class="form-check-label fw-bold text-primary ms-2" for="pay-emd-checkbox" style="cursor: pointer; margin-top: 2px;">
+                                    @(ViewBag.IsEnglish ? "Also Pay EMD Amount Now" : "धरोहर राशि (EMD) का भी भुगतान अभी करें")
+                                </label>
+                            </div>
+                        </td>
+                        <td class="text-primary fw-bold text-end fs-6" style="vertical-align: middle;">+ ₹ @ViewBag.EmdAmount</td>
+                    </tr>
+                    <tr class="table-primary">
+                        <td class="fw-bold text-end" style="vertical-align: middle;">@(ViewBag.IsEnglish ? "Total Payable Amount:" : "कुल देय राशि:")</td>
+                        <td class="text-danger fw-bold fs-5 text-end" id="total-payable-amount" style="vertical-align: middle;">₹ @ViewBag.TotalAppFee</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning border-warning p-3 mb-4 rounded shadow-sm">
+                <div class="form-check d-flex align-items-start">
+                    <input class="form-check-input ms-0 mt-1" type="checkbox" id="final-confirm-checkbox" style="transform: scale(1.3); cursor: pointer;">
+                    <label class="form-check-label ms-3 fw-bold text-dark" for="final-confirm-checkbox" style="cursor: pointer; line-height: 1.4;">
+                        @(ViewBag.IsEnglish ? "I have verified the preview. I confirm that all details and uploaded documents are correct." : "मैंने पूर्वावलोकन की जांच कर ली है। मैं पुष्टि करता हूँ कि सभी विवरण और अपलोड किए गए दस्तावेज़ सही हैं।")
+                    </label>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-secondary d-flex align-items-center fw-bold" onclick="editFormSection()">
+                    <i class='bx bx-edit me-2'></i> @(ViewBag.IsEnglish ? "Edit Details" : "विवरण संपादित करें")
+                </button>
+                <button type="button" class="btn btn-success d-flex align-items-center px-4 fw-bold shadow-sm" id="btn-pay-submit" onclick="submitGovtForm(event)" style="font-size: 16px !important;">
+                    <i class='bx bx-rupee me-1'></i> @(ViewBag.IsEnglish ? $"Pay ₹{ViewBag.TotalAppFee} & Submit" : $"₹{ViewBag.TotalAppFee} का भुगतान करें और जमा करें")
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

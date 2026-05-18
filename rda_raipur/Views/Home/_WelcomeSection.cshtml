@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Localization
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    bool isEnglish = (requestCulture?.RequestCulture.Culture.Name ?? "en").StartsWith("en");
+}
+
+<div class="d-flex flex-column h-100 gap-3">
+
+    <div class="clean-leader-card">
+        <div class="leader-img-wrapper">
+            <img src="~/images/CM_VishnuDeoSai.jpeg" class="leader-img-fluid" alt="CM" onerror="this.src='~/images/dummy-profile.png'">
+        </div>
+        <div class="leader-info-box">
+            <div class="leader-name-text">@(isEnglish ? "Shri Vishnu Deo Sai" : "श्री विष्णु देव साय")</div>
+            <div class="leader-role-text">@(isEnglish ? "Hon'ble Chief Minister" : "माननीय मुख्यमंत्री")<br>@(isEnglish ? "Chhattisgarh" : "छत्तीसगढ़")</div>
+        </div>
+    </div>
+
+    <div class="clean-leader-card">
+        <div class="leader-img-wrapper">
+            <img src="~/images/Shri O.P. Choudhary.jpg" class="leader-img-fluid" alt="Minister" onerror="this.src='~/images/dummy-profile.png'">
+        </div>
+        <div class="leader-info-box">
+            <div class="leader-name-text">@(isEnglish ? "Shri O.P. Choudhary" : "श्री ओ.पी. चौधरी")</div>
+            <div class="leader-role-text">@(isEnglish ? "Hon'ble Minister" : "माननीय मंत्री")<br>@(isEnglish ? "Finance, Commercial Tax, Housing Environment Planning, Economics and Statistics" : "वित्त, वाणिज्य कर,आवास एवं पर्यावरण, योजना आर्थिक एवं सांख्यिकी")</div>
+        </div>
+    </div>
+
+    <div class="clean-leader-card">
+        <div class="leader-img-wrapper">
+            <img src="~/images/nand_kumar_sahu_new.jpg" class="leader-img-fluid" alt="Chairman" onerror="this.src='~/images/dummy-profile.png'">
+        </div>
+        <div class="leader-info-box">
+            <div class="leader-name-text">@(isEnglish ? "Shri Nand Kumar Sahu" : "श्री नंद कुमार साहू")</div>
+            <div class="leader-role-text">@(isEnglish ? "Hon'ble Chairman, RDA" : "माननीय अध्यक्ष, आरडीए")</div>
+        </div>
+    </div>
+
+    <div class="clean-leader-card">
+        <div class="leader-img-wrapper">
+            <img src="~/images/ias_awanish_sharan.jpg" class="leader-img-fluid" alt="CEO" onerror="this.src='~/images/dummy-profile.png'">
+        </div>
+        <div class="leader-info-box">
+            <div class="leader-name-text">@(isEnglish ? "Shri Awanish Sharan (IAS)" : "श्री अवनीश शरण (IAS)")</div>
+            <div class="leader-role-text">@(isEnglish ? "Chief Executive Officer" : "मुख्य कार्यपालन अधिकारी")</div>
+        </div>
+    </div>
+
+</div>

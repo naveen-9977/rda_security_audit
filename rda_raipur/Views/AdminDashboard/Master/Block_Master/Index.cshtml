@@ -1,0 +1,134 @@
+﻿@model IEnumerable<rda_raipur.Models.Block_Master>
+
+@{
+    ViewData["Title"] = "Block Master";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet" />
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-semibold text-dark">Block Master</h3>
+
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add New Block
+        </a>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="blockTable" class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Scheme Name</th>
+                            <th>Sector Name</th>
+                            <th>Block Name (EN)</th>
+                            <th>Block Name (HI)</th>
+                            <th>Created Date</th>
+                            <th>Status</th>
+                            <th width="170">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@(item.Scheme_Master?.scheme_name_en ?? "N/A")</td>
+                                <td>@(item.Sector_Master?.sector_name_en ?? "N/A")</td>
+
+                                <td class="fw-semibold">@item.block_name_en</td>
+                                <td>@item.block_name_hi</td>
+
+                                <td>
+                                    @(item.Create_Date?.ToString("dd MMM yyyy") ?? "N/A")
+                                </td>
+
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success px-3 py-2">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger px-3 py-2">Inactive</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.block_id"
+                                           class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.block_id"
+                                           class="btn btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.block_id"
+                                           class="btn btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#blockTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                // Updated sort index: 'Created Date' is now the 5th column (index 4)
+                order: [[4, "desc"]],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'btn btn-success btn-sm',
+                        text: 'Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        className: 'btn btn-danger btn-sm',
+                        text: 'PDF'
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-secondary btn-sm',
+                        text: 'Print'
+                    }
+                ]
+            });
+        });
+    </script>
+}

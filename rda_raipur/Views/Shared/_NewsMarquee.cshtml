@@ -1,0 +1,41 @@
+﻿@using rda_raipur.Data
+@inject ApplicationDbContext _context
+
+@{
+    // Active news fetch kar rahe hain
+    var newsList = _context.SiteNews.Where(n => n.IsActive && !n.IsDeleted).ToList();
+    var requestCultureFeature = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "en";
+}
+
+<div class="marquee-container" style="background: #f8f9fa; padding: 10px; border-bottom: 2px solid #ddd;">
+    <marquee onmouseover="this.stop();" onmouseout="this.start();" scrollamount="5">
+
+        @foreach (var news in newsList)
+        {
+            var text = currentCulture == "hi" ? news.NewsText_hi : news.NewsText_en;
+
+            <span class="news-item" style="margin-right: 30px; font-size: 16px;">
+                <i class="fa fa-bell text-danger"></i>
+
+                @if (!string.IsNullOrEmpty(news.PdfFilePath))
+                {
+                    <a href="@news.PdfFilePath" target="_blank" style="color: blue !important; text-decoration: underline !important; font-weight: bold;">
+                        @text <small class="text-danger">(PDF)</small>
+                    </a>
+                }
+                else if (!string.IsNullOrEmpty(news.LinkUrl))
+                {
+                    <a href="@news.LinkUrl" target="_blank" style="color: green !important; text-decoration: underline !important; font-weight: bold;">
+                        @text <small class="text-success">(Link)</small>
+                    </a>
+                }
+                else
+                {
+                    <span style="color: black; font-weight: bold;">@text</span>
+                }
+            </span>
+        }
+
+    </marquee>
+</div>

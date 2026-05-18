@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    // Language detection ko thik kiya gaya hai
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var culture = requestCulture?.RequestCulture.Culture.Name ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+    bool isEnglish = culture.StartsWith("en");
+}
+
+<style>
+    /* Leadership Section Responsive CSS */
+    .leadership-section {
+        background-color: #ffffff;
+        padding: 40px 0;
+        border-top: 2px solid #eee;
+        border-bottom: 2px solid #eee;
+    }
+
+    .key-person-card {
+        text-align: center;
+        padding: 10px;
+        transition: transform 0.3s ease;
+        height: 100%; /* For uniform height */
+    }
+
+        .key-person-card:hover {
+            transform: translateY(-8px);
+        }
+
+    .key-person-img {
+        width: 120px; /* Thoda chota for better mobile view */
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: top; /* <-- YEH NAYI LINE ADD KAREIN */
+        border: 3px solid #ff9800;
+        padding: 3px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        background-color: #fff; /* Padding area ko white rakhne ke liye */
+    }
+
+    .key-person-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0056b3;
+        margin-bottom: 5px;
+    }
+
+    .key-person-designation {
+        font-size: 0.85rem;
+        color: #555;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    /* Mobile specific adjustments */
+    @@media (max-width: 767px) {
+        .leadership-section {
+            padding: 25px 0;
+        }
+
+        .key-person-img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .key-person-name {
+            font-size: 0.95rem;
+        }
+
+        .key-person-designation {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<div class="leadership-section mb-4 shadow-sm">
+    <div class="container-fluid px-3 px-md-5">
+
+        <div class="row justify-content-center g-3 g-md-4">
+
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="key-person-card">
+                    <img src="~/images/CM_VishnuDeoSai.jpeg" class="key-person-img" alt="Shri Vishnu Deo Sai" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Vishnu Deo Sai" : "श्री विष्णु देव साय")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Chief Minister, Chhattisgarh" : "माननीय मुख्यमंत्री, छत्तीसगढ़")</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="key-person-card">
+                    <img src="~/images/Minister(H&E)_OPC.jpg" class="key-person-img" alt="Shri O.P. Choudhary" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri O.P. Choudhary" : "श्री ओ.पी. चौधरी")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Minister (Housing & Environment)" : "माननीय मंत्री (आवास एवं पर्यावरण)")</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="key-person-card">
+                    <img src="~/images/nand_kumar_sahu.jpg" class="key-person-img" alt="Shri Nand Kumar Sahu" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Nand Kumar Sahu" : "श्री नंद कुमार साहू")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Hon'ble Chairman, RDA" : "माननीय अध्यक्ष, रायपुर विकास प्राधिकरण")</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-sm-6 col-md-3">
+                <div class="key-person-card">
+                    <img src="~/images/ias_awanish_sharan.jpg" class="key-person-img" alt="Shri Awanish Sharan (IAS)" onerror="this.src='~/images/dummy-profile.png'">
+                    <div class="key-person-name">@(isEnglish ? "Shri Awanish Sharan (IAS)" : "श्री अवनीश शरण (IAS)")</div>
+                    <div class="key-person-designation">@(isEnglish ? "Chief Executive Officer, RDA" : "मुख्य कार्यपालन अधिकारी, आर.डी.ए.")</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

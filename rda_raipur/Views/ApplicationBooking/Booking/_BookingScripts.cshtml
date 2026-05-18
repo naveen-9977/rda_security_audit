@@ -1,0 +1,553 @@
+﻿@* 🔥 CUSTOM TOAST UI STYLES 🔥 *@
+<style>
+    .custom-toast-container {
+        visibility: hidden;
+        min-width: 300px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 4px;
+        padding: 14px 20px;
+        position: fixed;
+        z-index: 99999;
+        left: 50%;
+        top: 20px;
+        transform: translateX(-50%) translateY(-20px);
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+        .custom-toast-container.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .custom-toast-container.success {
+            background-color: #198754; /* Green */
+            border-left: 6px solid #0f5132;
+        }
+
+        .custom-toast-container.error {
+            background-color: #dc3545; /* Red */
+            border-left: 6px solid #842029;
+        }
+
+    .toast-icon {
+        font-size: 1.5rem;
+    }
+</style>
+
+@* 🔥 CUSTOM TOAST HTML 🔥 *@
+<div id="modernToast" class="custom-toast-container">
+    <span id="modernToastIcon" class="toast-icon"></span>
+    <span id="modernToastMsg"></span>
+</div>
+
+<script>
+    // 🔥 PURE APPLICATION FEE LOGIC (DYNAMIC FROM CONTROLLER) 🔥
+    let appFeeBase = parseFloat('@ViewBag.AppFeeBase') || 500;
+    let appFeeGst = parseFloat('@ViewBag.AppFeeGst') || 90;
+    let totalAppFee = parseFloat('@ViewBag.TotalAppFee') || 590;
+
+    // 🔥 EMD AMOUNT LOGIC 🔥
+    let emdValue = parseFloat('@ViewBag.EmdAmount'.replace(/,/g, '')) || 0;
+
+    // Default payable is only the Application Fee
+    let finalAmountToPay = totalAppFee;
+    let isEng = @((ViewBag.IsEnglish != null ? (bool)ViewBag.IsEnglish : true).ToString().ToLower());
+
+    // 🔥 NAYA TOAST FUNCTION 🔥
+    function showToast(message, type = 'success') {
+        let toast = document.getElementById("modernToast");
+        let toastMsg = document.getElementById("modernToastMsg");
+        let toastIcon = document.getElementById("modernToastIcon");
+
+        toastMsg.innerText = message;
+
+        if (type === 'success') {
+            toast.className = "custom-toast-container success show";
+            toastIcon.innerHTML = "<i class='bi bi-check-circle-fill'></i>";
+        } else {
+            toast.className = "custom-toast-container error show";
+            toastIcon.innerHTML = "<i class='bi bi-exclamation-triangle-fill'></i>";
+        }
+
+        setTimeout(function () {
+            toast.className = toast.className.replace("show", "");
+        }, 3500);
+    }
+
+    function numberToWords(num, isEnglishLanguage) {
+        if ((num = num.toString()).length > 9) return isEnglishLanguage ? 'Amount is too large' : 'राशि बहुत बड़ी है';
+        var n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return '';
+        var str = '';
+
+        if (isEnglishLanguage) {
+            var a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+            var b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only' : 'Only';
+            return str == 'Only' ? 'Rs. Zero Only' : 'Rs. ' + str;
+        } else {
+            var h = ['', 'एक', 'दो', 'तीन', 'चार', 'पांच', 'छह', 'सात', 'आठ', 'नौ', 'दस', 'ग्यारह', 'बारह', 'तेरह', 'चौदह', 'पंद्रह', 'सोलह', 'सत्रह', 'अठारह', 'उन्नीस', 'बीस', 'इक्कीस', 'बाईस', 'तेईस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताईस', 'अट्ठाईस', 'उनतीस', 'तीस', 'इकतीस', 'बत्तीस', 'तैंतीस', 'चौंतीस', 'पैंतीस', 'छत्तीस', 'सैंतीस', 'अड़तीस', 'उनतालीस', 'चालीस', 'इकतालीस', 'बयालीस', 'तैंतालीस', 'चवालीस', 'पैंतालीस', 'छियालीस', 'सैंतालीस', 'अड़तालीस', 'उनचास', 'पचास', 'इक्यावन', 'बावन', 'तिरेपन', 'चौवन', 'पचपन', 'छप्पन', 'सत्तावन', 'अट्ठावन', 'उनसठ', 'साठ', 'इकसठ', 'बासठ', 'तिरसठ', 'चौंसठ', 'पैंसठ', 'छियासठ', 'सड़सठ', 'अड़सठ', 'उनहत्तर', 'सत्तर', 'इकहत्तर', 'बहत्तर', 'तिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छिहत्तर', 'सतहत्तर', 'अठहत्तर', 'उन्नासी', 'अस्सी', 'इक्यासी', 'बयासी', 'तिरासी', 'चौरासी', 'पचासी', 'छियासी', 'सत्तासी', 'अट्ठासी', 'नवासी', 'नब्बे', 'इक्यानवे', 'बानवे', 'तिरानवे', 'चौरानवे', 'पचानवे', 'छियानवे', 'सत्तानवे', 'अट्ठानवे', 'निन्यानवे'];
+            str += (n[1] != 0) ? h[Number(n[1])] + ' करोड़ ' : '';
+            str += (n[2] != 0) ? h[Number(n[2])] + ' लाख ' : '';
+            str += (n[3] != 0) ? h[Number(n[3])] + ' हजार ' : '';
+            str += (n[4] != 0) ? h[Number(n[4])] + ' सौ ' : '';
+            str += (n[5] != 0) ? h[Number(n[5])] + ' ' : '';
+
+            if (str.trim() == '') return 'शून्य रुपये मात्र';
+            return str.trim() + ' रुपये मात्र';
+        }
+    }
+
+    // 🔥 NEW: API Call to Fetch Bank Name from IFSC 🔥
+    function fetchBankDetails() {
+        let ifsc = $('#ifsc-code').val().trim().toUpperCase();
+        if (ifsc.length === 11) {
+            $('#bank-name').val('Fetching details...');
+            $.get('https://ifsc.razorpay.com/' + ifsc, function (data) {
+                if (data && data.BANK) {
+                    $('#bank-name').val(data.BANK + ', ' + data.BRANCH);
+                    $('#ifsc-error').hide();
+                } else {
+                    $('#bank-name').val('');
+                    $('#ifsc-error').text('Invalid IFSC Code.').show();
+                }
+            }).fail(function () {
+                $('#bank-name').val('');
+                $('#ifsc-error').text('Invalid IFSC Code.').show();
+            });
+        } else {
+            $('#bank-name').val('');
+        }
+    }
+
+    function populateProfileData(data) {
+        if (data.applicantName) {
+            let nameParts = data.applicantName.split(' ');
+            $('#fname').val(nameParts[0]);
+            if (nameParts.length > 1) { $('#lname').val(nameParts.slice(1).join(' ')); }
+        }
+        $('#fhname').val(data.fatherHusbandName);
+        $('#permanentAddress').val(data.address);
+        $('#aadhaar-no').val(data.aadharNo);
+        $('#pan-no').val(data.panNo);
+        $('#Email').val(data.email);
+        $('#caste-no').val(data.casteNo);
+        $('#income-no').val(data.incomeNo);
+        $('#domicile-no').val(data.domicileNo);
+        if (data.gender) $('#gender').val(data.gender);
+
+        // 🔥 Map Bank Details 🔥
+        $('#bank-acc-no').val(data.bankAccountNo);
+        $('#ifsc-code').val(data.ifscCode);
+        $('#bank-name').val(data.bankName);
+
+        if (data.dob) {
+            let d = new Date(data.dob);
+            $('#dob').val(d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2));
+            calculateAge();
+        }
+
+        if (data.photoPath) {
+            $('#prev-img-photo').html('<img src="' + data.photoPath + '" style="width:100%;height:100%;object-fit:contain;">');
+            $('#doc-photo').removeAttr('required').data('existing', data.photoPath);
+        }
+        if (data.signaturePath) {
+            $('#prev-img-sig').html('<img src="' + data.signaturePath + '" style="width:100%;height:100%;object-fit:contain;">');
+            $('#doc-sig').removeAttr('required').data('existing', data.signaturePath);
+        }
+
+        let pdfs = [
+            { id: 'aadhaar', path: data.aadharPath }, { id: 'pan', path: data.panPath },
+            { id: 'caste', path: data.castePath }, { id: 'income', path: data.incomePath },
+            { id: 'domicile', path: data.domicilePath }, { id: 'affidavit', path: data.affidavitPath },
+            { id: 'passbook', path: data.bankPassbookPath }
+        ];
+        pdfs.forEach(doc => {
+            if (doc.path) {
+                $('#err-' + doc.id).html('<a href="' + doc.path + '" target="_blank" class="text-primary fw-bold"><i class="bx bx-link"></i> View File</a>');
+                $('#doc-' + doc.id).removeAttr('required').data('existing', doc.path);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        let basePriceNum = parseFloat($('#hidden-base-price').val().replace(/,/g, ''));
+        if (!isNaN(basePriceNum) && basePriceNum > 0) {
+            $('#base-price-words').text(numberToWords(basePriceNum, isEng));
+        }
+
+        if (sessionStorage.getItem("isMobileVerified") === "true") {
+            let savedMobile = sessionStorage.getItem("verifiedMobile");
+            let profileDataStr = sessionStorage.getItem("profileData");
+
+            $('#verify-mobile').val(savedMobile).prop('readonly', true);
+            $('#verified-mobile-display').val("+91 " + savedMobile);
+
+            $('#main-application-form').removeClass('disabled-section');
+            $('#section-verification').removeClass('border-danger').addClass('border-success');
+
+            $('#link-change-mobile').attr('style', 'display:block !important;');
+            $('.otp-field').hide();
+            $('#btn-get-otp-wrapper').hide();
+            $('#verified-success-msg').show();
+
+            if (profileDataStr) {
+                let data = JSON.parse(profileDataStr);
+                populateProfileData(data);
+            }
+        }
+    });
+
+    function clearFormFields() {
+        $('#fname, #lname, #fhname, #Email, #dob, #age, #gender, #permanentAddress, #correspondenceAddress, #aadhaar-no, #pan-no, #caste-no, #income-no, #domicile-no, #bank-acc-no, #ifsc-code, #bank-name').val('');
+        $('#sameAddress').prop('checked', false);
+        $('input[type="file"]').val('').removeData('existing');
+        $('#doc-photo, #doc-sig, #doc-aadhaar, #doc-pan, #doc-income, #doc-affidavit, #doc-passbook').prop('required', true);
+        $('#prev-img-photo').html("<i class='bx bx-user' style='font-size: 4rem;'></i>");
+        $('#prev-img-sig').html("<i class='bx bx-pen' style='font-size: 2.5rem;'></i>");
+        $('[id^="err-"]').text('');
+    }
+
+    function handleBidAmountChange() {
+        let val = $('#bid-amount').val();
+        let basePrice = parseFloat($('#hidden-base-price').val().replace(/,/g, '')) || 0;
+
+        if (val && !isNaN(val)) {
+            let bidAmount = parseFloat(val);
+            $('#bid-amount-words').text(numberToWords(bidAmount, isEng));
+            if (bidAmount <= basePrice) {
+                $('#bid-error').show();
+            } else {
+                $('#bid-error').hide();
+            }
+        } else {
+            $('#bid-amount-words').text("");
+            $('#bid-error').hide();
+        }
+    }
+
+    function validateNumberInput(input, errorSpanId) {
+        let value = input.value;
+        if (/[^0-9]/.test(value)) {
+            $('#' + errorSpanId).show();
+            input.value = value.replace(/[^0-9]/g, '');
+            setTimeout(() => $('#' + errorSpanId).fadeOut(), 2000);
+        }
+    }
+
+    // 🔥 CALCULATE TOTAL PAYABLE (Application Fee + EMD Optional) 🔥
+    function calculateTotalFee() {
+        if ($('#pay-emd-checkbox').is(':checked')) {
+            finalAmountToPay = totalAppFee + emdValue;
+        } else {
+            finalAmountToPay = totalAppFee;
+        }
+
+        // Taki agar .50 ya .59 aaye to vo sahi se formatting ho
+        let displayAmount = finalAmountToPay.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+        $('#total-payable-amount').text("₹ " + displayAmount);
+
+        let btnText = isEng
+            ? "Pay ₹" + displayAmount + " & Submit"
+            : "₹" + displayAmount + " का भुगतान करें और जमा करें";
+
+        $('#btn-pay-submit').html("<i class='bx bx-rupee me-1'></i> " + btnText);
+    }
+
+    function sendOtp() {
+        let mobile = $('#verify-mobile').val();
+        if (mobile.length !== 10 || isNaN(mobile)) {
+            showToast("कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें!", "error");
+            return;
+        }
+        $('#verify-mobile').prop('readonly', true);
+        $('#btn-get-otp').prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Sending...');
+
+        $.post('/Account/GenerateBookingOtp', { mobileNo: mobile }, function (res) {
+            if (res.status) {
+                showToast(res.message || "OTP सफलतापूर्वक भेजा गया!", "success");
+                $('.otp-field').show();
+                $('#btn-get-otp').html('Resend OTP').prop('disabled', false);
+                $('#link-change-mobile').attr('style', 'display:block !important;');
+            } else {
+                showToast(res.message, "error");
+                $('#btn-get-otp').html('Send OTP').prop('disabled', false);
+                $('#verify-mobile').prop('readonly', false);
+            }
+        });
+    }
+
+    function resetMobileField() {
+        $('#verify-mobile').prop('readonly', false).focus();
+        $('#link-change-mobile').attr('style', 'display:none !important;');
+        $('.otp-field').hide();
+        $('#otp-input').val('').show();
+        $('#lbl-enter-otp').show();
+        $('#btn-verify-action').show();
+        $('#btn-get-otp').html('Send OTP').prop('disabled', false).show();
+        sessionStorage.removeItem("isMobileVerified");
+        sessionStorage.removeItem("verifiedMobile");
+        sessionStorage.removeItem("profileData");
+        $('#main-application-form').addClass('disabled-section');
+        $('#section-verification').removeClass('border-success');
+
+        $('#verified-success-msg').hide();
+        $('#btn-get-otp-wrapper').show();
+
+        clearFormFields();
+    }
+
+    function verifyOtp() {
+        let mobile = $('#verify-mobile').val();
+        let otp = $('#otp-input').val();
+        if (!otp) {
+            showToast('कृपया OTP दर्ज करें!', 'error');
+            return;
+        }
+
+        $('.btn-verify-otp').prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Verifying...');
+
+        $.post('/Account/VerifyBookingOtpAndFetchData', { mobileNo: mobile, otp: otp }, function (res) {
+            if (res.status) {
+                showToast(res.message || "मोबाइल नंबर सत्यापित हो गया है!", "success");
+                sessionStorage.setItem("isMobileVerified", "true");
+                sessionStorage.setItem("verifiedMobile", mobile);
+                $('#verified-mobile-display').val("+91 " + mobile);
+                $('#main-application-form').removeClass('disabled-section');
+                $('#section-verification').removeClass('border-danger').addClass('border-success');
+
+                $('.otp-field').hide();
+                $('#btn-get-otp-wrapper').hide();
+                $('#verified-success-msg').show();
+
+                $.get('/ApplicationBooking/GetUserDetailsByMobile', { mobileNo: mobile }, function (userDataRes) {
+                    if (userDataRes.success && userDataRes.data) {
+                        sessionStorage.setItem("profileData", JSON.stringify(userDataRes.data));
+                        populateProfileData(userDataRes.data);
+                        showToast("आपकी पुरानी जानकारी रीस्टोर कर दी गई है!", "success");
+                    }
+                });
+
+            } else {
+                showToast(res.message, "error");
+                $('.btn-verify-otp').prop('disabled', false).html('Verify');
+            }
+        });
+    }
+
+    function calculateAge() {
+        let dobValue = $('#dob').val();
+        if (dobValue) {
+            let dob = new Date(dobValue), today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            if (today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) age--;
+            $('#age').val(age + " Yrs");
+        } else { $('#age').val(''); }
+    }
+
+    function copyAddress() {
+        if ($('#sameAddress').is(':checked')) {
+            $('#correspondenceAddress').val($('#permanentAddress').val()).prop('readonly', true);
+        } else {
+            $('#correspondenceAddress').val('').prop('readonly', false);
+        }
+    }
+
+    function validateFile(input, minKb, maxKb, allowedTypes, errorSpanId) {
+        let errorSpan = $('#' + errorSpanId);
+        errorSpan.text('');
+        if (input.files && input.files[0]) {
+            let file = input.files[0], sizeKb = file.size / 1024, ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(ext)) { errorSpan.text("Invalid format!"); $(input).val(''); return false; }
+            if (sizeKb < minKb) { errorSpan.text("File too small!"); $(input).val(''); return false; }
+            if (sizeKb > maxKb) { errorSpan.text("File too large!"); $(input).val(''); return false; }
+        }
+        return true;
+    }
+
+    function renderPreview(input, boxId, previewId = null) {
+        let container = document.getElementById(boxId);
+        let pContainer = previewId ? document.getElementById(previewId) : null;
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                container.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:contain;">';
+                if (pContainer) pContainer.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:contain;">';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function setupViewLink(inputId, linkId) {
+        let input = $('#' + inputId);
+        let link = $('#' + linkId);
+        if (input[0].files && input[0].files[0]) {
+            link.attr('href', URL.createObjectURL(input[0].files[0])).show();
+        } else if (input.data('existing')) {
+            link.attr('href', input.data('existing')).show();
+        } else {
+            link.hide();
+        }
+    }
+
+    function showPreviewSection() {
+        let form = document.getElementById('bookingForm');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        let basePrice = parseFloat($('#hidden-base-price').val().replace(/,/g, ''));
+        let bidAmount = parseFloat($('#bid-amount').val());
+
+        if (isNaN(bidAmount) || bidAmount <= basePrice) {
+            $('#bid-error').show();
+            $('#bid-amount').focus();
+            showToast("बोली की राशि आधार मूल्य से अधिक होनी चाहिए!", "error");
+            return;
+        }
+
+        $('#p-name').text($('#fname').val() + " " + $('#lname').val());
+        $('#p-fhname').text($('#fhname').val());
+        $('#p-dob').text($('#dob').val() + " (" + $('#age').val() + ")");
+        $('#p-gender').text($('#gender option:selected').text());
+        $('#p-mobile').text($('#verified-mobile-display').val());
+        $('#p-email').text($('#Email').val());
+        $('#p-address').text($('#correspondenceAddress').val());
+        $('#p-bid-amount').text("₹ " + bidAmount.toLocaleString('en-IN') + " (" + numberToWords(bidAmount, isEng) + ")");
+
+        $('#p-bank-acc').text($('#bank-acc-no').val() || '-');
+        let bankFull = ($('#ifsc-code').val().toUpperCase() || '-') + ' / ' + ($('#bank-name').val() || '-');
+        $('#p-bank-name').text(bankFull);
+
+        $('#p-aadhaar-no').text($('#aadhaar-no').val() || '-');
+        $('#p-pan-no').text($('#pan-no').val().toUpperCase() || '-');
+        $('#p-caste-no').text($('#caste-no').val() || '-');
+        $('#p-income-no').text($('#income-no').val() || '-');
+        $('#p-domicile-no').text($('#domicile-no').val() || 'N/A');
+
+        setupViewLink('doc-aadhaar', 'view-aadhaar');
+        setupViewLink('doc-pan', 'view-pan');
+        setupViewLink('doc-caste', 'view-caste');
+        setupViewLink('doc-income', 'view-income');
+        setupViewLink('doc-affidavit', 'view-affidavit');
+        setupViewLink('doc-passbook', 'view-passbook');
+
+        if ($('#doc-domicile').val() || $('#doc-domicile').data('existing')) {
+            $('#p-domicile-status').html("<span class='text-success'><i class='bx bx-check-circle'></i> Uploaded</span>");
+            setupViewLink('doc-domicile', 'view-domicile');
+        } else {
+            $('#p-domicile-status').html("<span class='text-muted'>Not Provided</span>");
+            $('#view-domicile').hide();
+        }
+
+        $('#preview-p-photo').html($('#prev-img-photo').html());
+        $('#preview-p-sig').html($('#prev-img-sig').html());
+
+        calculateTotalFee();
+
+        $('#form-entry-section').hide();
+        $('#form-preview-section').fadeIn();
+        window.scrollTo(0, 0);
+    }
+
+    function editFormSection() {
+        $('#form-preview-section').hide();
+        $('#form-entry-section').fadeIn();
+    }
+
+    function submitGovtForm(event) {
+        if (!$('#final-confirm-checkbox').is(':checked')) {
+            showToast("कृपया जानकारी सही होने की पुष्टि (Checkbox) करें!", "error");
+            return;
+        }
+
+        let btn = $(event.currentTarget);
+        let originalHtml = btn.html();
+        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i> Processing...');
+
+        let formData = new FormData();
+        formData.append("MobileNo", $('#verified-mobile-display').val().replace('+91 ', '').replace('(Session Restored)', '').trim());
+        formData.append("ApplicantName", $('#fname').val() + " " + $('#lname').val());
+        formData.append("FatherHusbandName", $('#fhname').val());
+        formData.append("Email", $('#Email').val());
+        formData.append("DOB", $('#dob').val());
+        formData.append("Age", parseInt($('#age').val().replace(' Yrs', '')) || 0);
+        formData.append("Gender", $('#gender').val());
+        formData.append("Address", $('#correspondenceAddress').val());
+        formData.append("AadharNo", $('#aadhaar-no').val());
+        formData.append("PanNo", $('#pan-no').val());
+        formData.append("CasteNo", $('#caste-no').val());
+        formData.append("IncomeNo", $('#income-no').val());
+        formData.append("DomicileNo", $('#domicile-no').val());
+
+        formData.append("BankAccountNo", $('#bank-acc-no').val());
+        formData.append("IfscCode", $('#ifsc-code').val().toUpperCase());
+        formData.append("BankName", $('#bank-name').val());
+
+        formData.append("BidAmount", $('#bid-amount').val());
+        formData.append("PaymentAmount", finalAmountToPay);
+        formData.append("PropertyId", '@ViewBag.NumericPropertyId');
+
+        let files = [
+            { id: 'doc-photo', name: 'PhotoUpload' }, { id: 'doc-sig', name: 'SignatureUpload' },
+            { id: 'doc-aadhaar', name: 'AadharUpload' }, { id: 'doc-pan', name: 'PanUpload' },
+            { id: 'doc-income', name: 'IncomeUpload' }, { id: 'doc-domicile', name: 'DomicileUpload' },
+            { id: 'doc-affidavit', name: 'AffidavitUpload' },
+            { id: 'doc-passbook', name: 'BankPassbookUpload' }
+        ];
+
+        if ($('#doc-caste').length && !$('#doc-caste').is(':hidden')) {
+            files.push({ id: 'doc-caste', name: 'CasteUpload' });
+        }
+
+        files.forEach(f => {
+            let fileInput = $('#' + f.id)[0];
+            if (fileInput && fileInput.files[0]) {
+                formData.append(f.name, fileInput.files[0]);
+            }
+        });
+
+        $.ajax({
+            url: '/ApplicationBooking/SubmitForm',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.status) {
+                    sessionStorage.removeItem("isMobileVerified");
+                    sessionStorage.removeItem("verifiedMobile");
+                    sessionStorage.removeItem("profileData");
+                    let ccavenueForm = $('<form action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction" method="post">' +
+                        '<input type="hidden" name="encRequest" value="' + res.encRequest + '" />' +
+                        '<input type="hidden" name="access_code" value="' + res.accessCode + '" />' +
+                        '</form>');
+
+                    $('body').append(ccavenueForm);
+                    ccavenueForm.submit();
+                } else {
+                    showToast(res.message, "error");
+                    btn.prop('disabled', false).html(originalHtml);
+                }
+            },
+            error: function () {
+                showToast("Server Error! Payment Request Process nahi ho paya.", "error");
+                btn.prop('disabled', false).html(originalHtml);
+            }
+        });
+    }
+</script>

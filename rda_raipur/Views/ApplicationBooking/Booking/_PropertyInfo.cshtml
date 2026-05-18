@@ -1,0 +1,61 @@
+﻿<div class="table-responsive mx-3 mt-3 mb-2">
+    <table class="table table-bordered table-striped table-hover text-center mb-0 asset-details-table w-100" style="vertical-align: middle; font-size: 11px;">
+        <thead class="table-light text-secondary">
+            <tr>
+                <th>@(ViewBag.IsEnglish ? "Sector" : "सेक्टर")</th>
+                <th>@ViewBag.UnitLabel</th>
+
+                @* 🔥 DYNAMIC LOGIC: Alag alag columns for Plot/Shop 🔥 *@
+                @if (ViewBag.IsPlotOrShop == true)
+                {
+                    <th>@(ViewBag.IsEnglish ? "Width" : "चौड़ाई")</th>
+                    <th>@(ViewBag.IsEnglish ? "Depth" : "गहराई")</th>
+                    <th>@(ViewBag.IsEnglish ? "Direction" : "दिशा")</th>
+                    <th>@(ViewBag.IsEnglish ? "Better Loc." : "बेहतर लोकेशन")</th>
+                }
+                else
+                {
+                    <th>@(ViewBag.IsEnglish ? "Category" : "श्रेणी")</th>
+                }
+
+                <th>@(ViewBag.IsEnglish ? "Reserve" : "आरक्षण")</th>
+                <th>@(ViewBag.IsEnglish ? "Area (Sq.Ft.)" : "क्षेत्रफल")</th>
+                <th>@(ViewBag.IsEnglish ? "Offset Price" : "ऑफ़सेट मूल्य")</th>
+                <th>@(ViewBag.IsEnglish ? "EMD" : "धरोहर राशि")</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="fw-medium">@ViewBag.Sector</td>
+                <td class="text-primary fw-bold fs-6">@ViewBag.UnitNo</td>
+
+                @* 🔥 DYNAMIC DATA FILL 🔥 *@
+                @if (ViewBag.IsPlotOrShop == true)
+                {
+                    <td class="fw-bold text-dark">@(ViewBag.Width ?? "NA")</td>
+                    <td class="fw-bold text-dark">@(ViewBag.Depth ?? "NA")</td>
+                    <td>@(ViewBag.Direction ?? "NA")</td>
+                    <td><span class="small text-muted">@(ViewBag.BetterLocationName ?? "NA")</span></td>
+                }
+                else
+                {
+                    <td>@ViewBag.Category</td>
+                }
+
+                <td>
+                    @if (ViewBag.IsUnreserved)
+                    {
+                        <span class="badge bg-secondary px-2 py-1">@ViewBag.ReserveCategory</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-info text-dark px-2 py-1">@ViewBag.ReserveCategory</span>
+                    }
+                </td>
+                <td class="fw-medium">@ViewBag.Area</td>
+                <td class="text-success fw-bold">₹ @ViewBag.TotalPrice</td>
+                <td class="text-danger fw-bold">₹ @ViewBag.EmdAmount</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
