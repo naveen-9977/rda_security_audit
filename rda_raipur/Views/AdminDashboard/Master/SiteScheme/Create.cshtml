@@ -5,52 +5,60 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid p-0">
-    <div class="row mb-3">
-        <div class="col-12">
-            <h3 class="mb-0 text-primary fw-bold"><i class='bx bx-plus-circle'></i> Add New Scheme</h3>
-        </div>
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class='bx bx-plus-circle text-primary'></i> Add New Scheme</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class='bx bx-arrow-back'></i> Back to List
+        </a>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card master-card">
         <div class="card-body p-4">
             <form asp-action="Create" method="post" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label asp-for="SchemeName" class="form-label fw-bold">Scheme Name <span class="text-danger">*</span></label>
-                        <input asp-for="SchemeName" class="form-control" placeholder="Enter scheme name" required />
-                        <span asp-validation-for="SchemeName" class="text-danger"></span>
+                <div class="row">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="SchemeName" class="master-label">Scheme Name <span class="text-danger">*</span></label>
+                        <input asp-for="SchemeName" class="master-input" placeholder="Enter scheme name" required />
+                        <span asp-validation-for="SchemeName" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Scheme Image (Upload)</label>
-                        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
-                        <small class="text-muted">Recommended: JPG, PNG</small>
+                    <div class="col-md-6 form-group-spaced">
+                        <label class="master-label">Scheme Image (Upload)</label>
+                        <input type="file" name="ImageFile" class="master-input p-1" accept="image/*" />
+                        <small class="text-muted d-block mt-1">Recommended: JPG, PNG</small>
                     </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="Location" class="form-label fw-bold">Location</label>
-                        <input asp-for="Location" class="form-control" placeholder="e.g. Kamal Vihar, Raipur" />
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Location" class="master-label">Location</label>
+                        <input asp-for="Location" class="master-input" placeholder="e.g. Kamal Vihar, Raipur" />
                     </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="MapLocationUrl" class="form-label fw-bold">Google Maps Embed URL</label>
-                        <input asp-for="MapLocationUrl" class="form-control" placeholder="Paste embed link here" />
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="MapLocationUrl" class="master-label">Google Maps Embed URL</label>
+                        <input asp-for="MapLocationUrl" class="master-input" placeholder="Paste embed link here" />
                     </div>
 
-                    <div class="col-md-12 mt-3">
-                        <div class="form-check">
-                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked="checked" value="true" />
-                            <label asp-for="IsActive" class="form-check-label fw-bold text-success">Is Active (Show to public?)</label>
+                    <div class="col-12 form-group-spaced mt-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input fs-4" type="checkbox" id="flexSwitchCheckChecked" checked />
+                            <label asp-for="IsActive" class="form-check-label fw-bold mt-1 ms-2" for="flexSwitchCheckChecked">Is Active (Show to public?)</label>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12 mt-4 text-end">
-                        <a asp-action="Index" class="btn btn-secondary px-4 me-2">Cancel</a>
-                        <button type="submit" class="btn btn-success px-5 fw-bold">Save Scheme</button>
-                    </div>
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class='bx bx-save me-1'></i> Save Scheme
+                    </button>
                 </div>
             </form>
         </div>

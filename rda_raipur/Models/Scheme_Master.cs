@@ -23,12 +23,12 @@ namespace rda_raipur.Models
 
         [Required]
         public string scheme_rera_no { get; set; }
-
+        public string? created_by { get; set; }
         public DateTime? create_date { get; set; }
         public DateTime? updated_date { get; set; }
 
-        [Required]
-        public string updated_by { get; set; }
+        
+        public string? updated_by { get; set; }
 
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }

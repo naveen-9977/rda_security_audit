@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers
 {
-    // This attribute secures the entire controller
     [Authorize(Roles = "Admin")]
     public class Scheme_MasterController : Controller
     {
@@ -26,24 +23,18 @@ namespace rda_raipur.Controllers
         public async Task<IActionResult> Index()
         {
             var schemes = await _context.Scheme_Master.ToListAsync();
-            // Explicitly pointing to the new folder location
             return View("~/Views/AdminDashboard/Master/Scheme_Master/Index.cshtml", schemes);
         }
 
         // GET: Scheme_Master/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var scheme_Master = await _context.Scheme_Master
                 .FirstOrDefaultAsync(m => m.scheme_id == id);
-            if (scheme_Master == null)
-            {
-                return NotFound();
-            }
+
+            if (scheme_Master == null) return NotFound();
 
             return View("~/Views/AdminDashboard/Master/Scheme_Master/Details.cshtml", scheme_Master);
         }
@@ -57,10 +48,14 @@ namespace rda_raipur.Controllers
         // POST: Scheme_Master/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("scheme_id,scheme_name_en,scheme_name_hi,scheme_sort_name_en,scheme_sort_name_hi,scheme_rera_no,create_date,updated_date,updated_by,IsActive,IsDeleted")] Scheme_Master scheme_Master)
+        public async Task<IActionResult> Create([Bind("scheme_id,scheme_name_en,scheme_name_hi,scheme_sort_name_en,scheme_sort_name_hi,scheme_rera_no,IsActive,IsDeleted")] Scheme_Master scheme_Master)
         {
             if (ModelState.IsValid)
             {
+                // 🔥 BACKEND SECURITY: Audit fields automatically set by system
+                scheme_Master.created_by = "Admin";//User.Identity.Name;
+                scheme_Master.create_date = DateTime.Now;
+
                 _context.Add(scheme_Master);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -71,46 +66,48 @@ namespace rda_raipur.Controllers
         // GET: Scheme_Master/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var scheme_Master = await _context.Scheme_Master.FindAsync(id);
-            if (scheme_Master == null)
-            {
-                return NotFound();
-            }
+            if (scheme_Master == null) return NotFound();
+
             return View("~/Views/AdminDashboard/Master/Scheme_Master/Edit.cshtml", scheme_Master);
         }
 
         // POST: Scheme_Master/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("scheme_id,scheme_name_en,scheme_name_hi,scheme_sort_name_en,scheme_sort_name_hi,scheme_rera_no,create_date,updated_date,updated_by,IsActive,IsDeleted")] Scheme_Master scheme_Master)
+        public async Task<IActionResult> Edit(int id, [Bind("scheme_id,scheme_name_en,scheme_name_hi,scheme_sort_name_en,scheme_sort_name_hi,scheme_rera_no,IsActive,IsDeleted")] Scheme_Master scheme_Master)
         {
-            if (id != scheme_Master.scheme_id)
-            {
-                return NotFound();
-            }
+            if (id != scheme_Master.scheme_id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(scheme_Master);
+                    // 🔥 FETCH EXISTING RECORD FOR SECURITY
+                    var existingScheme = await _context.Scheme_Master.FindAsync(id);
+                    if (existingScheme == null) return NotFound();
+
+                    // Update only allowed fields
+                    existingScheme.scheme_name_en = scheme_Master.scheme_name_en;
+                    existingScheme.scheme_name_hi = scheme_Master.scheme_name_hi;
+                    existingScheme.scheme_sort_name_en = scheme_Master.scheme_sort_name_en;
+                    existingScheme.scheme_sort_name_hi = scheme_Master.scheme_sort_name_hi;
+                    existingScheme.scheme_rera_no = scheme_Master.scheme_rera_no;
+                    existingScheme.IsActive = scheme_Master.IsActive;
+                    existingScheme.IsDeleted = scheme_Master.IsDeleted;
+
+                    // 🔥 BACKEND SECURITY: Audit fields updated by system
+                    existingScheme.updated_by = User.Identity.Name;
+                    existingScheme.updated_date = DateTime.Now;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!Scheme_MasterExists(scheme_Master.scheme_id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!Scheme_MasterExists(scheme_Master.scheme_id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -120,17 +117,12 @@ namespace rda_raipur.Controllers
         // GET: Scheme_Master/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var scheme_Master = await _context.Scheme_Master
                 .FirstOrDefaultAsync(m => m.scheme_id == id);
-            if (scheme_Master == null)
-            {
-                return NotFound();
-            }
+
+            if (scheme_Master == null) return NotFound();
 
             return View("~/Views/AdminDashboard/Master/Scheme_Master/Delete.cshtml", scheme_Master);
         }

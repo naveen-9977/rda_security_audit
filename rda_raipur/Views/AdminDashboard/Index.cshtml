@@ -1,133 +1,202 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard Overview";
+    ViewData["Title"] = "System Maintenance";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
 <style>
-    /* 🟢 MAINTENANCE PAGE STYLING 🟢 */
+    /* ========================================================
+           🏛️ RDA SYSTEM MAINTENANCE & DIAGNOSTICS BOARD
+           ======================================================== */
     .maintenance-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        min-height: 70vh;
+        width: 100%;
+        padding: 40px 20px;
         text-align: center;
-        padding: 20px;
-    }
-
-    /* Animated Icon Design */
-    .maintenance-icon-box {
-        position: relative;
-        margin-bottom: 30px;
-    }
-
-    .main-gear {
-        font-size: 80px;
-        color: #003366; /* Navy Blue */
-        display: inline-block;
-        animation: gear-rotate 4s linear infinite;
-    }
-
-    .secondary-gear {
-        font-size: 40px;
-        color: #f97316; /* Saffron Orange */
-        position: absolute;
-        bottom: -5px;
-        right: -15px;
-        animation: gear-rotate-reverse 3s linear infinite;
-    }
-
-    @@keyframes gear-rotate {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    @@keyframes gear-rotate-reverse {
-        from {
-            transform: rotate(360deg);
-        }
-
-        to {
-            transform: rotate(0deg);
-        }
-    }
-
-    /* Text Styling */
-    .maintenance-title {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #1e293b;
-        margin-bottom: 10px;
-        letter-spacing: -0.5px;
-    }
-
-    .maintenance-subtitle {
-        font-size: 1.1rem;
-        color: #64748b;
-        max-width: 500px;
-        line-height: 1.6;
     }
 
     .status-badge {
-        background-color: #fff7ed;
-        color: #f97316;
-        padding: 6px 16px;
-        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff7ed;
+        color: #ea580c;
+        padding: 8px 20px;
+        border-radius: 4px;
         font-size: 0.85rem;
         font-weight: 700;
         text-transform: uppercase;
-        border: 1px solid #ffedd5;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #fed7aa;
     }
 
-    /* Button Decoration */
-    .btn-refresh {
-        margin-top: 30px;
-        background-color: #003366;
+    .maintenance-icon-box {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .icon-circle {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: #272522;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        border: 4px solid #e7dccf;
+    }
+
+    .main-gear {
+        font-size: 50px;
         color: white;
-        border: none;
-        padding: 10px 25px;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: 0.3s;
-        text-decoration: none;
     }
 
-        .btn-refresh:hover {
-            background-color: #002244;
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 51, 102, 0.2);
+    .secondary-gear {
+        position: absolute;
+        bottom: -5px;
+        right: 55px;
+        font-size: 30px;
+        color: #ea580c;
+    }
+
+    .maintenance-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #292524;
+        margin-bottom: 15px;
+    }
+
+    .maintenance-highlight {
+        color: #ea580c;
+        border-bottom: 2px solid #ea580c;
+    }
+
+    .maintenance-subtitle {
+        max-width: 700px;
+        margin: auto;
+        font-size: 1rem;
+        color: #57534e;
+        line-height: 1.7;
+        font-weight: 500;
+    }
+
+    /* Progress */
+    .maintenance-progress {
+        width: 100%;
+        max-width: 450px;
+        margin-top: 30px;
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 4px;
+        background: #e7dccf;
+    }
+
+    .progress-bar {
+        width: 78%;
+        background-color: #ea580c !important;
+    }
+
+    /* Features Grid */
+    .maintenance-features {
+        margin-top: 35px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .feature-item {
+        padding: 10px;
+        border: 1px solid #e7dccf;
+        background: #fff;
+        color: #292524;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 4px;
+    }
+
+        .feature-item i {
+            color: #ea580c;
+            margin-right: 6px;
         }
+
+    /* Buttons */
+    .button-group {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .btn-custom {
+        padding: 10px 24px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid #272522;
+    }
+
+    .btn-refresh {
+        background: #272522;
+        color: #fff;
+    }
+
+    .btn-support {
+        background: #fff;
+        color: #272522;
+    }
+
+    .footer-text {
+        margin-top: 40px;
+        color: #a8a29e;
+        font-size: 0.85rem;
+        border-top: 1px dashed #e7dccf;
+        padding-top: 15px;
+    }
 </style>
 
 <div class="maintenance-wrapper">
-
-    <div class="status-badge">
-        <i class="bi bi-tools me-1"></i> Under Maintenance
-    </div>
+    <div class="status-badge"><i class="bi bi-tools"></i> Dashboard Upgrade Running</div>
 
     <div class="maintenance-icon-box">
-        <i class="bi bi-gear-fill main-gear"></i>
+        <div class="icon-circle"><i class="bi bi-gear-fill main-gear"></i></div>
         <i class="bi bi-gear-wide-connected secondary-gear"></i>
     </div>
 
-    <h2 class="maintenance-title">कार्य प्रगति पर है</h2>
+    <h1 class="maintenance-title">🚧 कार्य <span class="maintenance-highlight">प्रगति</span> पर है</h1>
+
     <p class="maintenance-subtitle">
-        डैशबोर्ड के इस हिस्से को आपके लिए और बेहतर बनाया जा रहा है।
-        हम जल्द ही नए फीचर्स और लाइव डेटा के साथ वापस आएंगे।
+        डैशबोर्ड को पहले से अधिक स्मार्ट, तेज़ और सुरक्षित बनाने के लिए सिस्टम अपडेट किया जा रहा है।
+        जल्द ही आपको नए फीचर्स और बेहतर यूजर एक्सपीरियंस देखने को मिलेगा।
     </p>
 
-    <a href="javascript:location.reload();" class="btn-refresh">
-        <i class="bi bi-arrow-clockwise me-2"></i> पेज रिफ्रेश करें
-    </a>
+    <div class="maintenance-progress">
+        <div class="progress"><div class="progress-bar"></div></div>
+        <div class="small mt-2 fw-bold" style="color:#ea580c;">सिस्टम अपग्रेड 78% पूर्ण हो चुका है...</div>
+    </div>
 
-    <p class="mt-4 text-muted small">
-        Raipur Development Authority - Tech Support
-    </p>
+    <div class="maintenance-features">
+        <div class="feature-item"><i class="bi bi-lightning-charge-fill"></i> Performance</div>
+        <div class="feature-item"><i class="bi bi-bar-chart-fill"></i> Live Analytics</div>
+        <div class="feature-item"><i class="bi bi-shield-lock-fill"></i> Secure System</div>
+        <div class="feature-item"><i class="bi bi-graph-up-arrow"></i> Smart Reports</div>
+        <div class="feature-item"><i class="bi bi-server"></i> Server Status</div>
+        <div class="feature-item"><i class="bi bi-cpu-fill"></i> CPU Usage</div>
+        <div class="feature-item"><i class="bi bi-memory"></i> Memory Usage</div>
+        <div class="feature-item"><i class="bi bi-cloud-fill"></i> Cloud Backup</div>
+    </div>
+
+    <div class="button-group">
+        <a href="javascript:location.reload();" class="btn-custom btn-refresh">Refresh Page</a>
+        <a href="#" class="btn-custom btn-support">Contact Support</a>
+    </div>
+
+    <div class="footer-text">
+        © @DateTime.Now.Year Raipur Development Authority | Technical Support Team
+    </div>
 </div>

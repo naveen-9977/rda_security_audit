@@ -5,55 +5,57 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">Create Site News</h6>
-                    <a asp-action="Index" class="btn btn-sm btn-secondary">Back to List</a>
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-newspaper text-primary"></i> Create Site News</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
+
+                <div class="row">
+                    <div class="col-12 form-group-spaced">
+                        <label asp-for="NewsText_en" class="master-label">News Text (English) <span class="text-danger">*</span></label>
+                        <textarea asp-for="NewsText_en" class="master-input w-100" rows="3" placeholder="Enter news text in English"></textarea>
+                        <span asp-validation-for="NewsText_en" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-12 form-group-spaced">
+                        <label asp-for="NewsText_hi" class="master-label">News Text (Hindi) <span class="text-danger">*</span></label>
+                        <textarea asp-for="NewsText_hi" class="master-input w-100" rows="3" placeholder="समाचार टेक्स्ट हिंदी में दर्ज करें"></textarea>
+                        <span asp-validation-for="NewsText_hi" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="LinkUrl" class="master-label">Target Link</label>
+                        <input asp-for="LinkUrl" class="master-input w-100" placeholder="https://example.com/details" />
+                        <small class="text-muted d-block mt-1">Enter a URL (Optional).</small>
+                        <span asp-validation-for="LinkUrl" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="PdfFile" class="master-label">OR Upload PDF</label>
+                        <input asp-for="PdfFile" type="file" class="master-input w-100" accept=".pdf" />
+                        <small class="text-muted d-block mt-1">Upload a PDF. PDF will be prioritized over the link.</small>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Create" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="NewsText_en" class="form-label font-weight-bold">News Text (English) <span class="text-danger">*</span></label>
-                            <textarea asp-for="NewsText_en" class="form-control" rows="3" placeholder="Enter news text in English"></textarea>
-                            <span asp-validation-for="NewsText_en" class="text-danger small"></span>
-                        </div>
+                <hr class="my-4 border-light">
 
-                        <div class="mb-3">
-                            <label asp-for="NewsText_hi" class="form-label font-weight-bold">News Text (Hindi) <span class="text-danger">*</span></label>
-                            <textarea asp-for="NewsText_hi" class="form-control" rows="3" placeholder="समाचार टेक्स्ट हिंदी में दर्ज करें"></textarea>
-                            <span asp-validation-for="NewsText_hi" class="text-danger small"></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="LinkUrl" class="form-label font-weight-bold">Target Link</label>
-                                <input asp-for="LinkUrl" class="form-control" placeholder="https://example.com/details" />
-                                <small class="form-text text-muted">Enter a URL (Optional).</small>
-                                <span asp-validation-for="LinkUrl" class="text-danger small"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PdfFile" class="form-label font-weight-bold">OR Upload PDF</label>
-                                <input asp-for="PdfFile" type="file" class="form-control" accept=".pdf" />
-                                <small class="form-text text-muted">Upload a PDF. PDF will be prioritized over the link.</small>
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fas fa-save me-1"></i> Save News
-                            </button>
-                        </div>
-                    </form>
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Save News
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

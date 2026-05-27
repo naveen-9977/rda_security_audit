@@ -270,7 +270,7 @@
         </a>
 
         <div class="d-none d-xl-flex gap-3 align-items-center">
-     
+           
 
             <a href="@Url.Action("Schemes", "PropertyBooking")" class="btn text-white fw-bold d-flex align-items-center shadow-sm header-action-btn" style="background-color: #003366;">
                 <div class="bg-white text-dark rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
@@ -279,7 +279,7 @@
                 <span>@(isEnglish ? "Book Property" : "संपत्ति बुक करें")</span>
             </a>
 
-           
+            
         </div>
 
         <div class="d-xl-none d-flex align-items-center">
@@ -322,7 +322,6 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="projectsSchemesDropdown">
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="AllSchemes">@(isEnglish ? "All RDA Schemes" : "सभी आरडीए योजनाएं")</a></li>
-                                <li><a class="dropdown-item" asp-controller="Home" asp-action="SearchProperty">@(isEnglish ? "Scheme / Search Property" : "योजना / संपत्ति खोजें")</a></li>
                                 <li><a class="dropdown-item" asp-controller="Home" asp-action="Brochure">@(isEnglish ? "Brochure" : "ब्रोशर")</a></li>
                                 <li><a class="dropdown-item" href="#">@(isEnglish ? "Drawing" : "ड्राइंग")</a></li>
                             </ul>
@@ -365,15 +364,11 @@
                             </a>
 
                             <hr class="my-2" />
-                            <a href="@Url.Action("PayOtherCharges", "Home")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #f97316;">
-                                <i class='bx bx-wallet fs-5 me-2'></i> @(isEnglish ? "Pay Online" : "ऑनलाइन भुगतान")
-                            </a>
+                           
                             <a href="@Url.Action("Schemes", "PropertyBooking")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #003366;">
                                 <i class='bx bx-building-house fs-5 me-2'></i> @(isEnglish ? "Book Property" : "संपत्ति बुक करें")
                             </a>
-                            <a href="@Url.Action("AllotteeLogin", "Account")" class="btn text-white w-100 fw-bold d-flex align-items-center justify-content-center" style="background-color: #16a34a;">
-                                <i class='bx bxs-user-detail fs-5 me-2'></i> @(isEnglish ? "Allottee Portal" : "आवंटी पोर्टल")
-                            </a>
+                           
                         </div>
                     </div>
                 </div>

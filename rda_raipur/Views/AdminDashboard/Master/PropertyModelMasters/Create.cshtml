@@ -1,0 +1,129 @@
+﻿@model rda_raipur.Models.PropertyModelMaster
+
+@{
+    ViewData["Title"] = "Create Property Model";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-house-door-fill text-primary"></i> Create Property Model</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All" class="text-danger fw-bold shadow-sm border-0 mb-4"></div>
+
+                <div class="row">
+                    <div class="col-md-4 form-group-spaced">
+                        <label asp-for="scheme_id" class="master-label">Select Scheme <span class="text-danger">*</span></label>
+                        <select id="schemeDropdown" asp-for="scheme_id" class="master-input w-100" asp-items="ViewBag.SchemeList">
+                            <option value="">-- Select Scheme --</option>
+                        </select>
+                        <span asp-validation-for="scheme_id" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-4 form-group-spaced">
+                        <label asp-for="sector_id" class="master-label">Select Sector <span class="text-danger">*</span></label>
+                        <select id="sectorDropdown" asp-for="sector_id" class="master-input w-100">
+                            <option value="">-- Select Sector --</option>
+                        </select>
+                        <span asp-validation-for="sector_id" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-4 form-group-spaced">
+                        <label asp-for="block_id" class="master-label">Select Block <span class="text-danger">*</span></label>
+                        <select id="blockDropdown" asp-for="block_id" class="master-input w-100">
+                            <option value="">-- Select Block --</option>
+                        </select>
+                        <span asp-validation-for="block_id" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Property_Type_Name_en" class="master-label">Property Type (English) <span class="text-danger">*</span></label>
+                        <input asp-for="Property_Type_Name_en" class="master-input w-100" placeholder="e.g., Residential" required />
+                        <span asp-validation-for="Property_Type_Name_en" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Property_Type_Name_hi" class="master-label">प्रॉपर्टी टाइप (Hindi)</label>
+                        <input asp-for="Property_Type_Name_hi" class="master-input w-100" placeholder="उदा. आवासीय" />
+                        <span asp-validation-for="Property_Type_Name_hi" class="text-danger small fw-bold"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Save Property
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 1. Scheme बदलने पर Sector Load करें
+            $('#schemeDropdown').change(function () {
+                var schemeId = $(this).val();
+                var sectorDropdown = $('#sectorDropdown');
+                var blockDropdown = $('#blockDropdown');
+
+                sectorDropdown.empty().append('<option value="">-- Select Sector --</option>');
+                blockDropdown.empty().append('<option value="">-- Select Block --</option>');
+
+                if (schemeId) {
+                    $.ajax({
+                        url: '@Url.Action("GetSectorsByScheme", "PropertyModelMasters")',
+                        type: 'GET',
+                        data: { schemeId: schemeId },
+                        success: function (data) {
+                            $.each(data, function (i, item) {
+                                sectorDropdown.append('<option value="' + item.sector_id + '">' + item.sector_name_en + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            // 2. Sector बदलने पर Block Load करें
+            $('#sectorDropdown').change(function () {
+                var sectorId = $(this).val();
+                var blockDropdown = $('#blockDropdown');
+
+                blockDropdown.empty().append('<option value="">-- Select Block --</option>');
+
+                if (sectorId) {
+                    $.ajax({
+                        url: '@Url.Action("GetBlocksBySector", "PropertyModelMasters")',
+                        type: 'GET',
+                        data: { sectorId: sectorId },
+                        success: function (data) {
+                            $.each(data, function (i, item) {
+                                blockDropdown.append('<option value="' + item.block_id + '">' + item.block_name_en + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

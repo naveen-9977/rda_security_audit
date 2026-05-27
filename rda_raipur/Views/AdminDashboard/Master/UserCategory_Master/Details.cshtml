@@ -1,67 +1,63 @@
 ﻿@model rda_raipur.Models.UserCategory_Master
 
 @{
+    ViewData["Title"] = "Category Details";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-<div>
-    <h4>UserCategory_Master</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.res_category_name_hi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.res_category_name_hi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.res_category_name_en)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.res_category_name_en)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.created_by)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.created_by)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Create_Date)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Create_Date)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.updated_Date)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.updated_Date)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.updated_by)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.updated_by)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsDeleted)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsDeleted)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.res_category_id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="fas fa-info-circle text-primary"></i> Category Details</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <div class="detail-row">
+                <div class="row">
+                    <div class="col-md-4 detail-label">Category Name (Hindi)</div>
+                    <div class="col-md-8 detail-value">@Model.res_category_name_hi</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="row">
+                    <div class="col-md-4 detail-label">Category Name (English)</div>
+                    <div class="col-md-8 detail-value">@Model.res_category_name_en</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="row">
+                    <div class="col-md-4 detail-label">Created By</div>
+                    <div class="col-md-8 detail-value">@Model.created_by</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="row">
+                    <div class="col-md-4 detail-label">Creation Date</div>
+                    <div class="col-md-8 detail-value">@(Model.Create_Date?.ToString("dd MMM yyyy HH:mm") ?? "N/A")</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="row">
+                    <div class="col-md-4 detail-label">Status</div>
+                    <div class="col-md-8 detail-value">
+                        <span class="@(Model.IsActive == true ? "gov-badge-active" : "gov-badge-inactive")">
+                            @(Model.IsActive == true ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-4">
+                <a asp-action="Edit" asp-route-id="@Model?.res_category_id" class="btn btn-primary fw-bold px-4" style="background-color: #003366; border: none;">
+                    <i class="fas fa-edit me-1"></i> Edit Record
+                </a>
+                <a asp-action="Index" class="btn btn-light border fw-bold px-4">Back to List</a>
+            </div>
+        </div>
+    </div>
 </div>

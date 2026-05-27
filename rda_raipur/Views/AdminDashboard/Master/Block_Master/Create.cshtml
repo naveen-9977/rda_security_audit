@@ -1,74 +1,74 @@
 ﻿@model rda_raipur.Models.Block_Master
+
 @{
     ViewData["Title"] = "Create Block";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-gray-800">Add New Block</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
-            <i class="bi bi-arrow-left me-1"></i> Back to List
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-buildings-fill text-primary"></i> Create New Block</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
-    <div class="card shadow border-0 rounded-3 mb-4">
-        <div class="card-body p-4">
+    <div class="card master-card">
+        <div class="master-card-body p-4">
             <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
 
                 <div class="row">
-                  @*   <div class="col-md-6 mb-4">
-                        <label asp-for="scheme_id" class="form-label fw-bold">Select Scheme <span class="text-danger">*</span></label>
-                        <select asp-for="scheme_id" class="form-select" asp-items="ViewBag.SchemeList">
-                            <option value="">-- Select a Scheme --</option>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="scheme_id" class="master-label">Select Scheme <span class="text-danger">*</span></label>
+                        <select id="schemeDropdown" asp-for="scheme_id" class="master-input w-100" asp-items="ViewBag.SchemeList">
+                            <option value="">-- Select Scheme --</option>
                         </select>
-                        <span asp-validation-for="scheme_id" class="text-danger"></span>
-                    </div> *@
-
-                    <div class="col-md-6 mb-4" ">
-                        <label>Scheme</label>
-                        <select id="schemeDropdown" asp-for="scheme_id" class="form-control">
-                            <option value="">Select Scheme</option>
-                            @foreach (var item in ViewBag.SchemeList as SelectList)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </select>
+                        <span asp-validation-for="scheme_id" class="text-danger small fw-bold"></span>
                     </div>
 
-
-                    <div class="col-md-6 mb-4">
-                        @* <label asp-for="sector_id" class="form-label fw-bold">Select Sector <span class="text-danger">*</span></label>
-                        <select asp-for="sector_id" class="form-select" asp-items="ViewBag.SectorList">
-                            <option value="">-- Select a Sector --</option>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="sector_id" class="master-label">Select Sector <span class="text-danger">*</span></label>
+                        <select id="sectorDropdown" asp-for="sector_id" class="master-input w-100">
+                            <option value="">-- Select Sector --</option>
                         </select>
-                        <span asp-validation-for="sector_id" class="text-danger"></span> *@
+                        <span asp-validation-for="sector_id" class="text-danger small fw-bold"></span>
+                    </div>
 
-                        <div class="col-md-6 mb-4" ">
-                            <label>Sector</label>
-                            <select id="sectorDropdown" asp-for="sector_id" class="form-control">
-                                <option value="">Select Sector</option>
-                            </select>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="block_name_en" class="master-label">Block Name (English) <span class="text-danger">*</span></label>
+                        <input asp-for="block_name_en" class="master-input w-100" placeholder="e.g. Block A" />
+                        <span asp-validation-for="block_name_en" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="block_name_hi" class="master-label">ब्लॉक का नाम (Hindi)</label>
+                        <input asp-for="block_name_hi" class="master-input w-100" placeholder="उदा. ब्लॉक ए" />
+                        <span asp-validation-for="block_name_hi" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <div class="d-flex gap-4 mt-3 pt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch" checked>
+                                <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Is Active</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-4" asp-for="IsDeleted" id="IsDeletedSwitch">
+                                <label class="form-check-label fw-bold mt-1 ms-2" for="IsDeletedSwitch">Is Deleted</label>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="block_name_en" class="form-label fw-bold">Block Name (English) <span class="text-danger">*</span></label>
-                        <input asp-for="block_name_en" class="form-control" placeholder="e.g., Block A" />
-                        <span asp-validation-for="block_name_en" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="block_name_hi" class="form-label fw-bold">Block Name (Hindi)</label>
-                        <input asp-for="block_name_hi" class="form-control" placeholder="ब्लॉक ए" />
-                        <span asp-validation-for="block_name_hi" class="text-danger"></span>
                     </div>
                 </div>
 
-                <div class="border-top pt-3 mt-2">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="bi bi-check-circle me-1"></i> Save Block
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Save Block
                     </button>
                 </div>
             </form>
@@ -80,36 +80,32 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#schemeDropdown').change(function () {
+                var schemeId = $(this).val();
+                var sectorDropdown = $('#sectorDropdown');
+
+                sectorDropdown.empty();
+                sectorDropdown.append('<option value="">-- Select Sector --</option>');
+
+                if (schemeId) {
+                    $.ajax({
+                        url: '@Url.Action("GetSectorsByScheme", "Block_Master")',
+                        type: 'GET',
+                        data: { schemeId: schemeId },
+                        success: function (data) {
+                            $.each(data, function (i, sector) {
+                                sectorDropdown.append(
+                                    '<option value="' + sector.sector_id + '">' + sector.sector_name_en + '</option>'
+                                );
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-
-    $('#schemeDropdown').change(function () {
-
-    var schemeId = $(this).val();
-
-    $('#sectorDropdown').empty();
-    $('#sectorDropdown').append('<option value="">Select Sector</option>');
-
-    if (schemeId) {
-    $.ajax({
-    url: '/Block_Master/GetSectorsByScheme',
-    type: 'GET',
-    data: { schemeId: schemeId },
-    success: function (data) {
-
-    $.each(data, function (i, sector) {
-    $('#sectorDropdown').append(
-    '<option value="' + sector.sector_id + '">' + sector.sector_name_en + '</option>'
-    );
-    });
-
-    }
-    });
-    }
-    });
-
-    });
-</script>

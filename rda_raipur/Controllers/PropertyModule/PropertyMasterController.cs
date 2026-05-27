@@ -41,6 +41,7 @@ namespace rda_raipur.Controllers.PropertyModule
 
             if (permission == null) return false;
 
+            // 🔥 FIX: bool? error prevented by explicit == true check
             return actionType switch
             {
                 "View" => permission.CanView == true,
@@ -265,7 +266,6 @@ namespace rda_raipur.Controllers.PropertyModule
             return View(model);
         }
 
-        // --- AJAX Helpers (Inpe permission zaruri nahi hoti form load hone ke baad) ---
         [HttpGet]
         public async Task<JsonResult> GetUserCategory()
         {

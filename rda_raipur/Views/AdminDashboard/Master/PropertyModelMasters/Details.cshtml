@@ -1,0 +1,98 @@
+﻿@model rda_raipur.Models.PropertyModelMaster
+
+@{
+    ViewData["Title"] = "Property Details";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title">
+            <i class="bi bi-info-square-fill text-primary"></i> Property Details
+        </h3>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model?.Property_Id" class="btn btn-primary fw-bold px-4" style="background-color: #003366; border: none;">
+                <i class="bi bi-pencil-square me-1"></i> Edit Record
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card master-card">
+        <div class="master-card-body p-4">
+            <h5 class="mb-4 fw-bold text-dark border-bottom pb-2">
+                <i class="bi bi-info-circle text-primary me-2"></i> Details for: <span class="text-primary">@Model.Property_Type_Name_en</span>
+            </h5>
+
+            <div class="row">
+                <div class="col-md-4 detail-row">
+                    <div class="detail-label">Associated Scheme</div>
+                    <div class="detail-value fw-bold text-primary">@(Model.Scheme_Master?.scheme_name_en ?? "N/A")</div>
+                </div>
+                <div class="col-md-4 detail-row">
+                    <div class="detail-label">Associated Sector</div>
+                    <div class="detail-value fw-bold text-primary">@(Model.Sector_Master?.sector_name_en ?? "N/A")</div>
+                </div>
+                <div class="col-md-4 detail-row">
+                    <div class="detail-label">Associated Block</div>
+                    <div class="detail-value fw-bold text-primary">@(Model.Block_Master?.block_name_en ?? "N/A")</div>
+                </div>
+
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Property Type (English)</div>
+                    <div class="detail-value text-dark fw-bold">@Html.DisplayFor(model => model.Property_Type_Name_en)</div>
+                </div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Property Type (Hindi)</div>
+                    <div class="detail-value text-secondary">@Html.DisplayFor(model => model.Property_Type_Name_hi)</div>
+                </div>
+
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        @if (Model.IsActive == true)
+                        {
+                            <span class="gov-badge-active">Active</span>
+                        }
+                        else
+                        {
+
+                            <span class="gov-badge-inactive">Inactive</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Is Deleted</div>
+                    <div class="detail-value">
+                        @if (Model.IsDeleted == true)
+                        {
+                            <span class="badge bg-danger">Yes</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6 detail-row border-bottom-0">
+                    <div class="detail-label">Created Date</div>
+                    <div class="detail-value">@(Model.Create_Date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")</div>
+                    <span class="small text-muted d-block fw-normal">by @(string.IsNullOrEmpty(Model.created_by) ? "System" : Model.created_by)</span>
+                </div>
+                <div class="col-md-6 detail-row border-bottom-0">
+                    <div class="detail-label">Last Updated</div>
+                    <div class="detail-value">
+                        @(Model.updated_Date?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")
+                        <span class="small text-muted d-block fw-normal">by @(string.IsNullOrEmpty(Model.updated_by) ? "System" : Model.updated_by)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

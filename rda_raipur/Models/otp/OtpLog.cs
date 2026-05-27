@@ -15,7 +15,7 @@ namespace rda_raipur.Models.otp
         public string OtpCode { get; set; } = string.Empty;
 
         public DateTime GeneratedAt { get; set; } = DateTime.Now;
-
+        public string IpAddress { get; set; }
         public DateTime ExpiresAt { get; set; }
 
         public bool IsUsed { get; set; } = false;

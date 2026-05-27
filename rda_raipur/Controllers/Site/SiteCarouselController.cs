@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
-using rda_raipur.Models;
 using rda_raipur.Models.site;
-using rda_raipur.Filters; // 🔥 PERMISSION FILTER ADD KIYA HAI
+using rda_raipur.Filters;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers.Site
 {
-    // 🔥 ADMIN & EMPLOYEE DONO KE LIYE + SECURE FILTER
     [Authorize(Roles = "Admin,Employee")]
     [ServiceFilter(typeof(CheckPermissionAttribute))]
     public class SiteCarouselController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly string viewPath = "~/Views/AdminDashboard/Master/SiteCarousel/";
 
         public SiteCarouselController(ApplicationDbContext context, IWebHostEnvironment env)
         {
@@ -31,42 +30,32 @@ namespace rda_raipur.Controllers.Site
         public async Task<IActionResult> Index()
         {
             var data = await _context.SiteCarousels
-                .Where(x => !x.IsDeleted)
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-            return View("~/Views/AdminDashboard/Master/SiteCarousel/Index.cshtml", data);
+                                     .Where(x => !x.IsDeleted)
+                                     .OrderBy(x => x.DisplayOrder)
+                                     .ToListAsync();
+            return View(viewPath + "Index.cshtml", data);
         }
 
         // GET: SiteCarousel/Create
         public IActionResult Create()
         {
-            return View("~/Views/AdminDashboard/Master/SiteCarousel/Create.cshtml");
+            return View(viewPath + "Create.cshtml");
         }
 
         // POST: SiteCarousel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SiteCarousel model)
+        public async Task<IActionResult> Create([Bind("DisplayOrder, Caption_en, Caption_hi, Url, ImageUpload, IsActive")] SiteCarousel model)
         {
             if (ModelState.IsValid)
             {
                 if (model.ImageUpload != null)
                 {
-                    string folderPath = Path.Combine(_env.WebRootPath, "uploads", "Carousel");
-                    if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
-                    string filePath = Path.Combine(folderPath, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.ImageUpload.CopyToAsync(fileStream);
-                    }
-                    model.ImagePath = "/uploads/Carousel/" + uniqueFileName;
+                    model.ImagePath = await UploadImageAsync(model.ImageUpload, "Carousel");
                 }
 
                 model.CreatedDate = DateTime.Now;
-                model.IsActive = true;
+                model.created_by = User.Identity.Name ?? "Admin";
                 model.IsDeleted = false;
 
                 _context.SiteCarousels.Add(model);
@@ -75,7 +64,7 @@ namespace rda_raipur.Controllers.Site
                 TempData["SuccessMessage"] = "Carousel banner created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteCarousel/Create.cshtml", model);
+            return View(viewPath + "Create.cshtml", model);
         }
 
         // GET: SiteCarousel/Edit/5
@@ -86,13 +75,13 @@ namespace rda_raipur.Controllers.Site
             var item = await _context.SiteCarousels.FindAsync(id);
             if (item == null || item.IsDeleted) return NotFound();
 
-            return View("~/Views/AdminDashboard/Master/SiteCarousel/Edit.cshtml", item);
+            return View(viewPath + "Edit.cshtml", item);
         }
 
         // POST: SiteCarousel/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SiteCarousel model)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, DisplayOrder, Caption_en, Caption_hi, Url, ImageUpload, IsActive")] SiteCarousel model)
         {
             if (id != model.Id) return NotFound();
 
@@ -100,47 +89,28 @@ namespace rda_raipur.Controllers.Site
             {
                 try
                 {
-                    // Use AsNoTracking to get original data without tracking conflicts
-                    var existingItem = await _context.SiteCarousels.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                    if (existingItem == null) return NotFound();
+                    var existing = await _context.SiteCarousels.FindAsync(id);
+                    if (existing == null) return NotFound();
 
-                    // If a new image is uploaded, handle the file save
+                    // Update fields
+                    existing.DisplayOrder = model.DisplayOrder;
+                    existing.Caption_en = model.Caption_en;
+                    existing.Caption_hi = model.Caption_hi;
+                    existing.Url = model.Url;
+                    existing.IsActive = model.IsActive;
+
+                    // Handle Image Upload
                     if (model.ImageUpload != null)
                     {
-                        string folderPath = Path.Combine(_env.WebRootPath, "uploads", "Carousel");
-                        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
-                        string filePath = Path.Combine(folderPath, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await model.ImageUpload.CopyToAsync(fileStream);
-                        }
-                        model.ImagePath = "/uploads/Carousel/" + uniqueFileName;
-
-                        // Purani image ko delete karne ka logic (optional but recommended)
-                        if (!string.IsNullOrEmpty(existingItem.ImagePath))
-                        {
-                            string oldFilePath = Path.Combine(_env.WebRootPath, existingItem.ImagePath.TrimStart('/'));
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Keep original image path if no new file provided
-                        model.ImagePath = existingItem.ImagePath;
+                        DeleteOldFile(existing.ImagePath);
+                        existing.ImagePath = await UploadImageAsync(model.ImageUpload, "Carousel");
                     }
 
-                    model.CreatedDate = existingItem.CreatedDate; // Preserve original creation date
-                    model.IsDeleted = false;
+                    // Audit Update
+                    existing.updated_by = User.Identity.Name ?? "Admin";
+                    existing.updated_Date = DateTime.Now;
 
-                    _context.Update(model);
                     await _context.SaveChangesAsync();
-
                     TempData["SuccessMessage"] = "Carousel banner updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
@@ -150,24 +120,51 @@ namespace rda_raipur.Controllers.Site
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteCarousel/Edit.cshtml", model);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
         // POST: SiteCarousel/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var item = await _context.SiteCarousels.FindAsync(id);
             if (item != null)
             {
-                item.IsDeleted = true; // Soft delete
-                item.IsActive = false; // Inactive bhi kar diya
-                await _context.SaveChangesAsync();
+                item.IsDeleted = true;
+                item.IsActive = false;
+                item.updated_by = User.Identity.Name ?? "Admin";
+                item.updated_Date = DateTime.Now;
 
+                await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Carousel banner deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Helper Methods
+        private async Task<string> UploadImageAsync(Microsoft.AspNetCore.Http.IFormFile file, string folderName)
+        {
+            string folderPath = Path.Combine(_env.WebRootPath, "uploads", folderName);
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            string filePath = Path.Combine(folderPath, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            return "/uploads/" + folderName + "/" + uniqueFileName;
+        }
+
+        private void DeleteOldFile(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                string oldPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+            }
         }
     }
 }

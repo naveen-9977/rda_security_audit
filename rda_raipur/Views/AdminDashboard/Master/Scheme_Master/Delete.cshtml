@@ -5,106 +5,83 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-semibold text-danger">Delete Scheme</h3>
-
-        <a asp-action="Index" class="btn btn-secondary">
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-trash3-fill text-danger"></i> Delete Scheme</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
-    <div class="card shadow border-0 rounded-3">
+    <div class="card master-card border-danger border-opacity-50">
+        <div class="master-card-body p-4">
 
-        <div class="card-body">
-
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>Warning!</strong> Are you sure you want to delete this scheme?
-                This action cannot be undone.
+            <div class="alert alert-danger bg-danger bg-opacity-10 border-0 border-start border-danger border-4 fw-bold mb-4">
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 align-middle"></i>
+                Are you sure you want to delete this scheme? This action cannot be undone.
             </div>
 
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Scheme Name (English)</label>
-                    <div>@Model.scheme_name_en</div>
+            <div class="row">
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Scheme Name (English)</div>
+                    <div class="detail-value text-danger">@Model.scheme_name_en</div>
+                </div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Scheme Name (Hindi)</div>
+                    <div class="detail-value">@Model.scheme_name_hi</div>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Scheme Name (Hindi)</label>
-                    <div>@Model.scheme_name_hi</div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Short Name (EN)</div>
+                    <div class="detail-value">@Model.scheme_sort_name_en</div>
+                </div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Short Name (HI)</div>
+                    <div class="detail-value">@Model.scheme_sort_name_hi</div>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Short Name (EN)</label>
-                    <div>@Model.scheme_sort_name_en</div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">RERA Number</div>
+                    <div class="detail-value">@(string.IsNullOrEmpty(Model.scheme_rera_no) ? "N/A" : Model.scheme_rera_no)</div>
                 </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Short Name (HI)</label>
-                    <div>@Model.scheme_sort_name_hi</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">RERA Number</label>
-                    <div>@(string.IsNullOrEmpty(Model.scheme_rera_no) ? "N/A" : Model.scheme_rera_no)</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Created Date</label>
-                    <div>@(Model.create_date?.ToString("dd MMM yyyy") ?? "N/A")</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Updated Date</label>
-                    <div>@(Model.updated_date?.ToString("dd MMM yyyy") ?? "N/A")</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Updated By</label>
-                    <div>@Model.updated_by</div>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="fw-semibold text-muted">Status</label>
-                    <div>
+                <div class="col-md-6 detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
                         @if (Model.IsActive)
                         {
-                            <span class="badge bg-success">Active</span>
+                            <span class="gov-badge-active">Active</span>
                         }
                         else
                         {
-                            <span class="badge bg-secondary">Inactive</span>
+
+                            <span class="gov-badge-inactive">Inactive</span>
                         }
                     </div>
                 </div>
 
+                <div class="col-md-6 detail-row border-bottom-0">
+                    <div class="detail-label">Created Date</div>
+                    <div class="detail-value">@(Model.create_date?.ToString("dd MMM yyyy") ?? "N/A")</div>
+                </div>
+                <div class="col-md-6 detail-row border-bottom-0">
+                    <div class="detail-label">Updated By</div>
+                    <div class="detail-value">@(string.IsNullOrEmpty(Model.updated_by) ? "N/A" : Model.updated_by)</div>
+                </div>
             </div>
 
-            <hr class="my-4">
+            <hr class="my-4 border-light">
 
             <form asp-action="Delete">
-
                 <input type="hidden" asp-for="scheme_id" />
-
-                <div class="d-flex justify-content-end gap-2">
-
-                    <a asp-action="Index" class="btn btn-light border">
-                        Cancel
-                    </a>
-
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash"></i> Delete Scheme
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-danger fw-bold px-5 shadow-sm">
+                        <i class="bi bi-trash"></i> Confirm Delete
                     </button>
-
                 </div>
-
             </form>
-
         </div>
-
     </div>
-
 </div>

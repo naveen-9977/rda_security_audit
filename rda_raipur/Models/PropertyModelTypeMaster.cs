@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace rda_raipur.Models
@@ -9,20 +10,22 @@ namespace rda_raipur.Models
         [Key]
         public int Model_Id { get; set; }
 
+        [Required]
         public string Model_name_en { get; set; }
 
         public string Model_name_hi { get; set; }
 
-        public string created_by { get; set; }
+        // 🔥 Nullable safe variables configuration
+        public string? created_by { get; set; }
 
         public DateTime? Create_Date { get; set; }
 
         public DateTime? updated_Date { get; set; }
 
-        public string updated_by { get; set; }
+        public string? updated_by { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
     }
 }

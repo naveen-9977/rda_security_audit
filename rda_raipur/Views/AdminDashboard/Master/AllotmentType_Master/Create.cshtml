@@ -1,0 +1,61 @@
+﻿@model rda_raipur.Models.AllotmentType_Master
+
+@{
+    ViewData["Title"] = "Add Allotment Type";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="fas fa-plus-circle text-primary"></i> Add New Allotment Type</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger fw-bold shadow-sm border-0 mb-4"></div>
+                <div class="row">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="allotement_type_name_hi" class="master-label">Allotment Type Name (Hindi) <span class="text-danger">*</span></label>
+                        <input asp-for="allotement_type_name_hi" class="master-input" placeholder="आवंटन प्रकार नाम" required />
+                        <span asp-validation-for="allotement_type_name_hi" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="allotement_type_name_en" class="master-label">Allotment Type Name (English) <span class="text-danger">*</span></label>
+                        <input asp-for="allotement_type_name_en" class="master-input" placeholder="Enter allotment type name" required />
+                        <span asp-validation-for="allotement_type_name_en" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-12 form-group-spaced">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch" checked>
+                            <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Active Status</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="fas fa-save me-1"></i> Save Allotment Type
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

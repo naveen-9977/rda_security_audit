@@ -5,37 +5,69 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid pt-4 px-4">
-    <div class="bg-light rounded p-4">
-        <h5 class="mb-4">Add New Welcome Popup</h5>
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Title" class="form-label">Title / Reference Name</label>
-                    <input asp-for="Title" class="form-control" required />
-                </div>
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-window-stack text-primary"></i> Add New Welcome Popup</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-                <div class="col-md-6 mb-3">
-                    <label asp-for="DisplayOrder" class="form-label">Display Order (eg. 1, 2, 3)</label>
-                    <input asp-for="DisplayOrder" class="form-control" type="number" value="1" />
-                </div>
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
 
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ImageUpload" class="form-label">Upload Popup Image (Jpg/Png)</label>
-                    <input asp-for="ImageUpload" class="form-control" type="file" accept="image/*" required />
-                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Title" class="master-label">Title / Reference Name</label>
+                        <input asp-for="Title" class="master-input" required placeholder="Enter popup title" />
+                        <span asp-validation-for="Title" class="text-danger small fw-bold"></span>
+                    </div>
 
-                <div class="col-md-6 mb-3 d-flex align-items-end">
-                    <div class="form-check">
-                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
-                        <label asp-for="IsActive" class="form-check-label">Is Active?</label>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Url" class="master-label">External Link (URL)</label>
+                        <input asp-for="Url" class="master-input" placeholder="https://example.com" />
+                        <span asp-validation-for="Url" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-8 form-group-spaced">
+                        <label asp-for="ImageUpload" class="master-label">Select Popup Image <span class="text-danger">*</span></label>
+                        <input asp-for="ImageUpload" type="file" class="master-input p-1" accept="image/*" required />
+                    </div>
+
+                    <div class="col-md-4 form-group-spaced">
+                        <label asp-for="DisplayOrder" class="master-label">Display Order</label>
+                        <input asp-for="DisplayOrder" type="number" class="master-input" value="1" min="1" />
+                        <span asp-validation-for="DisplayOrder" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-12 form-group-spaced">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch" checked>
+                            <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Active Status</label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" class="btn btn-success mt-3">Save Popup</button>
-            <a asp-action="Index" class="btn btn-secondary mt-3 ms-2">Cancel</a>
-        </form>
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Save Popup
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

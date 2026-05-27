@@ -5,53 +5,29 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<style>
-    .govt-section-card {
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        overflow: hidden;
-    }
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-    .govt-section-header {
-        background: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 15px 20px;
-    }
-
-    .label-custom {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        font-weight: 800;
-        color: #64748b;
-        margin-bottom: 4px;
-    }
-
-    .val-custom {
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 15px;
-    }
-</style>
-
-<div class="container-fluid py-4 px-lg-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="master-container">
+    <div class="master-page-header">
         <div>
-            <h3 class="fw-bold text-dark mb-0">Master Control: <span class="text-primary">@Model.Scheme_Name</span></h3>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a asp-action="Index">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Manage Master</li>
+            <h3 class="master-title text-capitalize">
+                <i class="bi bi-sliders text-primary"></i> Master Control: <span class="text-primary">@Model.Scheme_Name</span>
+            </h3>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small fw-semibold">
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-muted">Manage Master</li>
                 </ol>
             </nav>
         </div>
-        <a asp-action="Index" class="btn btn-outline-dark fw-bold rounded-pill shadow-sm px-4">
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success shadow-sm alert-dismissible fade show">
+        <div class="alert alert-success border-0 shadow-sm alert-dismissible fade show mb-4">
             <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -59,59 +35,62 @@
 
     <div class="row g-4">
         <div class="col-xl-5">
-            <div class="govt-section-card shadow-sm bg-white border-top border-warning border-4">
-                <div class="govt-section-header">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-sliders me-2"></i> Edit Master Config</h5>
+            <div class="card master-card border-top border-warning border-4">
+                <div class="detail-row bg-light py-3">
+                    <h5 class="mb-0 fw-bold text-dark fs-6"><i class="bi bi-sliders me-2"></i> Edit Master Config</h5>
                 </div>
                 <div class="card-body p-4">
                     <form asp-action="UpdateMaster" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="MasterId" value="@Model.MasterId" />
                         <input type="hidden" asp-for="Scheme_Name" />
 
                         <div class="row g-3">
-                            <div class="col-md-12">
-                                <label class="label-custom">Tender Start Date</label>
-                                <input asp-for="Tender_Start_Date" type="datetime-local" class="form-control shadow-sm border-success" />
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Tender Start Date</label>
+                                <input asp-for="Tender_Start_Date" type="datetime-local" class="master-input w-100" />
                             </div>
-                            <div class="col-md-12">
-                                <label class="label-custom">Tender End Date</label>
-                                <input asp-for="Tender_End_Date" type="datetime-local" class="form-control shadow-sm border-danger" />
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Tender End Date</label>
+                                <input asp-for="Tender_End_Date" type="datetime-local" class="master-input w-100" />
                             </div>
-                            <div class="col-md-12">
-                                <label class="label-custom">Tender Opening Date</label>
-                                <input asp-for="Tender_Opening_Date" type="datetime-local" class="form-control shadow-sm border-warning" />
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Tender Opening Date</label>
+                                <input asp-for="Tender_Opening_Date" type="datetime-local" class="master-input w-100" />
                             </div>
-                            <div class="col-md-12">
-                                <label class="label-custom">Visibility Status</label>
-                                <select asp-for="Status" class="form-select shadow-sm">
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Visibility Status</label>
+                                <select asp-for="Status" class="master-input w-100" style="height: 45px;">
                                     <option value="Active">Active / Live</option>
                                     <option value="Inactive">Inactive / Hidden</option>
                                 </select>
                             </div>
 
-                            <hr class="my-3 text-muted">
-                            <h6 class="fw-bold small text-primary mb-2">UPDATE TENDER DOCUMENTS</h6>
+                            <div class="col-12 mt-2">
+                                <hr class="my-2 text-muted">
+                                <h6 class="fw-bold small text-primary mb-3 text-uppercase" style="letter-spacing: 0.5px;">Update Tender Documents</h6>
+                            </div>
 
-                            <div class="col-md-12 mb-2">
-                                <label class="label-custom">Cover Image</label>
-                                <input type="file" name="TenderImage" class="form-control form-control-sm" />
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Cover Image</label>
+                                <input type="file" name="TenderImage" class="form-control" />
                                 @if (!string.IsNullOrEmpty(Model.CoverImage))
                                 {
-                                    <a href="@Model.CoverImage" target="_blank" class="small d-block mt-1 text-primary"><i class="bi bi-link-45deg"></i> View Current Image</a>
+                                    <a href="@Model.CoverImage" target="_blank" class="small d-block mt-2 fw-bold text-primary text-decoration-none"><i class="bi bi-link-45deg"></i> View Current Image</a>
                                 }
                             </div>
-                            <div class="col-md-12 mb-2">
-                                <label class="label-custom">Brochure PDF</label>
-                                <input type="file" name="TenderBrochure" class="form-control form-control-sm" />
+                            <div class="col-md-12 form-group-spaced mb-0">
+                                <label class="master-label mb-1">Brochure PDF</label>
+                                <input type="file" name="TenderBrochure" class="form-control" />
                                 @if (!string.IsNullOrEmpty(Model.BrochurePdf))
                                 {
-                                    <a href="@Model.BrochurePdf" target="_blank" class="small d-block mt-1 text-danger"><i class="bi bi-file-earmark-pdf"></i> View Current Brochure</a>
+                                    <a href="@Model.BrochurePdf" target="_blank" class="small d-block mt-2 fw-bold text-danger text-decoration-none"><i class="bi bi-file-earmark-pdf"></i> View Current Brochure</a>
                                 }
                             </div>
                         </div>
 
-                        <div class="mt-4 border-top pt-3 text-center">
-                            <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow-sm">
+                        <div class="mt-4 pt-2">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" style="background-color: #ea580c; border: none;">
                                 <i class="bi bi-check2-square me-1"></i> Update Master Settings
                             </button>
                         </div>
@@ -121,44 +100,54 @@
         </div>
 
         <div class="col-xl-7">
-            <div class="govt-section-card shadow-sm bg-white border-top border-primary border-4 h-100">
-                <div class="govt-section-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-building me-2"></i> Attached Properties (@Model.LiveProperties.Count)</h5>
-                    <button type="button" class="btn btn-primary btn-sm fw-bold px-3 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+            <div class="card master-card border-top border-primary border-4 h-100">
+                <div class="detail-row bg-light py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark fs-6"><i class="bi bi-building me-2"></i> Attached Properties (@Model.LiveProperties.Count)</h5>
+                    <button type="button" class="btn btn-primary btn-sm fw-bold px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addPropertyModal" style="background-color: #003366; border: none;">
                         <i class="bi bi-plus"></i> Add Property
                     </button>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
+                        <table class="table gov-table align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <th class="ps-3">Asset Code</th>
+                                    <th class="ps-3" style="width: 140px;">Asset Code</th>
                                     <th>House No</th>
                                     <th>Sector/Block</th>
-                                    <th class="text-end pe-3">Remove</th>
+                                    <th class="text-center" style="width: 100px;">Remove</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var mapping in Model.LiveProperties)
+                                @if (Model.LiveProperties == null || !Model.LiveProperties.Any())
                                 {
                                     <tr>
-                                        <td class="ps-3 fw-bold text-primary">@mapping.Property?.Property_Id</td>
-                                        <td class="fw-bold">@mapping.Property?.House_No</td>
-                                        <td>
-                                            <span class="small">Sec: @mapping.Property?.sector_name_en</span><br />
-                                            <span class="small">Blk: @mapping.Property?.block_name_en</span>
-                                        </td>
-                                        <td class="text-end pe-3">
-                                            <form asp-action="RemoveProperty" method="post" onsubmit="return confirm('Remove this property from live list?');">
-                                                <input type="hidden" name="mappingId" value="@mapping.MappingId" />
-                                                <input type="hidden" name="masterId" value="@Model.MasterId" />
-                                                <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent">
-                                                    <i class="bi bi-trash fs-5"></i>
-                                                </button>
-                                            </form>
-                                        </td>
+                                        <td colspan="4" class="text-center py-5 text-muted fw-bold">No properties mapped to this master yet.</td>
                                     </tr>
+                                }
+                                else
+                                {
+                                    foreach (var mapping in Model.LiveProperties)
+                                    {
+                                        <tr>
+                                            <td class="ps-3 fw-bold text-primary">@mapping.Property?.Property_Id</td>
+                                            <td class="fw-bold text-dark">@mapping.Property?.House_No</td>
+                                            <td class="fw-semibold text-secondary">
+                                                <div class="small">Sec: @mapping.Property?.sector_name_en</div>
+                                                <div class="small">Blk: @mapping.Property?.block_name_en</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <form asp-action="RemoveProperty" method="post" onsubmit="return confirm('Remove this property from live list?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="mappingId" value="@mapping.MappingId" />
+                                                    <input type="hidden" name="masterId" value="@Model.MasterId" />
+                                                    <button type="submit" class="btn btn-sm text-danger border-0 bg-transparent p-1">
+                                                        <i class="bi bi-trash fs-5"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
                         </table>
@@ -172,21 +161,22 @@
 <div class="modal fade" id="addPropertyModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold">Add Vacant Property</h5>
+            <div class="modal-header text-white" style="background-color: #272522;">
+                <h5 class="modal-title fw-bold fs-6">Add Vacant Property</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="AddPropertyToMaster" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="masterId" value="@Model.MasterId" />
                 <div class="modal-body p-4">
-                    <label class="label-custom d-block mb-2">Select Unit from @Model.Scheme_Name</label>
-                    <select name="propertyId" id="vacantPropDropdown" class="form-select shadow-sm" required>
+                    <label class="master-label d-block mb-2">Select Unit from @Model.Scheme_Name</label>
+                    <select name="propertyId" id="vacantPropDropdown" class="master-input w-100" style="height: 45px;" required>
                         <option value="">-- Loading Properties... --</option>
                     </select>
                 </div>
                 <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm px-4">Confirm Add</button>
+                    <button type="button" class="btn btn-light border btn-sm fw-bold px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold" style="background-color: #ea580c; border: none;">Confirm Add</button>
                 </div>
             </form>
         </div>

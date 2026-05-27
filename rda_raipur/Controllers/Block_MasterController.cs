@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers
 {
@@ -23,12 +23,11 @@ namespace rda_raipur.Controllers
         // GET: Block_Master
         public async Task<IActionResult> Index()
         {
-            // ADDED .Include() so you can display Scheme and Sector names in your Index view
             var data = await _context.Block_Masters
-                        .Include(b => b.Scheme_Master)
-                        .Include(b => b.Sector_Master)
-                        .Where(x => x.IsDeleted == false)
-                        .ToListAsync();
+                                .Include(b => b.Scheme_Master)
+                                .Include(b => b.Sector_Master)
+                                .Where(x => x.IsDeleted == false)
+                                .ToListAsync();
 
             return View("~/Views/AdminDashboard/Master/Block_Master/Index.cshtml", data);
         }
@@ -51,34 +50,29 @@ namespace rda_raipur.Controllers
         // GET: Block_Master/Create
         public IActionResult Create()
         {
-            // Renamed ViewBags to avoid tag helper conflicts with model properties
             ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en");
             ViewBag.SectorList = new SelectList(_context.Sector_Master.Where(x => x.IsDeleted == false), "sector_id", "sector_name_en");
-
             return View("~/Views/AdminDashboard/Master/Block_Master/Create.cshtml");
         }
 
         // POST: Block_Master/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Block_Master blockMaster)
+        public async Task<IActionResult> Create([Bind("block_id,scheme_id,sector_id,block_name_hi,block_name_en,IsActive,IsDeleted")] Block_Master blockMaster)
         {
             if (ModelState.IsValid)
             {
+                // 🔥 BACKEND SECURITY: Audit Fields
                 blockMaster.Create_Date = DateTime.Now;
                 blockMaster.created_by = User.Identity.Name ?? "Admin";
-                blockMaster.IsActive = true;
-                blockMaster.IsDeleted = false;
 
                 _context.Add(blockMaster);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
             }
 
             ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en", blockMaster.scheme_id);
             ViewBag.SectorList = new SelectList(_context.Sector_Master.Where(x => x.IsDeleted == false), "sector_id", "sector_name_en", blockMaster.sector_id);
-
             return View("~/Views/AdminDashboard/Master/Block_Master/Create.cshtml", blockMaster);
         }
 
@@ -92,14 +86,13 @@ namespace rda_raipur.Controllers
 
             ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en", block_Master.scheme_id);
             ViewBag.SectorList = new SelectList(_context.Sector_Master.Where(x => x.IsDeleted == false), "sector_id", "sector_name_en", block_Master.sector_id);
-
             return View("~/Views/AdminDashboard/Master/Block_Master/Edit.cshtml", block_Master);
         }
 
         // POST: Block_Master/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("block_id,scheme_id,sector_id,block_name_hi,block_name_en,created_by,Create_Date,updated_Date,updated_by,IsActive,IsDeleted")] Block_Master block_Master)
+        public async Task<IActionResult> Edit(int id, [Bind("block_id,scheme_id,sector_id,block_name_hi,block_name_en,IsActive,IsDeleted")] Block_Master block_Master)
         {
             if (id != block_Master.block_id) return NotFound();
 
@@ -107,10 +100,22 @@ namespace rda_raipur.Controllers
             {
                 try
                 {
-                    block_Master.updated_Date = DateTime.Now;
-                    block_Master.updated_by = User.Identity.Name ?? "Admin";
+                    // 🔥 FETCH EXISTING RECORD (To keep old CreatedBy/Date intact)
+                    var existing = await _context.Block_Masters.FindAsync(id);
+                    if (existing == null) return NotFound();
 
-                    _context.Update(block_Master);
+                    // Update only allowed fields
+                    existing.scheme_id = block_Master.scheme_id;
+                    existing.sector_id = block_Master.sector_id;
+                    existing.block_name_en = block_Master.block_name_en;
+                    existing.block_name_hi = block_Master.block_name_hi;
+                    existing.IsActive = block_Master.IsActive;
+                    existing.IsDeleted = block_Master.IsDeleted;
+
+                    // 🔥 BACKEND SECURITY: Audit Fields
+                    existing.updated_by = User.Identity.Name ?? "Admin";
+                    existing.updated_Date = DateTime.Now;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -123,7 +128,6 @@ namespace rda_raipur.Controllers
 
             ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en", block_Master.scheme_id);
             ViewBag.SectorList = new SelectList(_context.Sector_Master.Where(x => x.IsDeleted == false), "sector_id", "sector_name_en", block_Master.sector_id);
-
             return View("~/Views/AdminDashboard/Master/Block_Master/Edit.cshtml", block_Master);
         }
 
@@ -148,18 +152,16 @@ namespace rda_raipur.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var block = await _context.Block_Masters.FindAsync(id);
-
             if (block != null)
             {
+                // 🔥 Soft Delete with Audit
                 block.IsDeleted = true;
                 block.IsActive = false;
                 block.updated_Date = DateTime.Now;
                 block.updated_by = User.Identity.Name ?? "Admin";
 
-                _context.Update(block);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -168,20 +170,13 @@ namespace rda_raipur.Controllers
             return _context.Block_Masters.Any(e => e.block_id == id);
         }
 
-
-
         [HttpGet]
         public JsonResult GetSectorsByScheme(int schemeId)
         {
             var sectors = _context.Sector_Master
                 .Where(x => x.scheme_id == schemeId && x.IsDeleted == false)
-                .Select(x => new
-                {
-                    x.sector_id,
-                    x.sector_name_en
-                })
+                .Select(x => new { x.sector_id, x.sector_name_en })
                 .ToList();
-
             return Json(sectors);
         }
     }

@@ -4,37 +4,46 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="card shadow-sm border-0 mb-4 border-top border-primary border-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0 text-primary fw-bold">
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h2 class="master-title text-capitalize">
+            <i class="bi bi-megaphone-fill text-primary"></i> Publish Live Tenders Wizard
+        </h2>
+    </div>
+
+    <div class="card master-card mb-4 border-top border-primary border-4">
+        <div class="detail-row bg-light py-3">
+            <h5 class="mb-0 text-primary fw-bold fs-6">
                 <i class="bi bi-search"></i> Step 1: Find Properties to Make Live
             </h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <div class="row align-items-end g-3">
-                    <div class="col-md-3">
-                        <label class="fw-bold">Select Scheme</label>
-                        <select asp-for="SearchSchemeId" asp-items="ViewBag.Schemes" class="form-select" id="schemeId">
+                    <div class="col-md-3 form-group-spaced mb-0">
+                        <label class="master-label mb-1">Select Scheme</label>
+                        <select asp-for="SearchSchemeId" asp-items="ViewBag.Schemes" class="master-input w-100" id="schemeId" style="height: 45px;">
                             <option value="">-- All Schemes --</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="fw-bold">Select Sector</label>
-                        <select asp-for="SearchSectorId" class="form-select" id="sectorId">
+                    <div class="col-md-3 form-group-spaced mb-0">
+                        <label class="master-label mb-1">Select Sector</label>
+                        <select asp-for="SearchSectorId" class="master-input w-100" id="sectorId" style="height: 45px;">
                             <option value="">-- Select Sector --</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="fw-bold">Inventory Status</label>
-                        <select asp-for="BookingStatus" class="form-select">
+                    <div class="col-md-3 form-group-spaced mb-0">
+                        <label class="master-label mb-1">Inventory Status</label>
+                        <select asp-for="BookingStatus" class="master-input w-100" style="height: 45px;">
                             <option value="Vacant">Vacant Only</option>
                             <option value="Booked">Booked Only</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <button type="submit" name="submitType" value="Filter" class="btn btn-primary w-100">
+                    <div class="col-md-3 mb-0">
+                        <button type="submit" name="submitType" value="Filter" class="btn btn-primary w-100 fw-bold" style="background-color: #003366; border: none; height: 45px;">
                             <i class="bi bi-filter"></i> Search Inventory
                         </button>
                     </div>
@@ -46,52 +55,56 @@
     @if (Model.Properties != null && Model.Properties.Count > 0)
     {
         <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="card shadow border-0 mb-4 border-top border-success border-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 text-success fw-bold">
+            @Html.AntiForgeryToken()
+            <div class="card master-card mb-4 border-top border-success border-4">
+                <div class="detail-row bg-light py-3">
+                    <h5 class="mb-0 text-success fw-bold fs-6">
                         <i class="bi bi-calendar-check"></i> Step 2: Set Dates & Upload Files
                     </h5>
                 </div>
-                <div class="card-body bg-light">
+                <div class="card-body p-4">
                     <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="fw-bold">Start Date (Live) <span class="text-danger">*</span></label>
-                            <input asp-for="TenderStartDate" type="datetime-local" class="form-control" required />
+                        <div class="col-md-3 form-group-spaced mb-0">
+                            <label class="master-label mb-1">Start Date (Live) <span class="text-danger">*</span></label>
+                            <input asp-for="TenderStartDate" type="datetime-local" class="master-input w-100" required />
                         </div>
-                        <div class="col-md-3">
-                            <label class="fw-bold">End Date (Closing) <span class="text-danger">*</span></label>
-                            <input asp-for="TenderEndDate" type="datetime-local" class="form-control" required />
+                        <div class="col-md-3 form-group-spaced mb-0">
+                            <label class="master-label mb-1">End Date (Closing) <span class="text-danger">*</span></label>
+                            <input asp-for="TenderEndDate" type="datetime-local" class="master-input w-100" required />
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="fw-bold text-danger">Tender Opening Date <span class="text-danger">*</span></label>
-                            <input asp-for="TenderOpeningDate" type="datetime-local" class="form-control" required />
+                        <div class="col-md-3 form-group-spaced mb-0">
+                            <label class="master-label mb-1 text-danger">Tender Opening Date <span class="text-danger">*</span></label>
+                            <input asp-for="TenderOpeningDate" type="datetime-local" class="master-input w-100" required />
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="fw-bold">Visibility Status</label>
-                            <select asp-for="Status" class="form-select">
+                        <div class="col-md-3 form-group-spaced mb-0">
+                            <label class="master-label mb-1">Visibility Status</label>
+                            <select asp-for="Status" class="master-input w-100" style="height: 45px;">
                                 <option value="Active">Active / Live</option>
                                 <option value="Inactive">Inactive / Draft</option>
                             </select>
                         </div>
 
-                        <div class="col-md-4 mt-3">
-                            <label class="small fw-bold">Cover Image</label>
+                        <div class="col-12 mt-2">
+                            <hr class="my-2 text-muted" />
+                            <h6 class="fw-bold small text-primary mb-2 text-uppercase" style="letter-spacing: 0.5px;">Tender Assets Artifacts Documents</h6>
+                        </div>
+
+                        <div class="col-md-4 form-group-spaced mb-0">
+                            <label class="master-label mb-1">Cover Image</label>
                             <input type="file" name="TenderImage" class="form-control" accept="image/*" />
                         </div>
-                        <div class="col-md-4 mt-3">
-                            <label class="small fw-bold">Brochure (PDF)</label>
+                        <div class="col-md-4 form-group-spaced mb-0">
+                            <label class="master-label mb-1">Brochure (PDF)</label>
                             <input type="file" name="TenderBrochure" class="form-control" accept="application/pdf" />
                         </div>
-                        <div class="col-md-4 mt-3">
-                            <label class="small fw-bold">Map Layout (PDF)</label>
+                        <div class="col-md-4 form-group-spaced mb-0">
+                            <label class="master-label mb-1">Map Layout (PDF)</label>
                             <input type="file" name="TenderLayout" class="form-control" accept="application/pdf" />
                         </div>
 
                         <div class="col-md-12 mt-4 text-end">
-                            <hr />
-                            <button type="submit" name="submitType" value="Save" class="btn btn-success btn-lg px-5 shadow">
+                            <hr class="border-light" />
+                            <button type="submit" name="submitType" value="Save" class="btn btn-primary fw-bold px-5 py-2 shadow" style="background-color: #ea580c; border: none;">
                                 <i class="bi bi-cloud-arrow-up"></i> PUBLISH & MAKE LIVE
                             </button>
                         </div>
@@ -99,52 +112,54 @@
                 </div>
             </div>
 
-            <div class="card shadow border-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="text-center" style="width: 50px;">
-                                    <input type="checkbox" id="selectAll" class="form-check-input" />
-                                </th>
-                                <th>Property Code</th>
-                                <th>Location Details</th>
-                                <th>Model</th>
-                                <th>Area (Sq.Ft)</th>
-                                <th>Base Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (int i = 0; i < Model.Properties.Count; i++)
-                            {
+            <div class="card master-card">
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table class="table gov-table align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" asp-for="Properties[i].IsSelected" class="chkProp form-check-input" />
-                                    </td>
-                                    <td class="fw-bold text-primary">@Model.Properties[i].Tender_Property_Id</td>
-                                    <td>
-                                        <span class="fw-bold">@Model.Properties[i].Scheme_Name</span><br />
-                                        <small class="text-muted">
-                                            Sector: @Model.Properties[i].Sector | Block: @Model.Properties[i].Block | No: @Model.Properties[i].Property_Number
-                                        </small>
-                                    </td>
-                                    <td><span class="badge bg-info text-dark">@Model.Properties[i].Property_Model</span></td>
-                                    <td>@Model.Properties[i].Property_Size</td>
-                                    <td class="fw-bold text-success">₹ @Model.Properties[i].Offset_Price.ToString("N0")</td>
-
-                                    <input type="hidden" asp-for="Properties[i].PropertyId" />
-                                    <input type="hidden" asp-for="Properties[i].Tender_Property_Id" />
-                                    <input type="hidden" asp-for="Properties[i].Scheme_Name" />
-                                    <input type="hidden" asp-for="Properties[i].Sector" />
-                                    <input type="hidden" asp-for="Properties[i].Block" />
-                                    <input type="hidden" asp-for="Properties[i].Property_Number" />
-                                    <input type="hidden" asp-for="Properties[i].Property_Model" />
-                                    <input type="hidden" asp-for="Properties[i].Property_Size" />
-                                    <input type="hidden" asp-for="Properties[i].Offset_Price" />
+                                    <th class="text-center" style="width: 60px;">
+                                        <input type="checkbox" id="selectAll" class="form-check-input" style="cursor: pointer;" />
+                                    </th>
+                                    <th>Property Code</th>
+                                    <th>Location Details</th>
+                                    <th>Model</th>
+                                    <th>Area (Sq.Ft)</th>
+                                    <th class="pe-3">Base Price</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Properties.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="text-center">
+                                            <input type="checkbox" asp-for="Properties[i].IsSelected" class="chkProp form-check-input" style="cursor: pointer;" />
+                                        </td>
+                                        <td class="fw-bold text-primary">@Model.Properties[i].Tender_Property_Id</td>
+                                        <td>
+                                            <div class="fw-bold text-dark">@Model.Properties[i].Scheme_Name</div>
+                                            <small class="text-muted fw-semibold">
+                                                Sector: @Model.Properties[i].Sector | Block: @Model.Properties[i].Block | Unit No: @Model.Properties[i].Property_Number
+                                            </small>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border fw-bold px-2 py-1">@Model.Properties[i].Property_Model</span></td>
+                                        <td class="fw-semibold">@Model.Properties[i].Property_Size</td>
+                                        <td class="fw-bold text-success pe-3">₹ @Model.Properties[i].Offset_Price.ToString("N0")</td>
+
+                                        <input type="hidden" asp-for="Properties[i].PropertyId" />
+                                        <input type="hidden" asp-for="Properties[i].Tender_Property_Id" />
+                                        <input type="hidden" asp-for="Properties[i].Scheme_Name" />
+                                        <input type="hidden" asp-for="Properties[i].Sector" />
+                                        <input type="hidden" asp-for="Properties[i].Block" />
+                                        <input type="hidden" asp-for="Properties[i].Property_Number" />
+                                        <input type="hidden" asp-for="Properties[i].Property_Model" />
+                                        <input type="hidden" asp-for="Properties[i].Property_Size" />
+                                        <input type="hidden" asp-for="Properties[i].Offset_Price" />
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </form>

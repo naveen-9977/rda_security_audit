@@ -1,130 +1,62 @@
 ﻿@model rda_raipur.Models.UserCategory_Master
 
 @{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>UserCategory_Master</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="res_category_name_hi" class="control-label"></label>
-                <input asp-for="res_category_name_hi" class="form-control" />
-                <span asp-validation-for="res_category_name_hi" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="res_category_name_en" class="control-label"></label>
-                <input asp-for="res_category_name_en" class="form-control" />
-                <span asp-validation-for="res_category_name_en" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="created_by" class="control-label"></label>
-                <input asp-for="created_by" class="form-control" />
-                <span asp-validation-for="created_by" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Create_Date" class="control-label"></label>
-                <input asp-for="Create_Date" class="form-control" />
-                <span asp-validation-for="Create_Date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="updated_Date" class="control-label"></label>
-                <input asp-for="updated_Date" class="form-control" />
-                <span asp-validation-for="updated_Date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="updated_by" class="control-label"></label>
-                <input asp-for="updated_by" class="form-control" />
-                <span asp-validation-for="updated_by" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
-
-
-@* 
-@model rda_raipur.Models.UserCategory_Master
-
-@{
     ViewData["Title"] = "Add User Category";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3">User Category Master</h2>
-
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fa fa-arrow-left"></i> Back
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="fas fa-plus-circle text-primary"></i> Add New User Category</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="fas fa-arrow-left"></i> Back to List
         </a>
     </div>
 
-    <div class="card shadow">
-
-        <div class="card-header">
-            <h6 class="m-0 font-weight-bold text-primary">Add New User Category</h6>
-        </div>
-
-        <div class="card-body">
-
-            <form asp-action="Create">
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
 
                 <div class="row">
-
-                    <div class="col-md-6 mb-3">
-                        <label>User Category Name (Hindi)</label>
-                        <input asp-for="res_category_name_hi" class="form-control">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="res_category_name_hi" class="master-label">Category Name (Hindi) <span class="text-danger">*</span></label>
+                        <input asp-for="res_category_name_hi" class="master-input" placeholder="श्रेणी नाम" required />
+                        <span asp-validation-for="res_category_name_hi" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label>User Category Name (English)</label>
-                        <input asp-for="res_category_name_en" class="form-control">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="res_category_name_en" class="master-label">Category Name (English) <span class="text-danger">*</span></label>
+                        <input asp-for="res_category_name_en" class="master-input" placeholder="Enter category name" required />
+                        <span asp-validation-for="res_category_name_en" class="text-danger small fw-bold"></span>
                     </div>
 
+                    <div class="col-12 form-group-spaced">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch" checked>
+                            <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Active Status</label>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" asp-for="IsActive" checked>
-                    <label class="form-check-label">Active</label>
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="fas fa-save me-1"></i> Save Category
+                    </button>
                 </div>
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i> Save
-                </button>
-
-                <a asp-action="Index" class="btn btn-secondary">
-                    Cancel
-                </a>
-
             </form>
-
         </div>
     </div>
-</div> *@
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

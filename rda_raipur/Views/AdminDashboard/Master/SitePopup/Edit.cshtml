@@ -5,47 +5,68 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid pt-4 px-4">
-    <div class="bg-light rounded p-4">
-        <h5 class="mb-4">Edit Welcome Popup</h5>
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
-            <input type="hidden" asp-for="Id" />
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-pencil-square text-primary"></i> Edit Welcome Popup</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Title" class="form-label">Title / Reference Name</label>
-                    <input asp-for="Title" class="form-control" required />
-                </div>
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImagePath" />
 
-                <div class="col-md-6 mb-3">
-                    <label asp-for="DisplayOrder" class="form-label">Display Order</label>
-                    <input asp-for="DisplayOrder" class="form-control" type="number" />
-                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Title" class="master-label">Title / Reference Name</label>
+                        <input asp-for="Title" class="master-input" required />
+                        <span asp-validation-for="Title" class="text-danger small fw-bold"></span>
+                    </div>
 
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ImageUpload" class="form-label">Upload New Image (Leave blank to keep current)</label>
-                    <input asp-for="ImageUpload" class="form-control" type="file" accept="image/*" />
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Url" class="master-label">External Link (URL)</label>
+                        <input asp-for="Url" class="master-input" />
+                        <span asp-validation-for="Url" class="text-danger small fw-bold"></span>
+                    </div>
 
-                    @if (!string.IsNullOrEmpty(Model.ImagePath))
-                    {
-                        <div class="mt-2">
-                            <small class="text-muted d-block mb-1">Current Image:</small>
-                            <img src="@Model.ImagePath" alt="Current Image" style="height: 100px; border-radius: 5px; border: 1px solid #ccc;" />
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="DisplayOrder" class="master-label">Display Order</label>
+                        <input asp-for="DisplayOrder" type="number" class="master-input" />
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label class="master-label">Active Status</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch">
+                            <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Active</label>
                         </div>
-                    }
-                </div>
+                    </div>
 
-                <div class="col-md-6 mb-3">
-                    <div class="form-check mt-4">
-                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsActive" class="form-check-label">Is Active?</label>
+                    <div class="col-12 form-group-spaced">
+                        <label class="master-label">Current Image</label>
+                        <div class="mb-3">
+                            <img src="@Model.ImagePath" class="img-thumbnail shadow-sm" style="max-height: 150px;" />
+                        </div>
+                        <label asp-for="ImageUpload" class="master-label">Change Image (Leave blank to keep current)</label>
+                        <input asp-for="ImageUpload" type="file" class="master-input p-1" accept="image/*" />
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" class="btn btn-success mt-3">Update Popup</button>
-            <a asp-action="Index" class="btn btn-secondary mt-3 ms-2">Cancel</a>
-        </form>
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Update Popup
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

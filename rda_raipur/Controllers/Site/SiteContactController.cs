@@ -2,162 +2,148 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
+using rda_raipur.Filters;
 using rda_raipur.Models.site;
-using rda_raipur.Filters; // 🔥 PERMISSION FILTER
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers.Site
 {
-    // 🔥 ADMIN & EMPLOYEE DONO KE LIYE + SECURE FILTER
     [Authorize(Roles = "Admin,Employee")]
-    [ServiceFilter(typeof(CheckPermissionAttribute))]
     public class SiteContactController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly string viewPath = "~/Views/AdminDashboard/Master/SiteContact/";
 
         public SiteContactController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // ==========================================
+        // ==============================
         // 1. INDEX
-        // ==========================================
-        [HttpGet]
+        // ==============================
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanView" })]
         public async Task<IActionResult> Index()
         {
-            // Yahan IsDeleted false filter add kiya hai (agar table me hai) 
-            // Agar aapke model me IsDeleted nahi hai, toh .Where() hata de.
-            var contacts = await _context.SiteContacts
-                // .Where(c => !c.IsDeleted) 
-                .OrderByDescending(c => c.CreatedDate)
-                .ToListAsync();
-
-            return View("~/Views/AdminDashboard/Master/SiteContact/Index.cshtml", contacts);
+            var data = await _context.SiteContacts
+                                     .Where(x => !x.IsDeleted) // Soft delete filter
+                                     .OrderByDescending(x => x.CreatedDate)
+                                     .ToListAsync();
+            return View(viewPath + "Index.cshtml", data);
         }
 
-        // ==========================================
+        // ==============================
         // 2. CREATE
-        // ==========================================
+        // ==============================
         [HttpGet]
-        public IActionResult Create()
-        {
-            return View("~/Views/AdminDashboard/Master/SiteContact/Create.cshtml");
-        }
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public IActionResult Create() => View(viewPath + "Create.cshtml");
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SiteContact siteContact)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public async Task<IActionResult> Create(SiteContact model)
         {
             if (ModelState.IsValid)
             {
-                // 🔥 Logic: If this is set to active, deactivate all others
-                if (siteContact.IsActive)
+                // 🔥 Single Active Logic
+                if (model.IsActive)
                 {
-                    var activeContacts = await _context.SiteContacts.Where(c => c.IsActive).ToListAsync();
-                    foreach (var c in activeContacts)
-                    {
-                        c.IsActive = false;
-                    }
+                    var activeContacts = await _context.SiteContacts.Where(c => c.IsActive && !c.IsDeleted).ToListAsync();
+                    foreach (var c in activeContacts) { c.IsActive = false; }
                     _context.UpdateRange(activeContacts);
                 }
 
-                siteContact.CreatedDate = DateTime.Now;
-                // siteContact.IsDeleted = false; // Agar use karte hain toh uncomment karein
+                model.CreatedDate = DateTime.Now;
+                model.CreatedBy = User.Identity.Name ?? "Admin";
+                model.IsDeleted = false;
 
-                _context.Add(siteContact);
+                _context.SiteContacts.Add(model);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Contact created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteContact/Create.cshtml", siteContact);
+            return View(viewPath + "Create.cshtml", model);
         }
 
-        // ==========================================
+        // ==============================
         // 3. EDIT
-        // ==========================================
+        // ==============================
         [HttpGet]
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-
-            var siteContact = await _context.SiteContacts.FindAsync(id);
-            if (siteContact == null) return NotFound();
-
-            return View("~/Views/AdminDashboard/Master/SiteContact/Edit.cshtml", siteContact);
+            var item = await _context.SiteContacts.FindAsync(id);
+            if (item == null || item.IsDeleted) return NotFound();
+            return View(viewPath + "Edit.cshtml", item);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SiteContact siteContact)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
+        public async Task<IActionResult> Edit(int id, SiteContact model)
         {
-            if (id != siteContact.Id) return NotFound();
+            if (id != model.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
+                var existing = await _context.SiteContacts.FindAsync(id);
+                if (existing == null) return NotFound();
+
+                // 🔥 Single Active Logic
+                if (model.IsActive)
                 {
-                    var existingContact = await _context.SiteContacts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                    if (existingContact == null) return NotFound();
-
-                    // 🔥 Logic: If this is set to active, deactivate all others
-                    if (siteContact.IsActive)
-                    {
-                        var activeContacts = await _context.SiteContacts.Where(c => c.IsActive && c.Id != id).ToListAsync();
-                        foreach (var c in activeContacts)
-                        {
-                            c.IsActive = false;
-                        }
-                        _context.UpdateRange(activeContacts);
-                    }
-
-                    siteContact.CreatedDate = existingContact.CreatedDate;
-                    // siteContact.IsDeleted = existingContact.IsDeleted; // Agar use karte hain toh uncomment karein
-
-                    _context.Update(siteContact);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Contact updated successfully!";
+                    var activeContacts = await _context.SiteContacts.Where(c => c.IsActive && c.Id != id && !c.IsDeleted).ToListAsync();
+                    foreach (var c in activeContacts) { c.IsActive = false; }
+                    _context.UpdateRange(activeContacts);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SiteContactExists(siteContact.Id)) return NotFound();
-                    else throw;
-                }
+
+                // Update Fields
+                existing.OfficeName = model.OfficeName;
+                existing.OfficeNameHi = model.OfficeNameHi;
+                existing.Address = model.Address;
+                existing.AddressHi = model.AddressHi;
+                existing.Phone1 = model.Phone1;
+                existing.Phone2 = model.Phone2;
+                existing.Email = model.Email;
+                existing.MapEmbedUrl = model.MapEmbedUrl;
+                existing.IsActive = model.IsActive;
+
+                // Audit Fields
+                existing.UpdatedBy = User.Identity.Name ?? "Admin";
+                existing.UpdatedDate = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Contact updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteContact/Edit.cshtml", siteContact);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
-        // ==========================================
-        // 4. DELETE (POST ONLY - Safe Delete)
-        // ==========================================
-        [HttpPost, ActionName("Delete")]
+        // ==============================
+        // 4. DELETE (SOFT DELETE)
+        // ==============================
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanDelete" })]
+        public async Task<IActionResult> Delete(int id)
         {
-            var siteContact = await _context.SiteContacts.FindAsync(id);
-            if (siteContact != null)
+            var item = await _context.SiteContacts.FindAsync(id);
+            if (item != null)
             {
-                // Hard Delete logic as per your original code
-                _context.SiteContacts.Remove(siteContact);
-
-                // Ya agar Soft Delete chahiye toh ye use karein:
-                // siteContact.IsDeleted = true;
-                // siteContact.IsActive = false;
+                // Soft Delete
+                item.IsDeleted = true;
+                item.UpdatedBy = User.Identity.Name ?? "Admin";
+                item.UpdatedDate = DateTime.Now;
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Contact deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool SiteContactExists(int id)
-        {
-            return _context.SiteContacts.Any(e => e.Id == id);
         }
     }
 }

@@ -1,166 +1,68 @@
 ﻿@model rda_raipur.Models.PropertyModelTypeMaster
 
 @{
-    
     ViewData["Title"] = "Add Property Model Type";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<h1>Create</h1>
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-<h4>PropertyModelTypeMaster</h4>
-<hr />
-@* <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Model_name_en" class="control-label"></label>
-                <input asp-for="Model_name_en" class="form-control" />
-                <span asp-validation-for="Model_name_en" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Model_name_hi" class="control-label"></label>
-                <input asp-for="Model_name_hi" class="form-control" />
-                <span asp-validation-for="Model_name_hi" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="created_by" class="control-label"></label>
-                <input asp-for="created_by" class="form-control" />
-                <span asp-validation-for="created_by" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Create_Date" class="control-label"></label>
-                <input asp-for="Create_Date" class="form-control" />
-                <span asp-validation-for="Create_Date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="updated_Date" class="control-label"></label>
-                <input asp-for="updated_Date" class="form-control" />
-                <span asp-validation-for="updated_Date" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="updated_by" class="control-label"></label>
-                <input asp-for="updated_by" class="form-control" />
-                <span asp-validation-for="updated_by" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div> *@
-
-
-
-
-<div class="container-fluid py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>Property Model Type Master</h3>
-
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fa fa-arrow-left"></i> Back
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-grid-fill text-primary"></i> Create Property Model Type</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
-    <div class="card shadow">
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
 
-        <div class="card-header">
-            <h6 class="font-weight-bold text-primary">
-                Add New Property Model Type
-            </h6>
-        </div>
-
-        <div class="card-body">
-
-            <form asp-action="Create">
+                <div asp-validation-summary="All" class="text-danger fw-bold shadow-sm border-0 mb-4"></div>
 
                 <div class="row">
-
-                    <div class="col-md-6 mb-3">
-                        <label>Model Name (English)</label>
-                        <input asp-for="Model_name_en" class="form-control">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Model_name_en" class="master-label">Model Name (English) <span class="text-danger">*</span></label>
+                        <input asp-for="Model_name_en" class="master-input w-100" placeholder="e.g., Type A" required />
+                        <span asp-validation-for="Model_name_en" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label>Model Name (Hindi)</label>
-                        <input asp-for="Model_name_hi" class="form-control">
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Model_name_hi" class="master-label">मॉडल का नाम (Hindi)</label>
+                        <input asp-for="Model_name_hi" class="master-input w-100" placeholder="उदा. टाइप ए" />
+                        <span asp-validation-for="Model_name_hi" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label>Created by</label>
-                        <input asp-for="created_by" class="form-control">
+                    <div class="col-md-6 form-group-spaced">
+                        <div class="d-flex gap-4 mt-3 pt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-4" type="checkbox" name="IsActive" value="true" id="IsActiveSwitch" checked>
+                                <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Is Active</label>
+                            </div>
+                            <div class="form-check form-switch" style="display:none;">
+                                <input class="form-check-input fs-4" type="checkbox" name="IsDeleted" value="false" id="IsDeletedSwitch">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label>Created by</label>
-                        <input asp-for="created_by" class="form-control">
-                    </div>
-                  
-                    <div class="col-md-6 mb-3">
-                        <label>Create Date</label>
-                        <input asp-for="Create_Date" class="form-control">
-                    </div>
-
-
-                    <div class="col-md-6 mb-3">
-                        <label>Updated Date</label>
-                        <input asp-for="updated_Date" class="form-control">
-                    </div>
-
-
-                    <div class="col-md-6 mb-3">
-                        <label>Updated By </label>
-                        <input asp-for="updated_by" class="form-control">
-                    </div>
-
-                     
-
-
-
                 </div>
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" asp-for="IsActive" checked>
-                    <label class="form-check-label">Active</label>
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Save Model Type
+                    </button>
                 </div>
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" asp-for="IsDeleted" >
-                    <label class="form-check-label">Delete</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i> Save
-                </button>
-
-                <a asp-action="Index" class="btn btn-secondary">
-                    Cancel
-                </a>
-
             </form>
-
         </div>
     </div>
 </div>
 
-
-
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

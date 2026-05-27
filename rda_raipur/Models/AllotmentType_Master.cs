@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 
 namespace rda_raipur.Models
 {
@@ -16,16 +16,19 @@ namespace rda_raipur.Models
         [Required]
         public string allotement_type_name_en { get; set; }
 
-        public string created_by { get; set; }
+        // 🔥 string के आगे ? लगा दिया 
+        public string? created_by { get; set; }
 
         public DateTime? Create_Date { get; set; }
 
         public DateTime? updated_Date { get; set; }
 
-        public string updated_by { get; set; }
+        // 🔥 string के आगे ? लगा दिया 
+        public string? updated_by { get; set; }
 
-        public bool IsActive { get; set; }
+        // 🔥 bool के आगे ? लगा दिया ताकि DB में Null हो तो क्रैश न हो
+        public bool? IsActive { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
     }
 }

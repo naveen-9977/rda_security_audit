@@ -14,10 +14,19 @@ namespace rda_raipur.Models
         [Required(ErrorMessage = "Hindi Title is required")]
         public string Title_Hi { get; set; }
 
-        public string ImagePath { get; set; }
-        public string PdfPath { get; set; }
+        // Description ऐड कर दी ताकि एरर न आए
+        public string? Description { get; set; }
+
+        public string? ImagePath { get; set; }
+        public string? PdfPath { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+        // Audit Fields
+        public string? created_by { get; set; }
+        public string? updated_by { get; set; }
+        public DateTime? updated_Date { get; set; }
     }
 }

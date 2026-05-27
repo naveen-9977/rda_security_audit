@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using rda_raipur.Models.Document_Verification;
 
 namespace rda_raipur.Models
 {
@@ -39,6 +40,7 @@ namespace rda_raipur.Models
         public string VerificationStatus { get; set; } = "Pending";
         public int? CurrentlyAssignedEmployeeId { get; set; }
 
+        public virtual ICollection<DocumentVerificationLog> VerificationLogs { get; set; } = new List<DocumentVerificationLog>();
 
         public string? CancelRemarks { get; set; }
         public string? ApplicationNo { get; set; }

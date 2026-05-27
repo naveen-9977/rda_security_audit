@@ -1,189 +1,146 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Filters;
 using rda_raipur.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers
 {
-    // 🔥 PERMISSION SECURITY ADDED: Sirf Admin aur Employee allow honge
     [Authorize(Roles = "Admin,Employee")]
     public class AllotmentType_MasterController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly string viewPath = "~/Views/AdminDashboard/Master/AllotmentType_Master/";
 
         public AllotmentType_MasterController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // ========================================================
-        // 🛡️ PERMISSION HELPER FUNCTION
-        // ========================================================
-        private async Task<bool> HasPermission(string actionType)
-        {
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            if (role == "Admin") return true;
-
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdString, out int userId)) return false;
-
-            var permission = await _context.EmployeePermissions
-                .Include(p => p.AppModule)
-                .FirstOrDefaultAsync(p => p.UserId == userId && p.AppModule.ControllerName == "AllotmentType_Master");
-
-            if (permission == null) return false;
-
-            return actionType switch
-            {
-                "View" => permission.CanView == true,
-                "Add" => permission.CanAdd == true,
-                "Edit" => permission.CanEdit == true,
-                "Delete" => permission.CanDelete == true,
-                _ => false
-            };
-        }
-
-        // GET: AllotmentType_Master
-        [HttpGet]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
+        // ==============================
+        // 1. INDEX
+        // ==============================
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanView" })]
         public async Task<IActionResult> Index()
         {
-            // Sirf wahi data layenge jo delete nahi hua hai
             var data = await _context.AllotementTypeMasters
+                                     // 🔥 FIX: !x.IsDeleted की जगह x.IsDeleted == false कर दिया है 🔥
                                      .Where(x => x.IsDeleted == false)
+                                     .OrderByDescending(x => x.Create_Date)
                                      .ToListAsync();
-            return View(data);
+            return View(viewPath + "Index.cshtml", data);
         }
 
-        // GET: AllotmentType_Master/Details/5
+        // ==============================
+        // 2. CREATE
+        // ==============================
         [HttpGet]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public IActionResult Create() => View(viewPath + "Create.cshtml");
 
-            var allotmentType_Master = await _context.AllotementTypeMasters
-                .FirstOrDefaultAsync(m => m.allotement_type_id == id);
-
-            if (allotmentType_Master == null) return NotFound();
-
-            return View(allotmentType_Master);
-        }
-
-        // GET: AllotmentType_Master/Create
-        [HttpGet]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AllotmentType_Master/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public IActionResult Create(AllotmentType_Master model)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public async Task<IActionResult> Create(AllotmentType_Master model)
         {
+            // Validation se background fields ko remove karna zaroori hai
+            ModelState.Remove("allotement_type_id");
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("created_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("updated_by");
+            ModelState.Remove("IsDeleted"); // 🔥 FIX: ise bhi remove karna zaroori hai
+
             if (ModelState.IsValid)
             {
                 model.Create_Date = DateTime.Now;
-                model.IsActive = true;
+                model.created_by = User.Identity.Name ?? "Admin";
                 model.IsDeleted = false;
+                // model.IsActive = true; (Ye Form checkbox se aa jayega)
 
                 _context.AllotementTypeMasters.Add(model);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index");
+                TempData["SuccessMessage"] = "Allotment Type created successfully!";
+                return RedirectToAction(nameof(Index));
             }
-            return View(model);
+            return View(viewPath + "Create.cshtml", model);
         }
 
-        // GET: AllotmentType_Master/Edit/5
+        // ==============================
+        // 3. EDIT
+        // ==============================
         [HttpGet]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var allotmentType_Master = await _context.AllotementTypeMasters.FindAsync(id);
-            if (allotmentType_Master == null) return NotFound();
+            var item = await _context.AllotementTypeMasters.FindAsync(id);
 
-            return View(allotmentType_Master);
+            // 🔥 FIX: item.IsDeleted की जगह item.IsDeleted == true कर दिया है 🔥
+            if (item == null || item.IsDeleted == true) return NotFound();
+
+            return View(viewPath + "Edit.cshtml", item);
         }
 
-        // POST: AllotmentType_Master/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public async Task<IActionResult> Edit(int id, [Bind("allotement_type_id,allotement_type_name_hi,allotement_type_name_en,created_by,Create_Date,updated_Date,updated_by,IsActive,IsDeleted")] AllotmentType_Master allotmentType_Master)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
+        public async Task<IActionResult> Edit(int id, AllotmentType_Master model)
         {
-            if (id != allotmentType_Master.allotement_type_id) return NotFound();
+            if (id != model.allotement_type_id) return NotFound();
+
+            // Edit mein bhi non-form fields ko validation se hatao
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("created_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("updated_by");
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    // Audit date update kar rahe hain
-                    allotmentType_Master.updated_Date = DateTime.Now;
+                var existing = await _context.AllotementTypeMasters.FindAsync(id);
+                if (existing == null) return NotFound();
 
-                    _context.Update(allotmentType_Master);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AllotmentType_MasterExists(allotmentType_Master.allotement_type_id)) return NotFound();
-                    else throw;
-                }
+                // Update Fields
+                existing.allotement_type_name_en = model.allotement_type_name_en;
+                existing.allotement_type_name_hi = model.allotement_type_name_hi;
+                existing.IsActive = model.IsActive;
+
+                // Audit Fields
+                existing.updated_by = User.Identity.Name ?? "Admin";
+                existing.updated_Date = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Allotment Type updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(allotmentType_Master);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
-        // GET: AllotmentType_Master/Delete/5
-        [HttpGet]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var allotmentType_Master = await _context.AllotementTypeMasters
-                .FirstOrDefaultAsync(m => m.allotement_type_id == id);
-
-            if (allotmentType_Master == null) return NotFound();
-
-            return View(allotmentType_Master);
-        }
-
-        // POST: AllotmentType_Master/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // ==============================
+        // 4. DELETE (SOFT)
+        // ==============================
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        [ServiceFilter(typeof(CheckPermissionAttribute))] // Security Added
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanDelete" })]
+        public async Task<IActionResult> Delete(int id)
         {
-            var allotmentType_Master = await _context.AllotementTypeMasters.FindAsync(id);
-            if (allotmentType_Master != null)
+            var item = await _context.AllotementTypeMasters.FindAsync(id);
+            if (item != null)
             {
-                // 🔥 Naya Soft Delete Logic (Record hamesha ke liye delete na ho)
-                allotmentType_Master.IsDeleted = true;
-                allotmentType_Master.updated_Date = DateTime.Now;
-                _context.AllotementTypeMasters.Update(allotmentType_Master);
+                item.IsDeleted = true; // Soft Delete
+                item.updated_by = User.Identity.Name ?? "Admin";
+                item.updated_Date = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Allotment Type deleted successfully!";
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool AllotmentType_MasterExists(int id)
-        {
-            return _context.AllotementTypeMasters.Any(e => e.allotement_type_id == id);
         }
     }
 }

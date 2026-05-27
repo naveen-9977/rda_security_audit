@@ -3,7 +3,10 @@ using rda_raipur.Models;
 using rda_raipur.Models.otp;
 using rda_raipur.Models.site;
 using rda_raipur.Models.PermissionModel;
+using rda_raipur.Models.Document_Verification;
+using rda_raipur.Models.AllotyInstallmentDueDetails;
 using rda_raipur.Models.Property;
+
 namespace rda_raipur.Data
 {
     public class ApplicationDbContext : DbContext
@@ -37,7 +40,7 @@ namespace rda_raipur.Data
         // 🔥 PROPERTY MODULE 🔥
         public DbSet<TenderPropertyCreation> TenderProperties { get; set; }
 
-        // 🔥 NEW: Direction Master add kiya gaya hai 🔥
+        
         public DbSet<MasterDirection> MasterDirections { get; set; }
 
         public DbSet<Tender_Live_Master> Tender_Live_Masters { get; set; }
@@ -46,21 +49,27 @@ namespace rda_raipur.Data
         public DbSet<BookingProfileDetail> BookingProfileDetails { get; set; }
         public DbSet<PropertyBooking> PropertyBookings { get; set; }
         public DbSet<PaymentDetail> PaymentDetails { get; set; }
-       
+        public DbSet<LotteryResult> LotteryResults { get; set; }
         public DbSet<EmployeeDetails> EmployeeDetails { get; set; }
         public DbSet<Department_Master> Department_Masters { get; set; }
         public DbSet<Designation_Master> Designation_Masters { get; set; }
         public DbSet<EmpType_Master> EmpType_Masters { get; set; }
         public DbSet<AppModule> AppModules { get; set; }
         public DbSet<EmployeePermission> EmployeePermissions { get; set; }
+        public DbSet<DocumentVerificationLog> DocumentVerificationLogs { get; set; }
+        public DbSet<rda_raipur.Models.AllotyRegistration.AllotyRegistration> AllotyRegistration { get; set; }
         public DbSet<rda_raipur.Models.PropertyMaster> Properties { get; set; }
 
-        // Purana Better_Location wapas apni jagah par
         public DbSet<rda_raipur.Models.Better_Location> Better_Location { get; set; }
 
+        public DbSet<Old_Alloty_Payment_Details> OldAllotyPaymentDetails { get; set; }
         public DbSet<AlloteePaymentDetail> AlloteePaymentDetails { get; set; }
+        public DbSet<IpIiOldData> IpIiOldDatas { get; set; }
+        public DbSet<AllotyInstallmentDueDetails> Alloty_Installment_Due_Details { get; set; }
+        public DbSet<AllotyPaymentDetails> Alloty_Payment_Details { get; set; }
 
-      
+        public DbSet<OldAllotyInstallmentMaster> OldAllotyInstallmentMasters { get; set; }
+        public DbSet<OldAllotyInstallmentDetail> OldAllotyInstallmentDetail { get; set; }
         public DbSet<SiteScheme> SiteSchemes { get; set; }
 
         public DbSet <PropertieDetailsCalulation> PropertieDetailsCalulation { get; set; }

@@ -9,7 +9,7 @@ using System.Globalization;
 var builder = WebApplication.CreateBuilder(args);
 
 // 🔥 PUBLIC ACCESS ENABLE (IMPORTANT)
-builder.WebHost.UseUrls("https://0.0.0.0:7090");
+builder.WebHost.UseUrls("https://0.0.0.0:7091");
 
 // 1. Services & Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

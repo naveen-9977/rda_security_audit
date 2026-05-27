@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Models;
+using rda_raipur.Filters;
 
 namespace rda_raipur.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Employee")]
+    [ServiceFilter(typeof(CheckPermissionAttribute))]
     public class UserCategory_MasterController : Controller
     {
         private readonly ApplicationDbContext _context;
-        // Naya View Path ek variable mein rakh lete hain taaki baar-baar lamba path na likhna pade
         private readonly string viewPath = "~/Views/AdminDashboard/Master/UserCategory_Master/";
 
         public UserCategory_MasterController(ApplicationDbContext context)
@@ -23,46 +22,39 @@ namespace rda_raipur.Controllers
             _context = context;
         }
 
-        // GET: UserCategory_Master
+        // ==============================
+        // 1. INDEX
+        // ==============================
         public async Task<IActionResult> Index()
         {
             var data = await _context.UserCategoryMasters
-               .Where(x => x.IsDeleted == false)
-               .ToListAsync();
+                                     .Where(x => x.IsDeleted == false) // Nullable bool handle safe
+                                     .OrderByDescending(x => x.Create_Date)
+                                     .ToListAsync();
 
-            // Naya path yahan use ho raha hai
             return View(viewPath + "Index.cshtml", data);
         }
 
-        // GET: UserCategory_Master/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var userCategory_Master = await _context.UserCategoryMasters
-                .FirstOrDefaultAsync(m => m.res_category_id == id);
-            if (userCategory_Master == null)
-            {
-                return NotFound();
-            }
-
-            return View(viewPath + "Details.cshtml", userCategory_Master);
-        }
-
-        // GET: UserCategory_Master/Create
+        // ==============================
+        // 2. CREATE
+        // ==============================
         public IActionResult Create()
         {
             return View(viewPath + "Create.cshtml");
         }
 
-        // POST: UserCategory_Master/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserCategory_Master model)
         {
+            // 🔥 FIX: Validation bypass for server side auto-filled fields
+            ModelState.Remove("res_category_id");
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("created_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("updated_by");
+            ModelState.Remove("IsDeleted");
+
             if (ModelState.IsValid)
             {
                 model.Create_Date = DateTime.Now;
@@ -72,98 +64,82 @@ namespace rda_raipur.Controllers
                 _context.Add(model);
                 await _context.SaveChangesAsync();
 
+                TempData["SuccessMessage"] = "Category created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-
             return View(viewPath + "Create.cshtml", model);
         }
 
-        // GET: UserCategory_Master/Edit/5
+        // ==============================
+        // 3. EDIT
+        // ==============================
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var userCategory_Master = await _context.UserCategoryMasters.FindAsync(id);
-            if (userCategory_Master == null)
-            {
-                return NotFound();
-            }
-            return View(viewPath + "Edit.cshtml", userCategory_Master);
+            var item = await _context.UserCategoryMasters.FindAsync(id);
+            if (item == null || item.IsDeleted == true) return NotFound();
+
+            return View(viewPath + "Edit.cshtml", item);
         }
 
-        // POST: UserCategory_Master/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("res_category_id,res_category_name_hi,res_category_name_en,created_by,Create_Date,updated_Date,updated_by,IsActive,IsDeleted")] UserCategory_Master userCategory_Master)
+        public async Task<IActionResult> Edit(int id, UserCategory_Master model)
         {
-            if (id != userCategory_Master.res_category_id)
-            {
-                return NotFound();
-            }
+            if (id != model.res_category_id) return NotFound();
+
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("created_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("updated_by");
+            ModelState.Remove("IsDeleted");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    userCategory_Master.updated_Date = DateTime.Now;
-                    userCategory_Master.updated_by = User.Identity.Name ?? "Admin";
+                    var existing = await _context.UserCategoryMasters.FindAsync(id);
+                    if (existing == null) return NotFound();
 
-                    _context.Update(userCategory_Master);
+                    existing.res_category_name_hi = model.res_category_name_hi;
+                    existing.res_category_name_en = model.res_category_name_en;
+                    existing.IsActive = model.IsActive;
+
+                    existing.updated_by = User.Identity.Name ?? "Admin";
+                    existing.updated_Date = DateTime.Now;
+
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Category updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserCategory_MasterExists(userCategory_Master.res_category_id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!UserCategory_MasterExists(model.res_category_id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(viewPath + "Edit.cshtml", userCategory_Master);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
-        // GET: UserCategory_Master/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var userCategory_Master = await _context.UserCategoryMasters
-                .FirstOrDefaultAsync(m => m.res_category_id == id);
-            if (userCategory_Master == null)
-            {
-                return NotFound();
-            }
-
-            return View(viewPath + "Delete.cshtml", userCategory_Master);
-        }
-
-        // POST: UserCategory_Master/Delete/5
+        // ==============================
+        // 4. DELETE
+        // ==============================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userCategory_Master = await _context.UserCategoryMasters.FindAsync(id);
-            if (userCategory_Master != null)
+            var item = await _context.UserCategoryMasters.FindAsync(id);
+            if (item != null)
             {
-                userCategory_Master.IsDeleted = true;
-                userCategory_Master.updated_Date = DateTime.Now;
-                userCategory_Master.updated_by = User.Identity.Name ?? "Admin";
+                item.IsDeleted = true;
+                item.IsActive = false;
+                item.updated_by = User.Identity.Name ?? "Admin";
+                item.updated_Date = DateTime.Now;
 
-                _context.Update(userCategory_Master);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Category deleted successfully!";
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

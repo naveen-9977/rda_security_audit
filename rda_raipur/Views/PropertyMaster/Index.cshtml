@@ -5,146 +5,107 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
+<link href="~/css/master-pages.css" rel="stylesheet" />
 <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
-<style>
-    .table-container {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title text-capitalize">
+            <i class='bx bx-buildings text-primary'></i>
+            @if (ViewBag.CurrentScheme != null)
+            {
+                <span>Inventory: <span class="text-primary">@ViewBag.CurrentScheme</span></span>
+            }
+            else
+            {
+                <span>All Properties Inventory</span>
+            }
+        </h3>
 
-    .custom-table th {
-        background-color: #f8fafc !important;
-        color: #475569;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        white-space: nowrap;
-    }
-
-    .custom-table td {
-        vertical-align: middle;
-        font-size: 0.85rem;
-        color: #334155;
-    }
-
-    .property-code {
-        font-weight: 700;
-        color: #0ea5e9;
-    }
-
-    .price-value {
-        font-weight: 700;
-        color: #059669;
-    }
-
-    .badge-status {
-        font-size: 0.7rem;
-        padding: 4px 8px;
-    }
-
-    .action-btn {
-        padding: 4px 8px;
-        font-size: 0.8rem;
-        border-radius: 6px;
-        margin-right: 3px;
-    }
-</style>
-
-<div class="container-fluid mt-4 px-lg-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">
-                @if (ViewBag.CurrentScheme != null)
-                {
-                    <span>Properties for: <span class="text-primary">@ViewBag.CurrentScheme</span></span>
-                }
-                else
-                {
-                    <span>All Properties Inventory</span>
-                }
-            </h3>
-            <p class="text-muted small mb-0">Detailed view of the selected inventory.</p>
-        </div>
-        <div>
-            <a asp-action="SchemeDashboard" class="btn btn-outline-dark fw-bold shadow-sm rounded-pill px-4 py-2 me-2">
-                <i class="bi bi-grid-fill me-1"></i> Back to Schemes
+        <div class="d-flex gap-2">
+            <a asp-action="SchemeDashboard" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+                <i class='bx bx-grid-alt me-1'></i> Back to Schemes
             </a>
-            <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4 py-2">
-                <i class="bi bi-plus-circle me-1"></i> Add Property
+            <a asp-action="Create" class="btn btn-primary fw-bold px-4 shadow-sm" style="background-color: #003366; border: none;">
+                <i class='bx bx-plus-circle me-1'></i> Add Property
             </a>
         </div>
     </div>
 
-    <div class="table-container border-top border-primary border-4">
-        <div class="table-responsive">
-            <table id="inventoryTable" class="table table-hover custom-table w-100">
-                <thead>
-                    <tr>
-                        <th>Property Code</th>
-                        <th>Sector</th>
-                        <th>Block</th>
-
-                        <th>House No.</th>
-                        <th>Config</th>
-                        <th>Reservation</th>
-                        <th>S.B Area</th>
-                        <th>Buildup</th>
-                        <th>Carpet</th>
-                        <th>Offset Price (₹)</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model)
+    <div class="card master-card">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table id="inventoryTable" class="table gov-table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;" class="text-center">S.No.</th>
+                            <th>Property Code</th>
+                            <th>Sector</th>
+                            <th>Block</th>
+                            <th>House No.</th>
+                            <th>Config</th>
+                            <th>Reservation</th>
+                            <th>Offset Price (₹)</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center" style="width: 220px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
                         {
-                            <tr>
-                                <td class="property-code">@item.Property_Id</td>
-
-                                <td class="fw-bold text-dark">@item.sector_name_en</td>
-                                <td class="fw-semibold text-secondary">@item.block_name_en</td>
-
-                                <td class="fw-bold text-dark">@item.House_No</td>
-                                <td>
-                                    @item.Property_Type_Name_en
-                                    @if (!string.IsNullOrEmpty(item.Flat_name_en))
-                                    {
-                                        <span class="badge bg-info text-dark ms-1">@item.Flat_name_en</span>
-                                    }
-                                </td>
-                                <td><span class="badge bg-light text-danger border border-danger">@(item.res_category_name_en ?? "General")</span></td>
-
-                                <td class="fw-bold text-secondary">@item.Super_Buildup_Area</td>
-                                <td class="fw-bold text-secondary">@(item.Buildup_Area?.ToString() ?? "-")</td>
-                                <td class="fw-bold text-secondary">@(item.Carpet_Area?.ToString() ?? "-")</td>
-
-                                <td class="price-value" data-order="@item.offset_Price">
-                                    @{
-                                        decimal parsedPrice = 0;
-                                        if (item.offset_Price != null)
-                                            decimal.TryParse(item.offset_Price.ToString(), out parsedPrice);
-                                    }
-                                    ₹@parsedPrice.ToString("N0")
-                                </td>
-
-                                <td><span class="badge @(item.Booking_Status == "Vacant" ? "bg-success" : "bg-secondary") badge-status">@item.Booking_Status</span></td>
-
-                                <td class="text-end text-nowrap">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info action-btn"><i class="bi bi-eye"></i></a>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning action-btn"><i class="bi bi-pencil-square"></i></a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger action-btn"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
+                            int serialNumber = 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center fw-bold text-muted">@serialNumber</td>
+                                    <td class="fw-bold text-primary">@item.Property_Id</td>
+                                    <td class="fw-bold text-dark">@item.sector_name_en</td>
+                                    <td class="text-secondary fw-semibold">@item.block_name_en</td>
+                                    <td class="fw-bold text-dark">@item.House_No</td>
+                                    <td>
+                                        <span class="fw-semibold">@item.Property_Type_Name_en</span>
+                                        @if (!string.IsNullOrEmpty(item.Flat_name_en))
+                                        {
+                                            <span class="badge bg-light text-dark border ms-1 fw-bold">@item.Flat_name_en</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-danger border fw-bold px-2 py-1">
+                                            @(item.res_category_name_en ?? "General")
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold text-success">
+                                        @{
+                                            decimal parsedPrice = 0;
+                                            if (item.offset_Price != null) decimal.TryParse(item.offset_Price.ToString(), out parsedPrice);
+                                        }
+                                        ₹@parsedPrice.ToString("N0")
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="@(item.Booking_Status == "Vacant" ? "gov-badge-active" : "gov-badge-inactive")">
+                                            @item.Booking_Status
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm border rounded shadow-sm">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light text-info fw-bold" title="View">
+                                                <i class='bx bx-show me-1'></i>View
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light text-primary fw-bold" title="Edit">
+                                                <i class='bx bx-edit me-1'></i>Edit
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light text-danger fw-bold" title="Delete">
+                                                <i class='bx bx-trash me-1'></i>Delete
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                serialNumber++;
+                            }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -155,10 +116,14 @@
     <script>
         $(document).ready(function () {
             $('#inventoryTable').DataTable({
-                pageLength: 15,
-                lengthMenu: [[10, 15, 25, 50, -1], [10, 15, 25, 50, "All"]],
-                order: [[0, "desc"]],
-                language: { search: "_INPUT_", searchPlaceholder: "Search properties..." }
+                "pageLength": 15,
+                "lengthMenu": [[10, 15, 25, 50, -1], [10, 15, 25, 50, "All"]],
+                "order": [[0, "asc"]],
+                "responsive": true,
+                "language": {
+                    "search": "Quick Search: ",
+                    "searchPlaceholder": "Type to filter records..."
+                }
             });
         });
     </script>

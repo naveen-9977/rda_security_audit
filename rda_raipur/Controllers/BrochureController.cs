@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 namespace rda_raipur.Controllers
 {
     [Authorize(Roles = "Admin,Employee")]
-    // 🔴 Yahan se class-level filter hata diya hai, ab hum har action par alag filter lagayenge
     public class BrochureController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly string viewPath = "~/Views/AdminDashboard/Brochure/";
 
         public BrochureController(ApplicationDbContext context, IWebHostEnvironment env)
         {
@@ -27,103 +27,63 @@ namespace rda_raipur.Controllers
         }
 
         // ==============================
-        // 1. GET: View All Brochures
+        // 1. INDEX
         // ==============================
-        // 🔥 Sirf jiske paas "CanView" hai wo list dekh payega
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanView" })]
         public async Task<IActionResult> Index()
         {
-            var brochures = await _context.Brochures.OrderByDescending(b => b.CreatedDate).ToListAsync();
-            return View(brochures);
+            var brochures = await _context.Brochures
+                                          .Where(b => !b.IsDeleted)
+                                          .OrderByDescending(b => b.CreatedDate)
+                                          .ToListAsync();
+            return View(viewPath + "Index.cshtml", brochures);
         }
 
         // ==============================
-        // 2. GET: Create Brochure
+        // 2. CREATE
         // ==============================
-        // 🔥 Jiske paas "CanAdd" hai wahi ye page khol payega
+        [HttpGet]
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View(viewPath + "Create.cshtml");
 
-        // ==============================
-        // 3. POST: Create Brochure
-        // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
-        public async Task<IActionResult> Create(Brochure model, IFormFile imageFile, IFormFile pdfFile)
+        public async Task<IActionResult> Create(Brochure model, IFormFile? imageFile, IFormFile? pdfFile)
         {
             ModelState.Remove("ImagePath");
             ModelState.Remove("PdfPath");
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    if (imageFile != null && imageFile.Length > 0)
-                    {
-                        string imageFolder = Path.Combine(_env.WebRootPath, "images", "brochures");
-                        if (!Directory.Exists(imageFolder)) Directory.CreateDirectory(imageFolder);
-                        string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                        string imagePath = Path.Combine(imageFolder, imageFileName);
-                        using (var stream = new FileStream(imagePath, FileMode.Create)) { await imageFile.CopyToAsync(stream); }
-                        model.ImagePath = "/images/brochures/" + imageFileName;
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Please upload a thumbnail image.");
-                        return View(model);
-                    }
+                if (imageFile != null) model.ImagePath = await UploadFileAsync(imageFile, "images/brochures");
+                if (pdfFile != null) model.PdfPath = await UploadFileAsync(pdfFile, "documents/brochures");
 
-                    if (pdfFile != null && pdfFile.Length > 0)
-                    {
-                        string pdfFolder = Path.Combine(_env.WebRootPath, "documents", "brochures");
-                        if (!Directory.Exists(pdfFolder)) Directory.CreateDirectory(pdfFolder);
-                        string pdfFileName = Guid.NewGuid().ToString() + Path.GetExtension(pdfFile.FileName);
-                        string pdfPath = Path.Combine(pdfFolder, pdfFileName);
-                        using (var stream = new FileStream(pdfPath, FileMode.Create)) { await pdfFile.CopyToAsync(stream); }
-                        model.PdfPath = "/documents/brochures/" + pdfFileName;
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Please upload a PDF brochure.");
-                        return View(model);
-                    }
+                model.CreatedDate = DateTime.Now;
+                model.created_by = User.Identity.Name ?? "Admin";
+                model.IsDeleted = false;
 
-                    _context.Brochures.Add(model);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Brochure added successfully!";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Error saving file: " + ex.Message);
-                }
+                _context.Brochures.Add(model);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Brochure added successfully!";
+                return RedirectToAction(nameof(Index));
             }
-            return View(model);
+            return View(viewPath + "Create.cshtml", model);
         }
 
         // ==============================
-        // 4. GET: Edit Brochure
+        // 3. EDIT
         // ==============================
-        // 🔥 Jiske paas "CanEdit" hai wahi edit kar payega
         [HttpGet]
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
         public async Task<IActionResult> Edit(int id)
         {
             var brochure = await _context.Brochures.FindAsync(id);
-            if (brochure == null)
-            {
-                return NotFound();
-            }
-            return View(brochure);
+            if (brochure == null || brochure.IsDeleted) return NotFound();
+            return View(viewPath + "Edit.cshtml", brochure);
         }
 
-        // ==============================
-        // 5. POST: Edit Brochure
-        // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
@@ -136,64 +96,82 @@ namespace rda_raipur.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var existing = await _context.Brochures.FindAsync(id);
+                if (existing == null) return NotFound();
+
+                // Update Fields
+                existing.Title_En = model.Title_En;
+                existing.Title_Hi = model.Title_Hi;
+                existing.Description = model.Description;
+                existing.IsActive = model.IsActive;
+
+                // Handle File Updates
+                if (imageFile != null)
                 {
-                    var existingBrochure = await _context.Brochures.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                    if (existingBrochure == null) return NotFound();
-
-                    model.ImagePath = existingBrochure.ImagePath;
-                    model.PdfPath = existingBrochure.PdfPath;
-                    model.CreatedDate = existingBrochure.CreatedDate;
-
-                    if (imageFile != null && imageFile.Length > 0)
-                    {
-                        string imageFolder = Path.Combine(_env.WebRootPath, "images", "brochures");
-                        if (!Directory.Exists(imageFolder)) Directory.CreateDirectory(imageFolder);
-                        string imageFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                        string imagePath = Path.Combine(imageFolder, imageFileName);
-                        using (var stream = new FileStream(imagePath, FileMode.Create)) { await imageFile.CopyToAsync(stream); }
-                        model.ImagePath = "/images/brochures/" + imageFileName;
-                    }
-
-                    if (pdfFile != null && pdfFile.Length > 0)
-                    {
-                        string pdfFolder = Path.Combine(_env.WebRootPath, "documents", "brochures");
-                        if (!Directory.Exists(pdfFolder)) Directory.CreateDirectory(pdfFolder);
-                        string pdfFileName = Guid.NewGuid().ToString() + Path.GetExtension(pdfFile.FileName);
-                        string pdfPath = Path.Combine(pdfFolder, pdfFileName);
-                        using (var stream = new FileStream(pdfPath, FileMode.Create)) { await pdfFile.CopyToAsync(stream); }
-                        model.PdfPath = "/documents/brochures/" + pdfFileName;
-                    }
-
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Brochure updated successfully!";
-                    return RedirectToAction(nameof(Index));
+                    DeleteOldFile(existing.ImagePath);
+                    existing.ImagePath = await UploadFileAsync(imageFile, "images/brochures");
                 }
-                catch (Exception ex)
+
+                if (pdfFile != null)
                 {
-                    ModelState.AddModelError("", "Error updating: " + ex.Message);
+                    DeleteOldFile(existing.PdfPath);
+                    existing.PdfPath = await UploadFileAsync(pdfFile, "documents/brochures");
                 }
+
+                // Audit Fields
+                existing.updated_by = User.Identity.Name ?? "Admin";
+                existing.updated_Date = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Brochure updated successfully!";
+                return RedirectToAction(nameof(Index));
             }
-            return View(model);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
         // ==============================
-        // 6. POST: Delete/Deactivate
+        // 4. DELETE (SOFT)
         // ==============================
-        // 🔥 Jiske paas "CanDelete" hai wahi delete kar payega
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanDelete" })]
         public async Task<IActionResult> Delete(int id)
         {
             var brochure = await _context.Brochures.FindAsync(id);
             if (brochure != null)
             {
-                _context.Brochures.Remove(brochure);
+                brochure.IsDeleted = true; // Soft Delete
+                brochure.updated_by = User.Identity.Name ?? "Admin";
+                brochure.updated_Date = DateTime.Now;
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Brochure deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // ==============================
+        // HELPER METHODS
+        // ==============================
+        private async Task<string> UploadFileAsync(IFormFile file, string folder)
+        {
+            string folderPath = Path.Combine(_env.WebRootPath, folder);
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            using (var stream = new FileStream(Path.Combine(folderPath, fileName), FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return "/" + folder + "/" + fileName;
+        }
+
+        private void DeleteOldFile(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                string fullPath = Path.Combine(_env.WebRootPath, path.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+            }
         }
     }
 }

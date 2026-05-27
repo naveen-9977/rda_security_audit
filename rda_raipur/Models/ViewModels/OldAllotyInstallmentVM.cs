@@ -12,5 +12,6 @@ namespace rda_raipur.Models.ViewModels
         public decimal Final_Property_Cost { get; set; }
         public decimal Additional_Property_Cost { get; set; }
 
+        public List<OldAllotyInstallmentDetail> Details { get; set; } = new();
     }
 }

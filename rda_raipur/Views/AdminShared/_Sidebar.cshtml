@@ -1,15 +1,16 @@
-﻿@using rda_raipur.Data
+﻿@using Microsoft.AspNetCore.Localization
+@using rda_raipur.Data
 @using System.Security.Claims
 @inject ApplicationDbContext _context
 
 @{
-    // ==========================================
-    // 1. DYNAMIC PERMISSION LOGIC (STRICT JOIN)
-    // ==========================================
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.UICulture.Name ?? "hi";
+    bool isEnglish = currentCulture.StartsWith("en");
+
     var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     int userId = 0;
     int.TryParse(userIdStr, out userId);
-
     bool isAdmin = User.IsInRole("Admin");
 
     var userPermissions = (from p in _context.EmployeePermissions
@@ -19,136 +20,235 @@
 
     bool HasAccess(string ctrl) => isAdmin || userPermissions.Any(x => x.Equals(ctrl, StringComparison.OrdinalIgnoreCase));
 
-    // ==========================================
-    // 2. ACTIVE MENU LOGIC
-    // ==========================================
     var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
 
-    // 🔥 ADDED PropertieDetailsCalculation into Master Active Logic
-    bool isMasterActive = currentController == "Scheme_Master" || currentController == "Sector_Master" ||
-                          currentController == "Block_Master" || currentController == "AllotmentType_Master" ||
-                          currentController == "UserCategory_Master" || currentController == "PropertyModelMasters" ||
-                          currentController == "PropertyModelTypeMasters" || currentController == "FlatTypeMasters" ||
-                          currentController == "Registration" || currentController == "SearchProperty" ||
-                          currentController == "Alloty" || currentController == "Payment" || currentController == "Lottery" ||
-                          currentController == "PropertieDetailsCalculation";
-
-    bool isPropertyActive = currentController == "PropertyMaster" || currentController == "TenderProperty" ||
-                            currentController == "TenderPropertyCreations" || currentController == "TenderLive";
-
+    bool isMasterActive = currentController == "Scheme_Master" || currentController == "Sector_Master" || currentController == "Block_Master" || currentController == "AllotmentType_Master" || currentController == "UserCategory_Master" || currentController == "PropertyModelMasters" || currentController == "PropertyModelTypeMasters" || currentController == "FlatTypeMasters" || currentController == "Registration" || currentController == "SearchProperty" || currentController == "Alloty" || currentController == "Payment" || currentController == "Lottery" || currentController == "PropertieDetailsCalculation";
+    bool isPropertyActive = currentController == "PropertyMaster" || currentController == "TenderProperty" || currentController == "TenderPropertyCreations" || currentController == "TenderLive" || currentController == "AllotmentLetter";
     bool isVerificationActive = currentController == "DocumentVerification";
-
-    bool isSiteContentActive = currentController == "SiteNews" || currentController == "SiteGallery" ||
-                               currentController == "SiteCarousel" || currentController == "SitePopup" ||
-                               currentController == "SiteContact" || currentController == "Brochure" ||
-                               currentController == "SiteScheme";
-
-    bool isEmployeeActive = currentController == "EmployeeManagement" || currentController == "Department_Master" ||
-                            currentController == "Designation_Master" || currentController == "EmpType_Master";
-
+    bool isSiteContentActive = currentController == "SiteNews" || currentController == "SiteGallery" || currentController == "SiteCarousel" || currentController == "SitePopup" || currentController == "SiteContact" || currentController == "Brochure" || currentController == "SiteScheme";
+    bool isEmployeeActive = currentController == "EmployeeManagement" || currentController == "Department_Master" || currentController == "Designation_Master" || currentController == "EmpType_Master";
     bool isSystemSetupActive = currentController == "AppModule" || currentController == "Permission" || currentController == "Account";
 
-    // ==========================================
-    // 3. DROPDOWN VISIBILITY LOGIC
-    // ==========================================
-    // 🔥 ADDED PropertieDetailsCalculation into Visibility Logic
-    bool canViewAnyMaster = HasAccess("Scheme_Master") || HasAccess("Sector_Master") || HasAccess("Block_Master") ||
-                            HasAccess("AllotmentType_Master") || HasAccess("UserCategory_Master") ||
-                            HasAccess("PropertyModelMasters") || HasAccess("PropertyModelTypeMasters") ||
-                            HasAccess("FlatTypeMasters") || HasAccess("SearchProperty") || HasAccess("Alloty") ||
-                            HasAccess("Payment") || HasAccess("Lottery") || HasAccess("PropertieDetailsCalculation");
-
-    bool canViewAnyProperty = HasAccess("PropertyMaster") || HasAccess("TenderProperty") ||
-                              HasAccess("TenderPropertyCreations") || HasAccess("TenderLive");
-
-    bool canViewAnySiteContent = HasAccess("SiteNews") || HasAccess("SiteGallery") || HasAccess("SiteCarousel") ||
-                                 HasAccess("SitePopup") || HasAccess("SiteContact") || HasAccess("Brochure") ||
-                                 HasAccess("SiteScheme");
-
-    bool canViewAnyEmployeeSetup = HasAccess("EmployeeManagement") || HasAccess("Department_Master") ||
-                                   HasAccess("Designation_Master") || HasAccess("EmpType_Master");
-
+    bool canViewAnyMaster = HasAccess("Scheme_Master") || HasAccess("Sector_Master") || HasAccess("Block_Master") || HasAccess("AllotmentType_Master") || HasAccess("UserCategory_Master") || HasAccess("PropertyModelMasters") || HasAccess("PropertyModelTypeMasters") || HasAccess("FlatTypeMasters") || HasAccess("SearchProperty") || HasAccess("Alloty") || HasAccess("Payment") || HasAccess("Lottery") || HasAccess("PropertieDetailsCalculation");
+    bool canViewAnyProperty = HasAccess("PropertyMaster") || HasAccess("TenderProperty") || HasAccess("TenderPropertyCreations") || HasAccess("TenderLive") || HasAccess("AllotmentLetter");
+    bool canViewAnySiteContent = HasAccess("SiteNews") || HasAccess("SiteGallery") || HasAccess("SiteCarousel") || HasAccess("SitePopup") || HasAccess("SiteContact") || HasAccess("Brochure") || HasAccess("SiteScheme");
+    bool canViewAnyEmployeeSetup = HasAccess("EmployeeManagement") || HasAccess("Department_Master") || HasAccess("Designation_Master") || HasAccess("EmpType_Master");
     bool canViewAnySystemSetup = HasAccess("AppModule") || HasAccess("Permission") || HasAccess("Account");
 }
 
 <script>
     (function () {
         if (window.innerWidth > 992) {
-            const state = localStorage.getItem("sidebar-collapsed");
-            if (state === "true") {
+            if (localStorage.getItem("sidebar-collapsed") === "true") {
                 document.documentElement.classList.add('sidebar-is-collapsed');
             }
         }
     })();
 </script>
 
-<style>
-    /* 🟢 BASE SIDEBAR STYLING 🟢 */
+<style> 
+    :root {
+        /* ✨ चौड़ाई फिक्स कर दी है ताकि ज़ूम करने पर टेक्स्ट न कटे ✨ */
+        --sidebar-width: clamp(250px, 18vw, 300px);
+    }
+
+    /* 🟢 PREMIUM WARM CHARCOAL SIDEBAR 🟢 */
     .admin-sidebar {
-        width: 260px;
+        width: var(--sidebar-width);
         height: calc(100vh - 70px);
         position: fixed;
         left: 0;
         top: 70px;
-        background-color: #ffffff;
-        border-right: 1px solid #e5e7eb;
+        background-color: #272522; /* Warm Dark Charcoal */
+        border-right: none;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.06);
         z-index: 1040;
         display: flex;
         flex-direction: column;
         transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-x: hidden;
     }
 
     .sidebar-inner {
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
+        padding-top: 15px;
+        padding-bottom: 20px;
     }
 
-    /* 🟢 NIC LOGO FOOTER (COLORFUL) 🟢 */
-    .sidebar-footer {
-        padding: 15px;
-        border-top: 1px solid #f1f5f9;
-        background: #ffffff;
-        text-align: center;
-    }
+        .sidebar-inner::-webkit-scrollbar {
+            width: 5px;
+        }
 
-    .sidebar-is-collapsed .sidebar-footer,
-    .admin-sidebar.collapsed .sidebar-footer {
-        display: none !important;
-    }
+        .sidebar-inner::-webkit-scrollbar-thumb {
+            background: #57534e;
+            border-radius: 10px;
+        }
 
-    .version-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: #94a3b8;
+        .sidebar-inner::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+    /* 🟢 MENU STYLING 🟢 */
+    .menu-category {
+        padding: 20px 20px 8px 24px;
+        font-size: 0.68rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
-        display: block;
+        letter-spacing: 1.5px;
+        color: #a8a29e;
+        font-weight: 800;
     }
 
-    .nic-logo-img {
-        height: 35px;
-        width: auto;
-        filter: none !important;
-        opacity: 1 !important;
+    .admin-menu {
+        list-style: none;
+        /* ✨ लेफ्ट साइड का गैप खत्म कर दिया (0 पैडिंग) ✨ */
+        padding: 0 15px 0 0;
+        margin: 0;
     }
 
-    /* Desktop Collapsed State */
+    .menu-item a {
+        display: flex;
+        align-items: center;
+        /* ✨ पैडिंग एडजस्ट की ताकि टेक्स्ट सही जगह दिखे ✨ */
+        padding: 12px 14px 12px 20px;
+        color: #d6d3d1 !important;
+        text-decoration: none;
+        /* ✨ बॉर्डर रेडियस सिर्फ राइट साइड में ✨ */
+        border-radius: 0 8px 8px 0 !important;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+        border-left: 4px solid transparent !important;
+        background-color: transparent !important;
+    }
+
+        .menu-item a span {
+            white-space: normal; /* ✨ अब टेक्स्ट '...' में नहीं कटेगा, पूरा दिखेगा ✨ */
+            word-wrap: break-word;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .menu-item a:hover {
+            background-color: #36332f !important;
+            color: #ffffff !important;
+        }
+
+        .menu-item a.active {
+            background-color: #36332f !important;
+            color: #ffffff !important;
+            /* ✨ एक्टिव बॉर्डर अब एकदम किनारे से चिपका रहेगा ✨ */
+            border-left: 4px solid #ea580c !important;
+            font-weight: 700;
+        }
+
+    .menu-icon {
+        font-size: 1.25rem;
+        margin-right: 14px;
+        min-width: 24px;
+        text-align: center;
+        color: #a8a29e;
+        transition: color 0.2s;
+    }
+
+    .menu-item a:hover .menu-icon {
+        color: #ffffff;
+    }
+
+    .menu-item a.active .menu-icon {
+        color: #ea580c !important;
+    }
+
+    .dropdown-arrow {
+        margin-left: 8px;
+        font-size: 0.8rem;
+        color: #a8a29e;
+        transition: transform 0.3s;
+        flex-shrink: 0;
+    }
+
+    .menu-item a[aria-expanded="true"] .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    /* Submenu styling */
+    .admin-submenu {
+        background: #1c1a18;
+        margin: 2px 0 8px 0;
+        border-radius: 0 8px 8px 0; /* Match parent */
+        padding: 8px 0;
+        border: none;
+        overflow: hidden;
+    }
+
+        .admin-submenu li a {
+            padding: 8px 14px 8px 58px; /* Indented proper layout */
+            font-size: 0.88rem;
+            color: #a8a29e !important;
+            border-left: none !important;
+            background: transparent !important;
+            font-weight: 500;
+            border-radius: 0;
+        }
+
+            .admin-submenu li a span {
+                white-space: normal;
+                display: block;
+            }
+
+            .admin-submenu li a:hover {
+                color: #ea580c !important;
+                padding-left: 62px;
+            }
+
+            .admin-submenu li a.active {
+                color: #ea580c !important;
+                font-weight: 700;
+            }
+
+    /* Toggle Button */
+    .sidebar-toggle-btn {
+        position: fixed;
+        left: calc(var(--sidebar-width) - 16px);
+        top: 85px;
+        width: 32px;
+        height: 32px;
+        background: #ea580c;
+        border: 3px solid #fffbf5;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1050;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-is-collapsed .sidebar-toggle-btn, .collapsed-toggle {
+        left: 60px !important;
+    }
+
+    /* 🟢 COLLAPSED STATE 🟢 */
     .sidebar-is-collapsed .admin-sidebar, .admin-sidebar.collapsed {
         width: 75px !important;
     }
 
         .sidebar-is-collapsed .admin-sidebar .menu-item a, .admin-sidebar.collapsed .menu-item a {
             justify-content: center !important;
-            padding: 11px 0 !important;
-            margin: 0 10px;
+            padding: 12px 0 !important;
+            margin: 4px 10px;
+            border-radius: 8px !important; /* Make it pill again when collapsed */
+            border-left: none !important;
         }
 
         .sidebar-is-collapsed .admin-sidebar .menu-icon, .admin-sidebar.collapsed .menu-icon {
             margin-right: 0 !important;
-            font-size: 1.35rem;
+            font-size: 1.4rem;
         }
 
         .sidebar-is-collapsed .admin-sidebar span, .admin-sidebar.collapsed span,
@@ -158,129 +258,24 @@
             display: none !important;
         }
 
-    /* Mobile View Fix */
+    /* 🟢 MOBILE STATE 🟢 */
     @@media (max-width: 991.98px) {
         .admin-sidebar {
             left: -100%;
-            width: 280px;
+            width: 285px !important;
             z-index: 2000;
             height: 100vh;
             top: 0;
-            transition: left 0.3s ease;
         }
 
             .admin-sidebar.mobile-open {
                 left: 0;
-                box-shadow: 10px 0 30px rgba(0,0,0,0.2);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
             }
 
         .sidebar-toggle-btn {
             display: none !important;
         }
-    }
-
-    /* Toggle Button */
-    .sidebar-toggle-btn {
-        position: fixed;
-        left: 245px;
-        top: 85px;
-        width: 30px;
-        height: 30px;
-        background: #f97316;
-        border: 3px solid #ffffff;
-        border-radius: 50%;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 1050;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-
-    .sidebar-is-collapsed .sidebar-toggle-btn, .collapsed-toggle {
-        left: 60px !important;
-    }
-
-    /* Menu Styling */
-    .menu-category {
-        padding: 22px 24px 10px;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #94a3b8;
-        font-weight: 800;
-    }
-
-    .admin-menu {
-        list-style: none;
-        padding: 0 12px;
-        margin: 0;
-    }
-
-    .menu-item a {
-        display: flex;
-        align-items: center;
-        padding: 11px 14px;
-        color: #000000 !important;
-        text-decoration: none;
-        border-radius: 10px;
-        transition: 0.2s;
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-bottom: 3px;
-    }
-
-        .menu-item a:hover {
-            background-color: #f3f4f6;
-            color: #f97316 !important;
-        }
-
-        .menu-item a.active {
-            background-color: #003366 !important;
-            color: #ffffff !important;
-        }
-
-    .menu-icon {
-        font-size: 1.2rem;
-        margin-right: 12px;
-        width: 24px;
-        text-align: center;
-        color: #4b5563;
-    }
-
-    .menu-item a.active .menu-icon {
-        color: #f97316 !important;
-    }
-
-    .dropdown-arrow {
-        margin-left: auto;
-        font-size: 0.8rem;
-        opacity: 0.5;
-    }
-
-    .admin-submenu {
-        background: #fdfaf6;
-        margin: 5px 0 10px 10px;
-        border-radius: 10px;
-        padding: 6px 0;
-        border: 1px solid #f3f4f6;
-    }
-
-        .admin-submenu li a {
-            padding-left: 45px;
-            font-size: 0.88rem;
-            color: #000000 !important;
-        }
-
-    .admin-sidebar::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .admin-sidebar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
     }
 
     .sidebar-overlay {
@@ -289,7 +284,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.4);
+        background: rgba(41, 37, 36, 0.6);
+        backdrop-filter: blur(2px);
         z-index: 1035;
         display: none;
     }
@@ -301,43 +297,41 @@
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<aside class="admin-sidebar shadow-sm" id="sidebar">
-    <div class="sidebar-inner py-3">
+<aside class="admin-sidebar" id="sidebar">
+    <div class="sidebar-inner">
         <ul class="admin-menu">
 
             <li class="menu-item">
                 <a href="@Url.Action("Index", "AdminDashboard")" class="@(currentController == "AdminDashboard" ? "active" : "")">
                     <i class="bi bi-grid-1x2-fill menu-icon"></i>
-                    <span>Dashboard Overview</span>
+                    <span>@(isEnglish ? "Dashboard Overview" : "डैशबोर्ड अवलोकन")</span>
                 </a>
             </li>
 
             @if (canViewAnyProperty)
             {
-                <li class="menu-category">Property Management</li>
+                <li class="menu-category">@(isEnglish ? "Property Management" : "संपत्ति प्रबंधन")</li>
                 <li class="menu-item">
-                    <a class="d-flex align-items-center @(isPropertyActive ? "active" : "")" data-bs-toggle="collapse" href="#propertySubmenu">
-                        <i class="bi bi-building-fill menu-icon text-primary"></i>
-                        <span>Property List</span>
+                    <a class="d-flex align-items-center @(isPropertyActive ? "active" : "")" data-bs-toggle="collapse" href="#propertySubmenu" aria-expanded="@(isPropertyActive ? "true" : "false")">
+                        <i class="bi bi-building-fill menu-icon"></i>
+                        <span>@(isEnglish ? "Property List" : "संपत्ति सूची")</span>
                         <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </a>
                     <div class="collapse @(isPropertyActive ? "show" : "")" id="propertySubmenu">
                         <ul class="admin-submenu list-unstyled">
                             @if (HasAccess("PropertyMaster"))
                             {
-                                <li><a href="@Url.Action("Index", "PropertyMaster")" class="@(currentController == "PropertyMaster" ? "active" : "")">Property Creation Index</a></li>
+                                <li><a href="@Url.Action("Index", "PropertyMaster")" class="@(currentController == "PropertyMaster" ? "active" : "")"><span>@(isEnglish ? "Property Creation Index" : "संपत्ति निर्माण")</span></a></li>
                             }
                             else if (HasAccess("TenderProperty"))
                             {
-                                <li><a href="@Url.Action("Index", "TenderProperty")" class="@(currentController == "TenderProperty" ? "active" : "")">Property Creation Index</a></li>
+                                <li><a href="@Url.Action("Index", "TenderProperty")" class="@(currentController == "TenderProperty" ? "active" : "")"><span>@(isEnglish ? "Property Creation Index" : "संपत्ति निर्माण")</span></a></li>
                             }
-
                             @if (HasAccess("TenderLive"))
                             {
-                                <li><a href="@Url.Action("Index", "TenderLive")" class="@(currentController == "TenderLive" ? "active" : "")">Live Properties</a></li>
+                                <li><a href="@Url.Action("Index", "TenderLive")" class="@(currentController == "TenderLive" ? "active" : "")"><span>@(isEnglish ? "Live Properties" : "लाइव संपत्तियां")</span></a></li>
                             }
-
-                            
+                           
                         </ul>
                     </div>
                 </li>
@@ -345,96 +339,97 @@
 
             @if (canViewAnyMaster)
             {
-                <li class="menu-category">System Configuration</li>
+                <li class="menu-category">@(isEnglish ? "System Configuration" : "सिस्टम कॉन्फ़िगरेशन")</li>
                 <li class="menu-item">
-                    <a class="d-flex align-items-center @(isMasterActive ? "active" : "")" data-bs-toggle="collapse" href="#masterSubmenu">
+                    <a class="d-flex align-items-center @(isMasterActive ? "active" : "")" data-bs-toggle="collapse" href="#masterSubmenu" aria-expanded="@(isMasterActive ? "true" : "false")">
                         <i class="bi bi-layers-fill menu-icon"></i>
-                        <span>Master Management</span>
+                        <span>@(isEnglish ? "Master Management" : "मास्टर प्रबंधन")</span>
                         <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </a>
                     <div class="collapse @(isMasterActive ? "show" : "")" id="masterSubmenu">
                         <ul class="admin-submenu list-unstyled">
                             @if (HasAccess("Scheme_Master"))
                             {
-                                <li><a href="@Url.Action("Index", "Scheme_Master")" class="@(currentController == "Scheme_Master" ? "active" : "")">Scheme Master</a></li>
+                                <li><a href="@Url.Action("Index", "Scheme_Master")" class="@(currentController == "Scheme_Master" ? "active" : "")"><span>@(isEnglish ? "Scheme Master" : "योजना मास्टर")</span></a></li>
                             }
                             @if (HasAccess("Sector_Master"))
                             {
-                                <li><a href="@Url.Action("Index", "Sector_Master")" class="@(currentController == "Sector_Master" ? "active" : "")">Sector Master</a></li>
+                                <li><a href="@Url.Action("Index", "Sector_Master")" class="@(currentController == "Sector_Master" ? "active" : "")"><span>@(isEnglish ? "Sector Master" : "सेक्टर मास्टर")</span></a></li>
                             }
                             @if (HasAccess("Block_Master"))
                             {
-                                <li><a href="@Url.Action("Index", "Block_Master")" class="@(currentController == "Block_Master" ? "active" : "")">Block Master</a></li>
+                                <li><a href="@Url.Action("Index", "Block_Master")" class="@(currentController == "Block_Master" ? "active" : "")"><span>@(isEnglish ? "Block Master" : "ब्लॉक मास्टर")</span></a></li>
                             }
                             @if (HasAccess("AllotmentType_Master"))
                             {
-                                <li><a href="@Url.Action("Index", "AllotmentType_Master")" class="@(currentController == "AllotmentType_Master" ? "active" : "")">Allotment Type</a></li>
+                                <li><a href="@Url.Action("Index", "AllotmentType_Master")" class="@(currentController == "AllotmentType_Master" ? "active" : "")"><span>@(isEnglish ? "Allotment Type" : "आवंटन प्रकार")</span></a></li>
                             }
                             @if (HasAccess("UserCategory_Master"))
                             {
-                                <li><a href="@Url.Action("Index", "UserCategory_Master")" class="@(currentController == "UserCategory_Master" ? "active" : "")">User Category</a></li>
+                                <li><a href="@Url.Action("Index", "UserCategory_Master")" class="@(currentController == "UserCategory_Master" ? "active" : "")"><span>@(isEnglish ? "User Category" : "उपयोगकर्ता श्रेणी")</span></a></li>
                             }
                             @if (HasAccess("PropertyModelMasters"))
                             {
-                                <li><a href="@Url.Action("Index", "PropertyModelMasters")" class="@(currentController == "PropertyModelMasters" ? "active" : "")">Property Models</a></li>
+                                <li><a href="@Url.Action("Index", "PropertyModelMasters")" class="@(currentController == "PropertyModelMasters" ? "active" : "")"><span>@(isEnglish ? "Property Models" : "संपत्ति मॉडल")</span></a></li>
                             }
                             @if (HasAccess("PropertyModelTypeMasters"))
                             {
-                                <li><a href="@Url.Action("Index", "PropertyModelTypeMasters")" class="@(currentController == "PropertyModelTypeMasters" ? "active" : "")">Model Types</a></li>
+                                <li><a href="@Url.Action("Index", "PropertyModelTypeMasters")" class="@(currentController == "PropertyModelTypeMasters" ? "active" : "")"><span>@(isEnglish ? "Model Types" : "मॉडल प्रकार")</span></a></li>
                             }
                             @if (HasAccess("FlatTypeMasters"))
                             {
-                                <li><a href="@Url.Action("Index", "FlatTypeMasters")" class="@(currentController == "FlatTypeMasters" ? "active" : "")">Flat Types</a></li>
+                                <li><a href="@Url.Action("Index", "FlatTypeMasters")" class="@(currentController == "FlatTypeMasters" ? "active" : "")"><span>@(isEnglish ? "Flat Types" : "फ्लैट प्रकार")</span></a></li>
                             }
-
-                            
+                           
                         </ul>
                     </div>
                 </li>
             }
 
-            
+           
+
+         
 
             
 
             @if (canViewAnySiteContent)
             {
-                <li class="menu-category">Website Content</li>
+                <li class="menu-category">@(isEnglish ? "Website Content" : "वेबसाइट सामग्री")</li>
                 <li class="menu-item">
-                    <a class="d-flex align-items-center @(isSiteContentActive ? "active" : "")" data-bs-toggle="collapse" href="#siteSubmenu">
+                    <a class="d-flex align-items-center @(isSiteContentActive ? "active" : "")" data-bs-toggle="collapse" href="#siteSubmenu" aria-expanded="@(isSiteContentActive ? "true" : "false")">
                         <i class="bi bi-window-sidebar menu-icon"></i>
-                        <span>Manage Website</span>
+                        <span>@(isEnglish ? "Manage Website" : "वेबसाइट प्रबंधित करें")</span>
                         <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </a>
                     <div class="collapse @(isSiteContentActive ? "show" : "")" id="siteSubmenu">
                         <ul class="admin-submenu list-unstyled">
                             @if (HasAccess("SiteNews"))
                             {
-                                <li><a href="@Url.Action("Index", "SiteNews")" class="@(currentController == "SiteNews" ? "active" : "")">News / Marquee</a></li>
+                                <li><a href="@Url.Action("Index", "SiteNews")" class="@(currentController == "SiteNews" ? "active" : "")"><span>@(isEnglish ? "News / Marquee" : "समाचार / मार्की")</span></a></li>
                             }
                             @if (HasAccess("SiteGallery"))
                             {
-                                <li><a href="@Url.Action("Index", "SiteGallery")" class="@(currentController == "SiteGallery" ? "active" : "")">Photo Gallery</a></li>
+                                <li><a href="@Url.Action("Index", "SiteGallery")" class="@(currentController == "SiteGallery" ? "active" : "")"><span>@(isEnglish ? "Photo Gallery" : "फोटो गैलरी")</span></a></li>
                             }
                             @if (HasAccess("SiteCarousel"))
                             {
-                                <li><a href="@Url.Action("Index", "SiteCarousel")" class="@(currentController == "SiteCarousel" ? "active" : "")">Carousel</a></li>
+                                <li><a href="@Url.Action("Index", "SiteCarousel")" class="@(currentController == "SiteCarousel" ? "active" : "")"><span>@(isEnglish ? "Carousel" : "हिंडोला")</span></a></li>
                             }
                             @if (HasAccess("SitePopup"))
                             {
-                                <li><a href="@Url.Action("Index", "SitePopup")" class="@(currentController == "SitePopup" ? "active" : "")">Welcome Popups</a></li>
+                                <li><a href="@Url.Action("Index", "SitePopup")" class="@(currentController == "SitePopup" ? "active" : "")"><span>@(isEnglish ? "Welcome Popups" : "वेलकम पॉपअप")</span></a></li>
                             }
                             @if (HasAccess("SiteContact"))
                             {
-                                <li><a href="@Url.Action("Index", "SiteContact")" class="@(currentController == "SiteContact" ? "active" : "")">Inquiries</a></li>
+                                <li><a href="@Url.Action("Index", "SiteContact")" class="@(currentController == "SiteContact" ? "active" : "")"><span>@(isEnglish ? "Inquiries" : "पूछताछ")</span></a></li>
                             }
                             @if (HasAccess("Brochure"))
                             {
-                                <li><a href="@Url.Action("Index", "Brochure")" class="@(currentController == "Brochure" ? "active" : "")">Brochures</a></li>
+                                <li><a href="@Url.Action("Index", "Brochure")" class="@(currentController == "Brochure" ? "active" : "")"><span>@(isEnglish ? "Brochures" : "ब्रोशर")</span></a></li>
                             }
                             @if (HasAccess("SiteScheme"))
                             {
-                                <li><a href="@Url.Action("Index", "SiteScheme")" class="@(currentController == "SiteScheme" ? "active" : "")">Public Schemes</a></li>
+                                <li><a href="@Url.Action("Index", "SiteScheme")" class="@(currentController == "SiteScheme" ? "active" : "")"><span>@(isEnglish ? "Public Schemes" : "सार्वजनिक योजनाएं")</span></a></li>
                             }
                         </ul>
                     </div>
@@ -445,49 +440,55 @@
 
         </ul>
     </div>
-
-    <div class="sidebar-footer">
-        <span class="version-label">v1.0</span>
-        <img src="~/images/external_logos/nic_logo.png" alt="NIC Logo" class="nic-logo-img" />
-    </div>
 </aside>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
+        const mobileBtn = document.getElementById("mobileMenuTrigger");
         const toggleBtn = document.getElementById("sidebarToggle");
         const sidebar = document.getElementById("sidebar");
-        const mainContent = document.querySelector(".main-content");
         const overlay = document.getElementById("sidebarOverlay");
 
-        // Restore Desktop Sidebar State
-        if (window.innerWidth > 992) {
-            const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
-            if (isCollapsed) {
-                sidebar.classList.add("collapsed");
-                toggleBtn.classList.add("collapsed-toggle");
-                toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
-                if(mainContent) mainContent.style.marginLeft = "75px";
-            }
-        }
-
-        // Toggle Sidebar (Desktop)
-        if (toggleBtn) {
-            toggleBtn.addEventListener("click", function() {
-                sidebar.classList.toggle("collapsed");
-                toggleBtn.classList.toggle("collapsed-toggle");
-                document.documentElement.classList.remove('sidebar-is-collapsed');
-
-                const isCollapsed = sidebar.classList.contains("collapsed");
-                localStorage.setItem("sidebar-collapsed", isCollapsed);
-
-                if(mainContent) mainContent.style.marginLeft = isCollapsed ? "75px" : "260px";
-                toggleBtn.innerHTML = isCollapsed ? '<i class="bi bi-chevron-right"></i>' : '<i class="bi bi-chevron-left"></i>';
+        // 1. Mobile Menu Logic
+        if (mobileBtn) {
+            mobileBtn.addEventListener("click", function () {
+                sidebar.classList.toggle("mobile-open");
+                overlay.style.display = sidebar.classList.contains("mobile-open") ? "block" : "none";
             });
         }
 
-        // Mobile Overlay Click
+        // 2. Desktop Init State (Check LocalStorage before render if possible,
+        // but we already handle it in the <head> of _Layout.cshtml)
+        if (window.innerWidth > 992) {
+            if (localStorage.getItem("sidebar-collapsed") === "true") {
+                if (toggleBtn) {
+                    toggleBtn.classList.add("collapsed-toggle");
+                    toggleBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+                }
+            }
+        }
+
+        // 3. Desktop Toggle Logic
+        if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+                // Toggle state on body for CSS-based layout shift
+                const isCollapsed = document.body.classList.toggle("sidebar-is-collapsed");
+
+                // Toggle state on sidebar for visual changes
+                if (sidebar) sidebar.classList.toggle("collapsed");
+
+                // Save to localStorage
+                localStorage.setItem("sidebar-collapsed", isCollapsed);
+
+                // Update Button UI
+                toggleBtn.innerHTML = isCollapsed ? '<i class="bi bi-chevron-right"></i>' : '<i class="bi bi-chevron-left"></i>';
+                toggleBtn.classList.toggle("collapsed-toggle");
+            });
+        }
+
+        // 4. Mobile Overlay Close
         if (overlay) {
-            overlay.addEventListener("click", function() {
+            overlay.addEventListener("click", function () {
                 sidebar.classList.remove("mobile-open");
                 overlay.style.display = "none";
             });

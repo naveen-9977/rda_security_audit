@@ -4,112 +4,48 @@
     ViewData["Title"] = "Scheme Dashboard";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 
-    // Data ko Scheme ke hisaab se group kar rahe hain
+    // Data grouping logic preserved
     var groupedSchemes = Model.GroupBy(x => string.IsNullOrEmpty(x.Scheme_name_en) ? "Unassigned" : x.Scheme_name_en)
                               .OrderBy(g => g.Key)
                               .ToList();
 }
 
-<style>
-    .dashboard-bg {
-        background: #f8fafc;
-        min-height: 100vh;
-        padding-bottom: 50px;
-    }
+<link href="~/css/master-pages.css" rel="stylesheet" />
 
-    .scheme-card {
-        background: #ffffff;
-        border-radius: 16px;
+<style>
+    .scheme-stats-card {
+        background: #fff;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
         transition: all 0.3s ease;
-        overflow: hidden;
-        text-decoration: none;
         display: block;
+        text-decoration: none;
         color: inherit;
+        height: 100%;
     }
 
-        .scheme-card:hover {
+        .scheme-stats-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.15);
-            border-color: #bae6fd;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #003366;
         }
 
-    .card-header-custom {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        padding: 20px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .scheme-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #0369a1;
-        margin: 0;
-    }
-
-    .stats-container {
-        padding: 20px;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        text-align: center;
-    }
-
-    .stat-box {
-        background: #f8fafc;
-        padding: 15px 10px;
-        border-radius: 12px;
-        border: 1px solid #f1f5f9;
-    }
-
-    .stat-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    .stat-number {
-        font-size: 1.5rem;
-        font-weight: 900;
-    }
-
-    .text-total {
-        color: #0f172a;
-    }
-
-    .text-vacant {
-        color: #10b981;
-    }
-
-    .text-sold {
-        color: #ef4444;
-    }
-
-    .card-footer-custom {
-        background: #ffffff;
-        padding: 15px 20px;
-        border-top: 1px dashed #f1f5f9;
-        text-align: right;
-        font-weight: 700;
-        color: #0ea5e9;
-        font-size: 0.85rem;
+    .stat-badge {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 600;
     }
 </style>
 
-<div class="dashboard-bg pt-4 px-lg-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">Schemes Overview</h3>
-            <p class="text-muted small mb-0">Select a scheme to view its detailed property inventory.</p>
-        </div>
-        <div>
-            <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4 py-2">
-                <i class="bi bi-plus-circle me-1"></i> Add Property
-            </a>
-        </div>
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title">
+            <i class='bx bx-grid-alt text-primary'></i> Schemes Overview
+        </h3>
+        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4" style="background-color: #003366; border: none;">
+            <i class='bx bx-plus-circle me-1'></i> Add Property
+        </a>
     </div>
 
     <div class="row g-4">
@@ -120,31 +56,31 @@
             int sold = total - vacant;
 
             <div class="col-md-6 col-xl-4">
-                <a href="@Url.Action("Index", "PropertyMaster", new { scheme = group.Key })" class="scheme-card shadow-sm">
-                    <div class="card-header-custom d-flex align-items-center">
-                        <div class="bg-white p-2 rounded-circle shadow-sm me-3">
-                            <i class="bi bi-buildings text-primary fs-4"></i>
+                <a href="@Url.Action("Index", "PropertyMaster", new { scheme = group.Key })" class="scheme-stats-card shadow-sm p-0">
+                    <div class="p-3 border-bottom d-flex align-items-center" style="background: #f8fafc;">
+                        <div class="bg-white p-2 rounded shadow-sm me-3 border">
+                            <i class='bx bx-buildings text-primary fs-4'></i>
                         </div>
-                        <h4 class="scheme-title">@group.Key</h4>
+                        <h4 class="mb-0 fw-bold text-dark">@group.Key</h4>
                     </div>
 
-                    <div class="stats-container">
-                        <div class="stat-box">
-                            <span class="stat-label">Total</span>
-                            <span class="stat-number text-total">@total</span>
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted fw-bold">Total Properties</span>
+                            <span class="fw-bold fs-5">@total</span>
                         </div>
-                        <div class="stat-box" style="background: #ecfdf5; border-color: #d1fae5;">
-                            <span class="stat-label">Vacant</span>
-                            <span class="stat-number text-vacant">@vacant</span>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted fw-bold">Vacant</span>
+                            <span class="badge bg-success-subtle text-success stat-badge">@vacant</span>
                         </div>
-                        <div class="stat-box" style="background: #fef2f2; border-color: #fee2e2;">
-                            <span class="stat-label">Sold/Booked</span>
-                            <span class="stat-number text-sold">@sold</span>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted fw-bold">Sold/Booked</span>
+                            <span class="badge bg-danger-subtle text-danger stat-badge">@sold</span>
                         </div>
                     </div>
 
-                    <div class="card-footer-custom">
-                        View Inventory <i class="bi bi-arrow-right ms-1"></i>
+                    <div class="p-3 bg-light border-top text-primary fw-bold text-center rounded-bottom">
+                        View Inventory <i class='bx bx-right-arrow-alt align-middle'></i>
                     </div>
                 </a>
             </div>

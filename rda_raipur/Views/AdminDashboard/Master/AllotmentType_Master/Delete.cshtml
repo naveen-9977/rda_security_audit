@@ -1,0 +1,71 @@
+﻿@model rda_raipur.Models.AllotmentType_Master
+
+@{
+    ViewData["Title"] = "Delete Allotment Type";
+    Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
+}
+
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="fas fa-trash-alt text-danger"></i> Delete Allotment Type</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <div class="alert alert-danger shadow-sm border-0 mb-4">
+                <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
+                <p class="mb-0">Are you sure you want to delete this record? This action cannot be undone.</p>
+            </div>
+
+            <div class="mb-4">
+                <div class="detail-row">
+                    <div class="row">
+                        <div class="col-md-4 detail-label">Hindi Name</div>
+                        <div class="col-md-8 detail-value">@Model.allotement_type_name_hi</div>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="row">
+                        <div class="col-md-4 detail-label">English Name</div>
+                        <div class="col-md-8 detail-value">@Model.allotement_type_name_en</div>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="row">
+                        <div class="col-md-4 detail-label">Status</div>
+                        <div class="col-md-8 detail-value">
+                            <span class="@(Model.IsActive == true ? "gov-badge-active" : "gov-badge-inactive")">
+                                @(Model.IsActive == true ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="row">
+                        <div class="col-md-4 detail-label">Created By</div>
+                        <div class="col-md-8 detail-value">
+                            @Model.created_by (@(Model.Create_Date?.ToString("dd MMM yyyy") ?? "N/A"))
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post" onsubmit="return confirm('Confirm deletion of this record?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="allotement_type_id" />
+
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-danger fw-bold px-5 shadow-sm">
+                        <i class="fas fa-trash-alt me-1"></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

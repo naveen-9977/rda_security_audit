@@ -1,61 +1,78 @@
 ﻿@model rda_raipur.Models.Block_Master
+
 @{
     ViewData["Title"] = "Edit Block";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h3 mb-0 text-gray-800">Edit Block Details</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
-            <i class="bi bi-arrow-left me-1"></i> Back to List
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-pencil-square text-primary"></i> Edit Block Details</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
-    <div class="card shadow border-0 rounded-3 mb-4">
+    <div class="card master-card">
         <div class="card-body p-4">
             <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
 
                 <input type="hidden" asp-for="block_id" />
                 <input type="hidden" asp-for="created_by" />
                 <input type="hidden" asp-for="Create_Date" />
-                <input type="hidden" asp-for="IsActive" />
-                <input type="hidden" asp-for="IsDeleted" />
 
                 <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label asp-for="scheme_id" class="form-label fw-bold">Select Scheme <span class="text-danger">*</span></label>
-                        <select asp-for="scheme_id" class="form-select" asp-items="ViewBag.SchemeList">
-                            <option value="">-- Select a Scheme --</option>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="scheme_id" class="master-label">Select Scheme <span class="text-danger">*</span></label>
+                        <select asp-for="scheme_id" class="master-input w-100" asp-items="ViewBag.SchemeList">
+                            <option value="">-- Select Scheme --</option>
                         </select>
-                        <span asp-validation-for="scheme_id" class="text-danger"></span>
+                        <span asp-validation-for="scheme_id" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-4">
-                        <label asp-for="sector_id" class="form-label fw-bold">Select Sector <span class="text-danger">*</span></label>
-                        <select asp-for="sector_id" class="form-select" asp-items="ViewBag.SectorList">
-                            <option value="">-- Select a Sector --</option>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="sector_id" class="master-label">Select Sector <span class="text-danger">*</span></label>
+                        <select asp-for="sector_id" class="master-input w-100" asp-items="ViewBag.SectorList">
+                            <option value="">-- Select Sector --</option>
                         </select>
-                        <span asp-validation-for="sector_id" class="text-danger"></span>
+                        <span asp-validation-for="sector_id" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="block_name_en" class="form-label fw-bold">Block Name (English) <span class="text-danger">*</span></label>
-                        <input asp-for="block_name_en" class="form-control" placeholder="e.g., Block A" />
-                        <span asp-validation-for="block_name_en" class="text-danger"></span>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="block_name_en" class="master-label">Block Name (English) <span class="text-danger">*</span></label>
+                        <input asp-for="block_name_en" class="master-input w-100" placeholder="e.g., Block A" />
+                        <span asp-validation-for="block_name_en" class="text-danger small fw-bold"></span>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="block_name_hi" class="form-label fw-bold">Block Name (Hindi)</label>
-                        <input asp-for="block_name_hi" class="form-control" placeholder="ब्लॉक ए" />
-                        <span asp-validation-for="block_name_hi" class="text-danger"></span>
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="block_name_hi" class="master-label">Block Name (Hindi)</label>
+                        <input asp-for="block_name_hi" class="master-input w-100" placeholder="ब्लॉक ए" />
+                        <span asp-validation-for="block_name_hi" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <div class="d-flex gap-4 mt-3 pt-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch">
+                                <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Is Active</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-4" asp-for="IsDeleted" id="IsDeletedSwitch">
+                                <label class="form-check-label fw-bold mt-1 ms-2" for="IsDeletedSwitch">Is Deleted</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="border-top pt-3 mt-2">
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-save me-1"></i> Update Block
+                <hr class="my-4 border-light">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Update Changes
                     </button>
                 </div>
             </form>

@@ -5,13 +5,16 @@
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid py-4 px-lg-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
         <div>
-            <h2 class="h3 mb-1 text-dark fw-bold"><i class="bi bi- megaphone-fill text-primary me-2"></i> Live Tender Masters</h2>
-            <p class="text-muted small mb-0">Overview of all active and scheduled tender groups.</p>
+            <h2 class="master-title text-capitalize">
+                <i class="bi bi-megaphone-fill text-primary"></i> Live Tender Masters
+            </h2>
         </div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm px-4 fw-bold rounded-pill">
+        <a asp-action="Create" class="btn btn-primary fw-bold px-4 shadow-sm" style="background-color: #003366; border: none;">
             <i class="bi bi-plus-circle me-1"></i> Launch New Master Tender
         </a>
     </div>
@@ -23,58 +26,69 @@
         </div>
     }
 
-    <div class="card shadow border-0 rounded-4 overflow-hidden">
-        <div class="card-body p-0">
+    <div class="card master-card">
+        <div class="card-body p-3">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-dark text-white">
+                <table class="table gov-table align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="ps-4 py-3">Master ID</th>
+                            <th class="ps-3" style="width: 120px;">Master ID</th>
                             <th>Scheme Name</th>
-                            <th class="text-center">Live Units</th>
+                            <th class="text-center" style="width: 150px;">Live Units</th>
                             <th>Live Window (Start - End)</th>
-                            <th>Status</th>
-                            <th class="text-end pe-4">Action</th>
+                            <th class="text-center" style="width: 130px;">Status</th>
+                            <th class="text-end pe-3" style="width: 180px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (!Model.Any())
-                        {
-                            <tr><td colspan="6" class="text-center py-5 text-muted">No Live Tenders found. Click "Launch New Master" to begin.</td></tr>
-                        }
-                        @foreach (var item in Model)
+                        @if (Model == null || !Model.Any())
                         {
                             <tr>
-                                <td class="ps-4 fw-bold text-muted">#MST-@item.MasterId</td>
-                                <td>
-                                    <div class="fw-extrabold text-dark fs-6">@item.Scheme_Name</div>
-                                    <small class="text-muted">Created: @item.Created_Date.ToString("dd MMM yyyy")</small>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
-                                        @item.LiveProperties.Count Properties
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="small fw-bold text-success"><i class="bi bi-calendar-check me-1"></i> @item.Tender_Start_Date.ToString("dd/MM/yy hh:mm tt")</div>
-                                    <div class="small fw-bold text-danger"><i class="bi bi-calendar-x me-1"></i> @item.Tender_End_Date.ToString("dd/MM/yy hh:mm tt")</div>
-                                </td>
-                                <td>
-                                    @if (item.Status == "Active")
-                                    {
-                                        <span class="badge bg-success px-3 py-2 shadow-sm"><i class="bi bi-broadcast"></i> LIVE</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary px-3 py-2 shadow-sm">INACTIVE</span>
-                                    }
-                                </td>
-                                <td class="text-end pe-4">
-                                    <a href="@Url.Action("Manage", "TenderLive", new { masterId = item.MasterId })" class="btn btn-warning btn-sm fw-bold px-4 rounded-pill shadow-sm">
-                                        <i class="bi bi-gear-fill me-1"></i> Manage & Edit
-                                    </a>
+                                <td colspan="6" class="text-center py-5 text-muted fw-bold">
+                                    No Live Tenders found. Click "Launch New Master" to begin.
                                 </td>
                             </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3 fw-bold text-muted">#MST-@item.MasterId</td>
+                                    <td>
+                                        <div class="fw-bold text-dark fs-6">@item.Scheme_Name</div>
+                                        <small class="text-muted fw-semibold">Created: @item.Created_Date.ToString("dd MMM yyyy")</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
+                                            <i class="bi bi-house-door me-1"></i> @(item.LiveProperties?.Count ?? 0) Units
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-bold text-success">
+                                            <i class="bi bi-calendar-check me-1"></i> @item.Tender_Start_Date.ToString("dd/MM/yy hh:mm tt")
+                                        </div>
+                                        <div class="small fw-bold text-danger mt-1">
+                                            <i class="bi bi-calendar-x me-1"></i> @item.Tender_End_Date.ToString("dd/MM/yy hh:mm tt")
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.Status == "Active")
+                                        {
+                                            <span class="gov-badge-active"><i class="bi bi-broadcast me-1"></i> Live</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="gov-badge-inactive">Inactive</span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <a href="@Url.Action("Manage", "TenderLive", new { masterId = item.MasterId })" class="btn btn-warning btn-sm fw-bold px-3 rounded shadow-sm text-dark">
+                                            <i class="bi bi-gear-fill me-1"></i> Manage & Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -82,3 +96,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

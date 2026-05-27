@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers
 {
-    // Secure this controller so only Admins can access it
     [Authorize(Roles = "Admin")]
     public class Sector_MasterController : Controller
     {
@@ -26,8 +24,8 @@ namespace rda_raipur.Controllers
         public async Task<IActionResult> Index()
         {
             var data = _context.Sector_Master
-                        .Include(s => s.Scheme_Master)
-                        .Where(x => x.IsDeleted == false);
+                                .Include(s => s.Scheme_Master)
+                                .Where(x => x.IsDeleted == false);
 
             return View("~/Views/AdminDashboard/Master/Sector_Master/Index.cshtml", await data.ToListAsync());
         }
@@ -35,19 +33,13 @@ namespace rda_raipur.Controllers
         // GET: Sector_Master/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var sector_Master = await _context.Sector_Master
                 .Include(s => s.Scheme_Master)
                 .FirstOrDefaultAsync(m => m.sector_id == id);
 
-            if (sector_Master == null)
-            {
-                return NotFound();
-            }
+            if (sector_Master == null) return NotFound();
 
             return View("~/Views/AdminDashboard/Master/Sector_Master/Details.cshtml", sector_Master);
         }
@@ -55,25 +47,20 @@ namespace rda_raipur.Controllers
         // GET: Sector_Master/Create
         public IActionResult Create()
         {
-            ViewBag.SchemeList = new SelectList(
-                _context.Scheme_Master.Where(x => x.IsDeleted == false),
-                "scheme_id",
-                "scheme_name_en"
-            );
-
+            ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en");
             return View("~/Views/AdminDashboard/Master/Sector_Master/Create.cshtml");
         }
 
         // POST: Sector_Master/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Sector_Master sector)
+        public async Task<IActionResult> Create([Bind("sector_id,scheme_id,sector_name_en,sector_name_hi,IsActive,IsDeleted")] Sector_Master sector)
         {
             if (ModelState.IsValid)
             {
+                // 🔥 BACKEND SECURITY: Audit Fields
+                sector.created_by = User.Identity.Name;
                 sector.Create_Date = DateTime.Now;
-                sector.IsActive = true;
-                sector.IsDeleted = false;
 
                 _context.Add(sector);
                 await _context.SaveChangesAsync();
@@ -87,16 +74,10 @@ namespace rda_raipur.Controllers
         // GET: Sector_Master/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var sector_Master = await _context.Sector_Master.FindAsync(id);
-            if (sector_Master == null)
-            {
-                return NotFound();
-            }
+            if (sector_Master == null) return NotFound();
 
             ViewBag.SchemeList = new SelectList(_context.Scheme_Master.Where(x => x.IsDeleted == false), "scheme_id", "scheme_name_en", sector_Master.scheme_id);
             return View("~/Views/AdminDashboard/Master/Sector_Master/Edit.cshtml", sector_Master);
@@ -105,30 +86,35 @@ namespace rda_raipur.Controllers
         // POST: Sector_Master/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("sector_id,scheme_id,sector_name_en,sector_name_hi,created_by,Create_Date,updated_Date,updated_by,IsActive,IsDeleted")] Sector_Master sector_Master)
+        public async Task<IActionResult> Edit(int id, [Bind("sector_id,scheme_id,sector_name_en,sector_name_hi,IsActive,IsDeleted")] Sector_Master sector_Master)
         {
-            if (id != sector_Master.sector_id)
-            {
-                return NotFound();
-            }
+            if (id != sector_Master.sector_id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(sector_Master);
+                    // 🔥 FETCH EXISTING RECORD (To keep old CreatedBy/Date intact)
+                    var existingSector = await _context.Sector_Master.FindAsync(id);
+                    if (existingSector == null) return NotFound();
+
+                    // Update fields
+                    existingSector.scheme_id = sector_Master.scheme_id;
+                    existingSector.sector_name_en = sector_Master.sector_name_en;
+                    existingSector.sector_name_hi = sector_Master.sector_name_hi;
+                    existingSector.IsActive = sector_Master.IsActive;
+                    existingSector.IsDeleted = sector_Master.IsDeleted;
+
+                    // 🔥 BACKEND SECURITY: Audit Fields
+                    existingSector.updated_by = User.Identity.Name;
+                    existingSector.updated_Date = DateTime.Now;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!Sector_MasterExists(sector_Master.sector_id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!Sector_MasterExists(sector_Master.sector_id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -140,19 +126,13 @@ namespace rda_raipur.Controllers
         // GET: Sector_Master/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var sector_Master = await _context.Sector_Master
                 .Include(s => s.Scheme_Master)
                 .FirstOrDefaultAsync(m => m.sector_id == id);
 
-            if (sector_Master == null)
-            {
-                return NotFound();
-            }
+            if (sector_Master == null) return NotFound();
 
             return View("~/Views/AdminDashboard/Master/Sector_Master/Delete.cshtml", sector_Master);
         }
@@ -166,8 +146,11 @@ namespace rda_raipur.Controllers
 
             if (sector != null)
             {
+                // 🔥 Soft Delete
                 sector.IsDeleted = true;
                 sector.IsActive = false;
+                sector.updated_by = User.Identity.Name;
+                sector.updated_Date = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
 

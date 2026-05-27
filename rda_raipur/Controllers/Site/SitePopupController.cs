@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
-using rda_raipur.Models.site; // SitePopup model namespace
-using rda_raipur.Filters; // 🔥 PERMISSION FILTER
+using rda_raipur.Models.site;
+using rda_raipur.Filters;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers.Site
 {
-    // 🔥 ADMIN & EMPLOYEE DONO KE LIYE + SECURE FILTER
     [Authorize(Roles = "Admin,Employee")]
     [ServiceFilter(typeof(CheckPermissionAttribute))]
     public class SitePopupController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly string viewPath = "~/Views/AdminDashboard/Master/SitePopup/";
 
         public SitePopupController(ApplicationDbContext context, IWebHostEnvironment env)
         {
@@ -29,82 +29,63 @@ namespace rda_raipur.Controllers.Site
         // ==========================================
         // 1. INDEX
         // ==========================================
-        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var popups = await _context.SitePopups
-                .Where(x => !x.IsDeleted)
-                .OrderByDescending(x => x.CreatedDate)
-                .ToListAsync();
-
-            return View("~/Views/AdminDashboard/Master/SitePopup/Index.cshtml", popups);
+            var data = await _context.SitePopups
+                                     .Where(x => !x.IsDeleted)
+                                     .OrderByDescending(x => x.CreatedDate)
+                                     .ToListAsync();
+            return View(viewPath + "Index.cshtml", data);
         }
 
         // ==========================================
         // 2. CREATE
         // ==========================================
-        [HttpGet]
         public IActionResult Create()
         {
-            return View("~/Views/AdminDashboard/Master/SitePopup/Create.cshtml");
+            return View(viewPath + "Create.cshtml");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SitePopup model)
+        public async Task<IActionResult> Create([Bind("DisplayOrder, Title, Url, ImageUpload, IsActive")] SitePopup model)
         {
             if (ModelState.IsValid)
             {
-                // 🔥 Image Upload Logic
-                if (model.ImageUpload != null && model.ImageUpload.Length > 0)
+                if (model.ImageUpload != null)
                 {
-                    string folderPath = Path.Combine(_env.WebRootPath, "uploads", "popup");
-                    if (!Directory.Exists(folderPath))
-                    {
-                        Directory.CreateDirectory(folderPath);
-                    }
-
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
-                    string filePath = Path.Combine(folderPath, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.ImageUpload.CopyToAsync(fileStream);
-                    }
-
-                    model.ImagePath = "/uploads/popup/" + uniqueFileName;
+                    model.ImagePath = await UploadImageAsync(model.ImageUpload, "popup");
                 }
 
                 model.CreatedDate = DateTime.Now;
-                model.IsActive = true;
+                model.created_by = User.Identity.Name ?? "Admin";
                 model.IsDeleted = false;
 
                 _context.SitePopups.Add(model);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Popup added successfully!";
+                TempData["SuccessMessage"] = "Popup created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SitePopup/Create.cshtml", model);
+            return View(viewPath + "Create.cshtml", model);
         }
 
         // ==========================================
         // 3. EDIT
         // ==========================================
-        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var popup = await _context.SitePopups.FindAsync(id);
-            if (popup == null || popup.IsDeleted) return NotFound();
+            var item = await _context.SitePopups.FindAsync(id);
+            if (item == null || item.IsDeleted) return NotFound();
 
-            return View("~/Views/AdminDashboard/Master/SitePopup/Edit.cshtml", popup);
+            return View(viewPath + "Edit.cshtml", item);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SitePopup model)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, DisplayOrder, Title, Url, ImageUpload, IsActive")] SitePopup model)
         {
             if (id != model.Id) return NotFound();
 
@@ -112,50 +93,27 @@ namespace rda_raipur.Controllers.Site
             {
                 try
                 {
-                    var existingPopup = await _context.SitePopups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                    if (existingPopup == null) return NotFound();
+                    var existing = await _context.SitePopups.FindAsync(id);
+                    if (existing == null) return NotFound();
 
-                    // 🔥 Image Upload Logic for Edit
-                    if (model.ImageUpload != null && model.ImageUpload.Length > 0)
+                    // Update fields
+                    existing.DisplayOrder = model.DisplayOrder;
+                    existing.Title = model.Title;
+                    existing.Url = model.Url;
+                    existing.IsActive = model.IsActive;
+
+                    // Handle Image Upload
+                    if (model.ImageUpload != null)
                     {
-                        string folderPath = Path.Combine(_env.WebRootPath, "uploads", "popup");
-                        if (!Directory.Exists(folderPath))
-                        {
-                            Directory.CreateDirectory(folderPath);
-                        }
-
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ImageUpload.FileName);
-                        string filePath = Path.Combine(folderPath, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await model.ImageUpload.CopyToAsync(fileStream);
-                        }
-
-                        model.ImagePath = "/uploads/popup/" + uniqueFileName;
-
-                        // Purani image ko delete karna (agar exist karti hai)
-                        if (!string.IsNullOrEmpty(existingPopup.ImagePath))
-                        {
-                            string oldFilePath = Path.Combine(_env.WebRootPath, existingPopup.ImagePath.TrimStart('/'));
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Agar nayi image upload nahi hui, toh purani path ko hi rakhein
-                        model.ImagePath = existingPopup.ImagePath;
+                        DeleteOldFile(existing.ImagePath);
+                        existing.ImagePath = await UploadImageAsync(model.ImageUpload, "popup");
                     }
 
-                    model.CreatedDate = existingPopup.CreatedDate;
-                    model.IsDeleted = false;
+                    // Audit Update
+                    existing.updated_by = User.Identity.Name ?? "Admin";
+                    existing.updated_Date = DateTime.Now;
 
-                    _context.Update(model);
                     await _context.SaveChangesAsync();
-
                     TempData["SuccessMessage"] = "Popup updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
@@ -165,11 +123,11 @@ namespace rda_raipur.Controllers.Site
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SitePopup/Edit.cshtml", model);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
         // ==========================================
-        // 4. DELETE (POST ONLY)
+        // 4. DELETE
         // ==========================================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -178,12 +136,40 @@ namespace rda_raipur.Controllers.Site
             var item = await _context.SitePopups.FindAsync(id);
             if (item != null)
             {
-                item.IsDeleted = true; // Soft delete
-                item.IsActive = false; // Popup ko inactive bhi kar diya
+                item.IsDeleted = true;
+                item.IsActive = false;
+                item.updated_by = User.Identity.Name ?? "Admin";
+                item.updated_Date = DateTime.Now;
+
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Popup deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Helper Methods
+        private async Task<string> UploadImageAsync(Microsoft.AspNetCore.Http.IFormFile file, string folderName)
+        {
+            string folderPath = Path.Combine(_env.WebRootPath, "uploads", folderName);
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            string filePath = Path.Combine(folderPath, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            return "/uploads/" + folderName + "/" + uniqueFileName;
+        }
+
+        private void DeleteOldFile(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                string oldPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+            }
         }
     }
 }

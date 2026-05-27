@@ -1,59 +1,83 @@
 ﻿@model rda_raipur.Models.site.SiteGallery
+
 @{
     ViewData["Title"] = "Edit Gallery Image";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
 }
 
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between">
-                    <h5 class="mb-0">Edit Gallery Image</h5>
-                    <a asp-action="Index" class="btn btn-light btn-sm">Back to List</a>
+<link href="~/css/master-pages.css" rel="stylesheet" />
+
+<div class="master-container">
+    <div class="master-page-header">
+        <h3 class="master-title"><i class="bi bi-pencil-square text-primary"></i> Edit Gallery Image</h3>
+        <a asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm border-0 mb-4"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row">
+                    <div class="col-md-12 form-group-spaced">
+                        <label asp-for="FolderId" class="master-label">Select Album / Folder <span class="text-danger">*</span></label>
+                        <select asp-for="FolderId" class="master-input" asp-items="ViewBag.Folders" required>
+                            <option value="">-- Select Folder --</option>
+                        </select>
+                        <span asp-validation-for="FolderId" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Title_en" class="master-label">Title (English) <span class="text-danger">*</span></label>
+                        <input asp-for="Title_en" class="master-input" placeholder="Enter English Title" required />
+                        <span asp-validation-for="Title_en" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group-spaced">
+                        <label asp-for="Title_hi" class="master-label">Title (Hindi) <span class="text-danger">*</span></label>
+                        <input asp-for="Title_hi" class="master-input" placeholder="Enter Hindi Title" required />
+                        <span asp-validation-for="Title_hi" class="text-danger small fw-bold"></span>
+                    </div>
+
+                    <div class="col-md-12 form-group-spaced">
+                        <label class="master-label d-block">Current Image</label>
+                        <div class="mb-3">
+                            <img src="@Model.ImagePath" class="img-thumbnail shadow-sm" style="height: 150px; width: 200px; object-fit: cover;" />
+                        </div>
+
+                        <label asp-for="ImageUpload" class="master-label">Replace Image (Optional)</label>
+                        <input asp-for="ImageUpload" type="file" class="master-input p-1" accept="image/*" />
+                        <small class="text-muted d-block mt-1">Leave empty to keep current image.</small>
+                    </div>
+
+                    <div class="col-12 form-group-spaced">
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input fs-4" asp-for="IsActive" id="IsActiveSwitch">
+                            <label class="form-check-label fw-bold mt-1 ms-2" for="IsActiveSwitch">Active Status</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="Id" />
 
-                        <div class="mb-3">
-                            <label asp-for="FolderId" class="form-label">Select Album / Folder <span class="text-danger">*</span></label>
-                            <select asp-for="FolderId" class="form-control" asp-items="ViewBag.Folders" required>
-                                <option value="">-- Select Folder --</option>
-                            </select>
-                            <span asp-validation-for="FolderId" class="text-danger"></span>
-                        </div>
+                <hr class="my-4 border-light">
 
-                        <div class="mb-3">
-                            <label asp-for="Title_en" class="form-label">Title (English)</label>
-                            <input asp-for="Title_en" class="form-control" />
-                            <span asp-validation-for="Title_en" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Title_hi" class="form-label">Title (Hindi)</label>
-                            <input asp-for="Title_hi" class="form-control" />
-                            <span asp-validation-for="Title_hi" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3 form-check form-switch">
-                            <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                            <label class="form-check-label" asp-for="IsActive">Active Status</label>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label d-block">Current Image</label>
-                            <img src="@Model.ImagePath" class="img-thumbnail mb-2" style="height: 150px;" />
-                            <input asp-for="ImageUpload" type="file" class="form-control" accept="image/*" />
-                            <small class="text-muted">Leave empty to keep the current image.</small>
-                        </div>
-
-                        <hr />
-                        <button type="submit" class="btn btn-success px-4">Update Image Details</button>
-                    </form>
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-light border fw-bold px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 shadow-sm" style="background-color: #003366; border: none;">
+                        <i class="bi bi-save me-1"></i> Update Image Details
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

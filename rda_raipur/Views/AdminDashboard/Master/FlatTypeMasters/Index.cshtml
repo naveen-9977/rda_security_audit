@@ -1,78 +1,104 @@
 ﻿@model IEnumerable<rda_raipur.Models.FlatTypeMaster>
 
 @{
+    ViewData["Title"] = "Flat Type Master";
     Layout = "~/Views/AdminShared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<link href="~/css/master-pages.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet" />
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Flat_name_en)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Flat_name_hi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.created_by)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Create_Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.updated_Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.updated_by)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Flat_name_en)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Flat_name_hi)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.created_by)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Create_Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.updated_Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.updated_by)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsDeleted)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Flat_id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Flat_id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Flat_id">Delete</a>
-            </td>
-        </tr>
+<div class="master-container">
+    <div class="master-page-header">
+        <h2 class="master-title">
+            <i class="bi bi-layers-fill text-primary"></i> Flat Type Master
+        </h2>
+        <a asp-action="Create" class="btn btn-primary fw-bold px-4 shadow-sm" style="background-color: #003366; border: none;">
+            <i class="bi bi-plus-circle me-1"></i> Add New Flat Type
+        </a>
+    </div>
+
+    <div class="card master-card">
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table id="flatTypeTable" class="table gov-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Flat Type (EN)</th>
+                            <th>Flat Type (HI)</th>
+                            <th>Status</th>
+                            <th width="120" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-dark">@item.Flat_name_en</td>
+                                <td class="fw-semibold text-secondary">@item.Flat_name_hi</td>
+                                <td>
+                                    @if (item.IsActive == true)
+                                    {
+                                        <span class="gov-badge-active">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="gov-badge-inactive">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm border rounded">
+                                        <a asp-action="Details" asp-route-id="@item.Flat_id" class="btn btn-light text-info" title="View"><i class="bi bi-eye-fill"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.Flat_id" class="btn btn-light text-primary" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.Flat_id" class="btn btn-light text-danger" title="Delete"><i class="bi bi-trash-fill"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#flatTypeTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                dom: '<"d-flex justify-content-between align-items-center mb-3"Bf>rt<"d-flex justify-content-between mt-3"ip>',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'btn btn-success text-white',
+                        text: '<i class="bi bi-file-earmark-excel-fill"></i> Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        className: 'btn btn-danger text-white',
+                        text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF'
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-secondary text-white',
+                        text: '<i class="bi bi-printer-fill"></i> Print'
+                    }
+                ]
+            });
+        });
+    </script>
 }
-    </tbody>
-</table>

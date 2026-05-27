@@ -24,35 +24,70 @@ namespace rda_raipur.Controllers
         private const string USER_MASTER_OTP = "123456";  // For Public (Allottee, Booking, Register)
         private const string ADMIN_MASTER_OTP = "987654"; // For Admins and Employees
 
+        private string GetClientIp()
+        {
+            // Agar app Proxy/Load Balancer/Cloudflare ke piche hai, toh 'X-Forwarded-For' header use karein
+            var remoteIp = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+
+            if (string.IsNullOrEmpty(remoteIp))
+            {
+                remoteIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+            }
+
+            return remoteIp ?? "Unknown";
+        }
+
         public AccountController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // 🔥 Fallback: Agar koi purane '/Account/Login' link par GET request kare
+        // =========================================================================
+        // 🔥 SMART REDIRECT LOGIC (SECURITY AUDIT SAFE) 🔥
+        // =========================================================================
         [HttpGet]
-        public IActionResult Login()
+        [AllowAnonymous]
+        public IActionResult Login(string returnUrl = null)
         {
+            // Agar returnUrl me koi Admin/Employee wale page ka naam hai, toh seedha EmployeeLogin par bhejo
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                // Admin/Staff routes ke keywords
+                string[] staffKeywords = { "Master", "Tender", "Admin", "Dashboard", "Lottery", "Propertie", "Payment", "Employee", "Verification" };
+
+                bool isStaffRoute = staffKeywords.Any(keyword => returnUrl.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+                if (isStaffRoute)
+                {
+                    return RedirectToAction("EmployeeLogin");
+                }
+            }
+
+            // Default fallback public users (Allottees) ke liye
             return RedirectToAction("AllotteeLogin");
         }
 
-        // 🔥 Fallback: HTTP 405 Error Fix (Agar koi purana form '/Account/Login' par POST kare)
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public IActionResult Login(LoginViewModel model)
         {
             return RedirectToAction("AllotteeLogin");
         }
+        // =========================================================================
+
 
         #region ALLOTTEE_LOGIN_PROCESS
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult AllotteeLogin()
         {
             return View(new LoginViewModel());
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AllotteeLogin(LoginViewModel model)
         {
@@ -116,12 +151,14 @@ namespace rda_raipur.Controllers
         #region EMPLOYEE_LOGIN_PROCESS
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult EmployeeLogin()
         {
             return View(new LoginViewModel());
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EmployeeLogin(LoginViewModel model)
         {
@@ -176,11 +213,11 @@ namespace rda_raipur.Controllers
                         // 🔴 ADVANCED ERROR REPORTING 🔴
                         if (!isOtpMatch && !isMasterOtp)
                         {
-                            ModelState.AddModelError(string.Empty, $"❌ OTP FAILED: You typed '{formOtp}', but DB has '{dbOtp}'. (Hint: Admin Master is {ADMIN_MASTER_OTP})");
+                            ModelState.AddModelError(string.Empty, $"❌ OTP FAILED: Invalid OTP entered.");
                         }
                         else if (!isNotExpired && !isMasterOtp)
                         {
-                            ModelState.AddModelError(string.Empty, $"❌ TIME EXPIRED: OTP Expiry was '{user.OtpExpiry}', but PC Time is '{DateTime.Now}'. Check PC Clock!");
+                            ModelState.AddModelError(string.Empty, $"❌ TIME EXPIRED: OTP has expired. Please request a new one.");
                         }
                         else
                         {
@@ -201,6 +238,7 @@ namespace rda_raipur.Controllers
         #region OTP_GENERATION (Shared)
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GenerateOtp(string username, string password)
         {
             try
@@ -223,7 +261,8 @@ namespace rda_raipur.Controllers
                     OtpCode = otp,
                     GeneratedAt = DateTime.Now,
                     ExpiresAt = expiry,
-                    OtpType = "Login"
+                    OtpType = "Login",
+                    IpAddress = GetClientIp()
                 });
 
                 await _context.SaveChangesAsync();
@@ -234,7 +273,7 @@ namespace rda_raipur.Controllers
 
                 return Json(new { status = isSent, message = isSent ? "OTP sent successfully." : "Failed to send SMS." });
             }
-            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+            catch (Exception ex) { return Json(new { status = false, message = "An error occurred while generating OTP." }); }
         }
 
         #endregion
@@ -242,12 +281,14 @@ namespace rda_raipur.Controllers
         #region REGISTRATION_PROCESS
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View(new RegisterViewModel());
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -289,6 +330,7 @@ namespace rda_raipur.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GenerateRegistrationOtp(string mobileNo)
         {
             if (string.IsNullOrEmpty(mobileNo) || mobileNo.Length != 10)
@@ -315,7 +357,8 @@ namespace rda_raipur.Controllers
                     OtpCode = otp,
                     GeneratedAt = DateTime.Now,
                     ExpiresAt = expiry,
-                    OtpType = "Registration"
+                    OtpType = "Registration",
+                    IpAddress = GetClientIp()
                 });
 
                 await _context.SaveChangesAsync();
@@ -325,7 +368,7 @@ namespace rda_raipur.Controllers
 
                 return Json(new { status = isSent, message = isSent ? "OTP sent successfully." : "SMS Provider Error." });
             }
-            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+            catch (Exception ex) { return Json(new { status = false, message = "An error occurred." }); }
         }
 
         #endregion
@@ -333,6 +376,7 @@ namespace rda_raipur.Controllers
         #region BOOKING_FORM_OTP_AND_PROFILE_FETCH
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GenerateBookingOtp(string mobileNo)
         {
             if (string.IsNullOrEmpty(mobileNo) || mobileNo.Length != 10)
@@ -349,7 +393,8 @@ namespace rda_raipur.Controllers
                     OtpCode = otp,
                     GeneratedAt = DateTime.Now,
                     ExpiresAt = expiry,
-                    OtpType = "BookingVerify"
+                    OtpType = "BookingVerify",
+                    IpAddress = GetClientIp()
                 });
 
                 await _context.SaveChangesAsync();
@@ -359,10 +404,11 @@ namespace rda_raipur.Controllers
 
                 return Json(new { status = isSent, message = isSent ? "OTP sent successfully." : "SMS Provider Error." });
             }
-            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+            catch (Exception ex) { return Json(new { status = false, message = "An error occurred." }); }
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> VerifyBookingOtpAndFetchData(string mobileNo, string otp)
         {
             // 🔥 USER MASTER OTP (123456) OR REAL OTP LOGIC 🔥
@@ -411,12 +457,14 @@ namespace rda_raipur.Controllers
         #region FORGOT_PASSWORD
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> GenerateForgotPwdOtp(string mobileNo)
         {
             if (string.IsNullOrEmpty(mobileNo) || mobileNo.Length != 10)
@@ -440,7 +488,8 @@ namespace rda_raipur.Controllers
                     OtpCode = otp,
                     GeneratedAt = DateTime.Now,
                     ExpiresAt = expiry,
-                    OtpType = "ForgotPassword"
+                    OtpType = "ForgotPassword",
+                    IpAddress = GetClientIp()
                 });
 
                 await _context.SaveChangesAsync();
@@ -450,10 +499,11 @@ namespace rda_raipur.Controllers
 
                 return Json(new { status = isSent, message = isSent ? "OTP sent successfully." : "Failed to send SMS." });
             }
-            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+            catch (Exception ex) { return Json(new { status = false, message = "An error occurred." }); }
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(string mobileNo, string otp, string newPassword)
         {
             if (string.IsNullOrEmpty(mobileNo) || string.IsNullOrEmpty(otp) || string.IsNullOrEmpty(newPassword))
@@ -517,6 +567,7 @@ namespace rda_raipur.Controllers
             return View();
         }
 
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

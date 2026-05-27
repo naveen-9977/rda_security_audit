@@ -1,0 +1,137 @@
+﻿/* ========================================================
+   🏛️ RDA GOVERNMENT COMPACT MASTER THEME 🏛️
+   (Optimized for Data Density and Professional Look)
+======================================================== */
+
+:root {
+    --primary-dark: #272522; /* Warm Charcoal */
+    --accent-orange: #ea580c; /* Burnt Orange */
+    --danger-color: #dc2626;
+    --border-color: #e7dccf;
+    --bg-light: #fffbf5;
+    --text-main: #292524;
+    --text-muted: #57534e;
+}
+
+/* 1. Main Container: गैप और पैडिंग कम की */
+.master-container {
+    padding: 10px 15px; /* पहले 24px था */
+    background-color: transparent;
+    min-height: calc(100vh - 70px);
+}
+
+/* 2. Page Header: अब बहुत कम गैप */
+.master-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 15px; /* पहले 20px था */
+    border-bottom: 2px solid var(--border-color);
+}
+
+.master-title {
+    font-size: 1.15rem; /* थोड़ा छोटा और सटीक */
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 3. Solid Card: कार्ड के अंदर का गैप खत्म किया */
+.master-card {
+    background: #ffffff;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(60, 50, 40, 0.05);
+}
+
+.card-body {
+    padding: 10px !important; /* टेबल के चारों तरफ की पैडिंग खत्म */
+}
+
+/* 4. Gov Table: डेटा डेंसिटी बढ़ाई */
+.gov-table {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin: 0 !important;
+}
+
+    .gov-table thead th {
+        background-color: var(--primary-dark) !important;
+        color: #ffffff !important;
+        font-size: 0.75rem; /* टेबल हेडर का फॉन्ट साइज़ */
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 8px 10px !important;
+        border: 1px solid #1c1a18 !important;
+    }
+
+    .gov-table tbody td {
+        padding: 6px 10px !important; /* सेल के अंदर की पैडिंग कम */
+        font-size: 0.85rem;
+        color: var(--text-main);
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .gov-table tbody tr:hover {
+        background-color: #fdf6ef !important;
+    }
+
+/* 5. Buttons: कॉम्पैक्ट और प्रोफेशनल */
+.btn {
+    padding: 4px 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    border-radius: 3px !important;
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--accent-orange) !important;
+    color: var(--accent-orange) !important;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--accent-orange) !important;
+        color: #ffffff !important;
+    }
+
+/* 6. Form Styling: इनपुट फील्ड्स के बीच की दूरी कम */
+.form-group-spaced {
+    margin-bottom: 12px !important; /* पहले 20px था */
+}
+
+.master-label {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.master-input {
+    width: 100% !important;
+    border-radius: 4px;
+    border: 1px solid #d6c5b3;
+    padding: 6px 10px !important;
+    height: 38px !important; /* इनपुट की ऊँचाई कम */
+    transition: all 0.2s ease;
+}
+
+/* 7. Status Badges */
+.gov-badge-active, .gov-badge-inactive {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* 8. Details Layout */
+.detail-row {
+    padding: 8px 10px; /* कम किया */
+    border-bottom: 1px solid var(--border-color);
+}

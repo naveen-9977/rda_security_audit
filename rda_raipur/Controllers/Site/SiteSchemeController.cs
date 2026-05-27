@@ -1,26 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using rda_raipur.Data;
-using rda_raipur.Models.site;
 using rda_raipur.Filters;
+using rda_raipur.Models.site;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Security.Claims; // 🔥 User ki details nikalne ke liye zaroori
 
 namespace rda_raipur.Controllers.Site
 {
-    // 🔥 ADMIN & EMPLOYEE DONO KE LIYE + SECURE FILTER
     [Authorize(Roles = "Admin,Employee")]
-    [ServiceFilter(typeof(CheckPermissionAttribute))]
     public class SiteSchemeController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly string viewPath = "~/Views/AdminDashboard/Master/SiteScheme/";
 
         public SiteSchemeController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
@@ -28,106 +26,44 @@ namespace rda_raipur.Controllers.Site
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // =====================================
-        // 1. INDEX (WITH FIX FOR PERMISSION ERROR)
-        // =====================================
+        // ==============================
+        // 1. INDEX
+        // ==============================
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanView" })]
         public async Task<IActionResult> Index()
         {
-            var data = await _context.SiteSchemes.OrderByDescending(x => x.CreatedDate).ToListAsync();
-
-            // 🔥 PERMISSION LOGIC FOR VIEW BUTTONS 🔥
-            if (User.IsInRole("Admin"))
-            {
-                // Admin ko sab allow hai
-                ViewBag.CanAdd = true;
-                ViewBag.CanEdit = true;
-                ViewBag.CanDelete = true;
-            }
-            else
-            {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(userIdString, out int userId))
-                {
-                    // 🔥 NAYA LOGIC: Pehle Module dhoondho (Bina Include use kiye)
-                    var targetModule = await _context.AppModules
-                                        .FirstOrDefaultAsync(m => m.ModuleName.Contains("SiteScheme"));
-
-                    if (targetModule != null)
-                    {
-                        // Phir us ModuleId aur UserId se permission nikalo
-                        var permission = await _context.EmployeePermissions
-                            .FirstOrDefaultAsync(p => p.UserId == userId && p.ModuleId == targetModule.ModuleId);
-
-                        if (permission != null)
-                        {
-                            ViewBag.CanAdd = permission.CanAdd;
-                            ViewBag.CanEdit = permission.CanEdit;
-                            ViewBag.CanDelete = permission.CanDelete;
-                        }
-                        else
-                        {
-                            ViewBag.CanAdd = false;
-                            ViewBag.CanEdit = false;
-                            ViewBag.CanDelete = false;
-                        }
-                    }
-                    else
-                    {
-                        ViewBag.CanAdd = false;
-                        ViewBag.CanEdit = false;
-                        ViewBag.CanDelete = false;
-                    }
-                }
-            }
-
-            return View("~/Views/AdminDashboard/Master/SiteScheme/Index.cshtml", data);
+            var data = await _context.SiteSchemes
+                                     // 🔥 FIX 1: !x.IsDeleted की जगह x.IsDeleted != true किया
+                                     .Where(x => x.IsDeleted != true)
+                                     .OrderByDescending(x => x.CreatedDate)
+                                     .ToListAsync();
+            return View(viewPath + "Index.cshtml", data);
         }
 
-        // =====================================
-        // 2. CREATE SCHEME
-        // =====================================
-        public IActionResult Create()
-        {
-            return View("~/Views/AdminDashboard/Master/SiteScheme/Create.cshtml");
-        }
+        // ==============================
+        // 2. CREATE
+        // ==============================
+        [HttpGet]
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public IActionResult Create() => View(viewPath + "Create.cshtml");
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SiteScheme model, IFormFile ImageFile)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanAdd" })]
+        public async Task<IActionResult> Create(SiteScheme model, IFormFile? ImageFile)
         {
-            // 🔴 ERROR FIX: इन फील्ड्स का वैलिडेशन इग्नोर करें क्योंकि ये बैकएंड से सेट होंगे
+            // Validation skip for fields set by backend
             ModelState.Remove("ImagePath");
             ModelState.Remove("CreatedDate");
-            ModelState.Remove("ImageFile");
             ModelState.Remove("CreatedBy");
-            ModelState.Remove("UpdatedBy");
-            ModelState.Remove("UpdatedDate");
 
             if (ModelState.IsValid)
             {
-                // 🔥 Image Upload Logic
-                if (ImageFile != null && ImageFile.Length > 0)
-                {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "schemes");
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
+                if (ImageFile != null) model.ImagePath = await UploadFileAsync(ImageFile, "uploads/schemes");
 
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(ImageFile.FileName);
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(fileStream);
-                    }
-
-                    model.ImagePath = "/uploads/schemes/" + uniqueFileName;
-                }
-
-                // 🔥 TRACKING DETAILS ADD KARNA
                 model.CreatedDate = DateTime.Now;
-                model.CreatedBy = User.Identity.Name ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.CreatedBy = User.Identity.Name ?? "Admin";
+                model.IsDeleted = false; // Fresh record
 
                 _context.SiteSchemes.Add(model);
                 await _context.SaveChangesAsync();
@@ -135,126 +71,106 @@ namespace rda_raipur.Controllers.Site
                 TempData["SuccessMessage"] = "Scheme created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteScheme/Create.cshtml", model);
+            return View(viewPath + "Create.cshtml", model);
         }
 
-        // =====================================
-        // 3. EDIT SCHEME
-        // =====================================
+        // ==============================
+        // 3. EDIT
+        // ==============================
+        [HttpGet]
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
+            var item = await _context.SiteSchemes.FindAsync(id);
 
-            var scheme = await _context.SiteSchemes.FindAsync(id);
-            if (scheme == null) return NotFound();
+            // 🔥 FIX 2: item.IsDeleted की जगह item.IsDeleted == true किया
+            if (item == null || item.IsDeleted == true) return NotFound();
 
-            return View("~/Views/AdminDashboard/Master/SiteScheme/Edit.cshtml", scheme);
+            return View(viewPath + "Edit.cshtml", item);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SiteScheme model, IFormFile ImageFile)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanEdit" })]
+        public async Task<IActionResult> Edit(int id, SiteScheme model, IFormFile? ImageFile)
         {
             if (id != model.Id) return NotFound();
 
             ModelState.Remove("ImagePath");
-            ModelState.Remove("CreatedDate");
-            ModelState.Remove("ImageFile");
-            ModelState.Remove("CreatedBy");
-            ModelState.Remove("UpdatedBy");
-            ModelState.Remove("UpdatedDate");
 
             if (ModelState.IsValid)
             {
-                try
+                var existing = await _context.SiteSchemes.FindAsync(id);
+                if (existing == null) return NotFound();
+
+                // Update Fields
+                existing.SchemeName = model.SchemeName;
+                existing.Location = model.Location;
+                existing.MapLocationUrl = model.MapLocationUrl;
+                existing.IsActive = model.IsActive;
+
+                if (ImageFile != null)
                 {
-                    var existingScheme = await _context.SiteSchemes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                    if (existingScheme == null) return NotFound();
-
-                    // 🔥 Image Upload Logic for Edit
-                    if (ImageFile != null && ImageFile.Length > 0)
-                    {
-                        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "schemes");
-                        if (!Directory.Exists(uploadsFolder))
-                        {
-                            Directory.CreateDirectory(uploadsFolder);
-                        }
-
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(ImageFile.FileName);
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ImageFile.CopyToAsync(fileStream);
-                        }
-
-                        model.ImagePath = "/uploads/schemes/" + uniqueFileName;
-
-                        // Delete Old Image if exists
-                        if (!string.IsNullOrEmpty(existingScheme.ImagePath))
-                        {
-                            string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, existingScheme.ImagePath.TrimStart('/'));
-                            if (System.IO.File.Exists(oldFilePath))
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Retain existing Image path if no new file is uploaded
-                        model.ImagePath = existingScheme.ImagePath;
-                    }
-
-                    // 🔥 PURANA RECORD PRESERVE KARNA
-                    model.CreatedDate = existingScheme.CreatedDate;
-                    model.CreatedBy = existingScheme.CreatedBy;
-
-                    // 🔥 NAYA UPDATE TRACKING RECORD DAALNA
-                    model.UpdatedDate = DateTime.Now;
-                    model.UpdatedBy = User.Identity.Name ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Scheme updated successfully!";
+                    DeleteOldFile(existing.ImagePath);
+                    existing.ImagePath = await UploadFileAsync(ImageFile, "uploads/schemes");
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.SiteSchemes.Any(e => e.Id == model.Id)) return NotFound();
-                    else throw;
-                }
+
+                existing.UpdatedBy = User.Identity.Name ?? "Admin";
+                existing.UpdatedDate = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Scheme updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View("~/Views/AdminDashboard/Master/SiteScheme/Edit.cshtml", model);
+            return View(viewPath + "Edit.cshtml", model);
         }
 
-        // =====================================
-        // 4. DELETE SCHEME
-        // =====================================
-        [HttpPost, ActionName("Delete")]
+        // ==============================
+        // 4. DELETE (SOFT DELETE)
+        // ==============================
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [TypeFilter(typeof(CheckPermissionAttribute), Arguments = new object[] { "CanDelete" })]
+        public async Task<IActionResult> Delete(int id)
         {
             var item = await _context.SiteSchemes.FindAsync(id);
             if (item != null)
             {
-                // Hard Delete (Image ko bhi server se hatana)
-                if (!string.IsNullOrEmpty(item.ImagePath))
-                {
-                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, item.ImagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
+                // Soft Delete implementation
+                item.IsDeleted = true;
+                item.UpdatedBy = User.Identity.Name ?? "Admin";
+                item.UpdatedDate = DateTime.Now;
 
-                _context.SiteSchemes.Remove(item);
                 await _context.SaveChangesAsync();
-
                 TempData["SuccessMessage"] = "Scheme deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // ==============================
+        // HELPER METHODS
+        // ==============================
+        private async Task<string> UploadFileAsync(IFormFile file, string folder)
+        {
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            using (var stream = new FileStream(Path.Combine(folderPath, fileName), FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return "/" + folder + "/" + fileName;
+        }
+
+        private void DeleteOldFile(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, path.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+            }
         }
     }
 }

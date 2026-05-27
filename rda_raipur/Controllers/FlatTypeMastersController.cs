@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization; // <-- Added Authorization
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using rda_raipur.Data;
 using rda_raipur.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace rda_raipur.Controllers
 {
-    [Authorize] // <-- Added to secure the page
+    [Authorize(Roles = "Admin")]
     public class FlatTypeMastersController : Controller
     {
         private readonly ApplicationDbContext _context;
-        // Naya View Path set kar diya
         private readonly string viewPath = "~/Views/AdminDashboard/Master/FlatTypeMasters/";
 
         public FlatTypeMastersController(ApplicationDbContext context)
@@ -23,132 +20,148 @@ namespace rda_raipur.Controllers
             _context = context;
         }
 
-        // LIST
+        // ==============================
+        // 1. INDEX
+        // ==============================
         public async Task<IActionResult> Index()
         {
             var data = await _context.FlatTypeMasters
-                        .Where(x => x.IsDeleted == false)
-                        .ToListAsync();
+                                .Where(x => x.IsDeleted == false) // Safe nullable check
+                                .ToListAsync();
 
-            // Explicit view path
             return View(viewPath + "Index.cshtml", data);
         }
 
-        // GET: FlatTypeMasters/Details/5
+        // ==============================
+        // 2. DETAILS
+        // ==============================
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var flatTypeMaster = await _context.FlatTypeMasters
                 .FirstOrDefaultAsync(m => m.Flat_id == id);
-            if (flatTypeMaster == null)
-            {
-                return NotFound();
-            }
+
+            if (flatTypeMaster == null) return NotFound();
 
             return View(viewPath + "Details.cshtml", flatTypeMaster);
         }
 
-        // GET: FlatTypeMasters/Create
+        // ==============================
+        // 3. CREATE
+        // ==============================
         public IActionResult Create()
         {
             return View(viewPath + "Create.cshtml");
         }
 
-        // POST: FlatTypeMasters/Create
         [HttpPost]
-        [ValidateAntiForgeryToken] // <-- Security ke liye add kiya
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FlatTypeMaster model)
         {
+            // 🔥 FIX: Background dynamic properties को validation से हटाया गया
+            ModelState.Remove("Flat_id");
+            ModelState.Remove("created_by");
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("updated_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("IsDeleted");
+            ModelState.Remove("IsActive");
+
             if (ModelState.IsValid)
             {
                 model.Create_Date = DateTime.Now;
                 model.created_by = User.Identity.Name ?? "Admin";
-                model.IsActive = true;
                 model.IsDeleted = false;
 
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
             }
-
             return View(viewPath + "Create.cshtml", model);
         }
 
-        // GET: FlatTypeMasters/Edit/5
+        // ==============================
+        // 4. EDIT
+        // ==============================
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var flatTypeMaster = await _context.FlatTypeMasters.FindAsync(id);
-            if (flatTypeMaster == null)
-            {
-                return NotFound();
-            }
+            if (flatTypeMaster == null || flatTypeMaster.IsDeleted == true) return NotFound();
+
             return View(viewPath + "Edit.cshtml", flatTypeMaster);
         }
 
-        // POST: FlatTypeMasters/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(FlatTypeMaster model)
+        public async Task<IActionResult> Edit(int id, FlatTypeMaster model)
         {
+            if (id != model.Flat_id) return NotFound();
+
+            // 🔥 FIX: Validation cleaning
+            ModelState.Remove("created_by");
+            ModelState.Remove("Create_Date");
+            ModelState.Remove("updated_by");
+            ModelState.Remove("updated_Date");
+            ModelState.Remove("IsDeleted");
+
             if (ModelState.IsValid)
             {
-                model.updated_Date = DateTime.Now;
-                model.updated_by = User.Identity.Name ?? "Admin";
+                try
+                {
+                    var existing = await _context.FlatTypeMasters.FindAsync(id);
+                    if (existing == null) return NotFound();
 
-                _context.Update(model);
-                await _context.SaveChangesAsync();
+                    existing.Flat_name_en = model.Flat_name_en;
+                    existing.Flat_name_hi = model.Flat_name_hi;
+                    existing.IsActive = model.IsActive;
 
+                    existing.updated_by = User.Identity.Name ?? "Admin";
+                    existing.updated_Date = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!FlatTypeMasterExists(model.Flat_id)) return NotFound();
+                    else throw;
+                }
                 return RedirectToAction(nameof(Index));
             }
-
             return View(viewPath + "Edit.cshtml", model);
         }
 
-        // GET: FlatTypeMasters/Delete/5
+        // ==============================
+        // 5. DELETE
+        // ==============================
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var flatTypeMaster = await _context.FlatTypeMasters
                 .FirstOrDefaultAsync(m => m.Flat_id == id);
-            if (flatTypeMaster == null)
-            {
-                return NotFound();
-            }
+
+            if (flatTypeMaster == null || flatTypeMaster.IsDeleted == true) return NotFound();
 
             return View(viewPath + "Delete.cshtml", flatTypeMaster);
         }
 
-        // POST: FlatTypeMasters/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var flatTypeMaster = await _context.FlatTypeMasters.FindAsync(id);
-            if (flatTypeMaster != null)
+            var flat = await _context.FlatTypeMasters.FindAsync(id);
+            if (flat != null)
             {
-                // Hard delete (_context.Remove) ko hata kar Soft delete lagaya hai
-                flatTypeMaster.IsDeleted = true;
-                flatTypeMaster.updated_Date = DateTime.Now;
-                flatTypeMaster.updated_by = User.Identity.Name ?? "Admin";
+                flat.IsDeleted = true;
+                flat.IsActive = false;
+                flat.updated_by = User.Identity.Name ?? "Admin";
+                flat.updated_Date = DateTime.Now;
 
-                _context.Update(flatTypeMaster);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

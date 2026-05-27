@@ -1,10 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Http; // Added for IFormFile
+using Microsoft.AspNetCore.Http;
 
 namespace rda_raipur.Models.site
 {
+    [Table("SiteNews")] // यह सुनिश्चित करता है कि EF Core सही टेबल से कनेक्ट हो
     public class SiteNews
     {
         [Key]
@@ -18,15 +19,19 @@ namespace rda_raipur.Models.site
 
         public string? LinkUrl { get; set; }
 
-        // PDF Path stored in database
         public string? PdfFilePath { get; set; }
 
-        // Not mapped to DB, used only for receiving the uploaded file from form
+        // यह डेटाबेस में सेव नहीं होगा, सिर्फ फाइल अपलोड के लिए है
         [NotMapped]
         public IFormFile? PdfFile { get; set; }
 
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
+
+        // Audit Fields (ये कंट्रोलर की लॉजिक के लिए ज़रूरी हैं)
         public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public string? created_by { get; set; }
+        public DateTime? updated_Date { get; set; }
+        public string? updated_by { get; set; }
     }
 }
